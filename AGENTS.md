@@ -63,8 +63,9 @@ requirements live in [`vision.md`](vision.md); the execution ledger is [`plan.md
   experimental, optional `[local]` extra) — do not start it without the owner's go-ahead.
 - Releases: `scripts/release.sh` tags `v<version>`; the Release workflow publishes the
   GitHub Release and — once the owner has registered the PyPI pending publisher and set
-  `PYPI_PUBLISH=true` — uploads to PyPI via Trusted Publishing from the `pypi`
-  environment (lizard-style). Never add a long-lived PyPI token unless the owner asks.
+  `PYPI_PUBLISH=true` — uploads to PyPI via Trusted Publishing from the protected `pypi`
+  environment after the owner approves. Follow the PyPA guide and `docs/releasing.md`
+  (industry practice, not individual example repos); never add a long-lived PyPI token.
 
 ## Measuring
 

@@ -393,11 +393,13 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
   - Acceptance:
     - [x] offline mock, real key and Docker paths documented
   - Notes: quick start shipped in the same README commit as T115 (1ba61c7)
-- [ ] T117 — Lizard-style automatic PyPI publishing (Trusted Publishing on tags)
+- [ ] T117 — PyPA best-practice PyPI publishing (protected tags, provenance, gated Trusted Publishing)
   - Status: blocked
   - Depends on: T104
   - Acceptance:
-    - [x] release.yml publishes from `pypi` environment via OIDC on every tag, PYPI_PUBLISH-gated
+    - [x] release.yml publishes from `pypi` environment via OIDC only (token fallback removed), PYPI_PUBLISH-gated
+    - [x] tag ruleset `protect-release-tags`; `pypi` env requires owner approval and v* tags
+    - [x] build provenance attestation for dist/*; Docker image provenance + SBOM
     - [x] GitHub environment `pypi` created; name `turingtongue` verified free on PyPI/TestPyPI
     - [x] docs/releasing.md documents the one-time owner setup
     - [ ] owner adds the pending publisher on PyPI and sets PYPI_PUBLISH=true

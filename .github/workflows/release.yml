@@ -1,16 +1,21 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Version tag (vX.Y.Z) -> full quality gate -> GitHub Release with wheel + sdist
-# -> PyPI via Trusted Publishing (OIDC, no stored token), modelled on
-# https://github.com/terryyin/lizard/blob/master/.github/workflows/release.yml
+# Release pipeline following the PyPA guide "Publishing package distribution releases
+# using GitHub Actions" (https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/):
 #
-# PyPI matches the OIDC claims on: owner, repository, workflow filename (release.yml)
-# and environment (pypi). One-time owner setup (see docs/releasing.md):
+#   protected tag vX.Y.Z -> full quality gate -> build once -> signed build provenance
+#   -> GitHub Release -> [owner approval in the `pypi` environment] -> PyPI via
+#   Trusted Publishing (OIDC; no stored token; PEP 740 attestations are generated).
+#
+# Hardening outside this file (repository settings, see docs/releasing.md):
+#   - ruleset "protect-release-tags": only admins may create/move/delete v* tags
+#   - environment `pypi`: required reviewer (owner) and deployments from v* tags only
+#
+# One-time owner setup before the first upload:
 #   1. PyPI -> Your account -> Publishing -> add a *pending* GitHub publisher:
 #      project turingtongue, owner marcelpetrick, repo TuringTongue,
 #      workflow release.yml, environment pypi
 #   2. gh variable set PYPI_PUBLISH --body true
 # Until PYPI_PUBLISH is "true" the PyPI job is skipped, so releases stay green.
-# Fallback (like lizard): a PYPI_API_TOKEN repository secret is used when present.
 name: Release
 
 on:
@@ -35,6 +40,10 @@ jobs:
   build:
     name: Quality gate and artifacts
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
     timeout-minutes: 30
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
@@ -70,6 +79,11 @@ jobs:
 
       - name: Full local pipeline
         run: ./localPipeline.sh
+
+      - name: Signed build provenance for the distributions
+        uses: actions/attest-build-provenance@v4.2.2
+        with:
+          subject-path: dist/*
 
       - name: Upload distributions
         uses: actions/upload-artifact@v7.0.1
@@ -122,8 +136,5 @@ jobs:
           name: dist
           path: dist
 
-      - name: Publish
+      - name: Publish (Trusted Publishing, OIDC only)
         uses: pypa/gh-action-pypi-publish@v1.14.2
-        with:
-          # empty -> OIDC trusted publishing; a PYPI_API_TOKEN secret is the fallback
-          password: ${{ secrets.PYPI_API_TOKEN }}

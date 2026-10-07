@@ -232,9 +232,9 @@ secrets and never runs on pull requests. All helper scripts are documented in
 
 Releases: `scripts/release.sh` tags `v<version>`; the Release workflow re-runs the gate
 and publishes a GitHub Release with wheel + sdist; Docker publishes the image to GHCR.
-PyPI publishing works like [lizard](https://github.com/terryyin/lizard/deployments/pypi): Trusted Publishing
-(OIDC) from the `pypi` environment on every tag, switched on once the owner registers the
-publisher on PyPI ([docs/releasing.md](docs/releasing.md)).
+PyPI publishing follows the PyPA guide: protected tags, signed build provenance, Trusted
+Publishing (OIDC, no tokens) from an approval-gated `pypi` environment — switched on once
+the owner registers the publisher on PyPI ([docs/releasing.md](docs/releasing.md)).
 
 More: [architecture](docs/architecture.md) · [ADRs](docs/adr) · [AGENTS.md](AGENTS.md) ·
 [plan.md](plan.md) · [vision.md](vision.md)

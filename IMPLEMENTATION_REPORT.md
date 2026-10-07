@@ -22,7 +22,7 @@ and combines them with a documented weighted mixture-of-experts into `HUMAN`, `A
 - Docs: provider matrix, human-vs-AI signals research, architecture, privacy,
   benchmarking, performance, releasing, 4 ADRs, `AGENTS.md`, `plan.md`.
 - Tooling: `localPipeline.sh` (mirrored 1:1 by GitHub Actions), helper scripts, Docker
-  image on GHCR, tag-driven GitHub Release, lizard-style automatic PyPI Trusted Publishing (enabled by one owner step), opt-in
+  image on GHCR, tag-driven GitHub Release, PyPA-style hardened release (protected tags, provenance, approval-gated Trusted Publishing; enabled by one owner step), opt-in
   live provider-health workflow, Dependabot.
 
 ## Provider status

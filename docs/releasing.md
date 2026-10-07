@@ -16,28 +16,38 @@ features bump the minor version (`--minor`).
    both files attached. The **Docker** workflow publishes
    `ghcr.io/marcelpetrick/turingtongue:<version>` and `:latest`.
 
-## PyPI (automatic on tags once enabled)
+## Supply-chain hardening (industry practice)
 
-Modelled on [lizard](https://github.com/terryyin/lizard/deployments/pypi): every version
-tag builds once, publishes the GitHub Release, and — when enabled — uploads the same
-wheel + sdist to PyPI from the `pypi` GitHub environment using **Trusted Publishing
-(OIDC)**: no PyPI password or long-lived token is stored in GitHub. Deployments show
-up under the repository's *Environments → pypi* tab, exactly like lizard's.
+Follows the PyPA guide [Publishing package distribution releases using GitHub
+Actions](https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/)
+and PyPI's [Trusted Publishers](https://docs.pypi.org/trusted-publishers/) documentation:
 
-Status (2026-10-07): the name `turingtongue` is free on PyPI and TestPyPI; the `pypi`
-GitHub environment exists; the workflow is ready. Publishing is **off** until the owner
-does the one-time setup — PyPI only lets an account owner register a publisher, so this
-step cannot be automated from the repository:
+| Control | Where | Effect |
+| --- | --- | --- |
+| Protected release tags | repository ruleset `protect-release-tags` | only admins can create, move or delete `v*` tags |
+| Tag must equal package version | `release.yml` build job | no mislabelled releases |
+| Full quality gate before any upload | `release.yml` runs `./localPipeline.sh` | tests, types, audit, wheel e2e, Docker smoke must pass |
+| Build once, publish the same files | build job → artifact → release / PyPI jobs | GitHub Release and PyPI get identical bytes |
+| Signed build provenance | `actions/attest-build-provenance` on `dist/*` | verify with `gh attestation verify <file> -R marcelpetrick/TuringTongue` |
+| Trusted Publishing (OIDC) only | `pypi` job, `id-token: write` scoped to that job | no long-lived PyPI token exists anywhere |
+| PEP 740 attestations on PyPI | `pypa/gh-action-pypi-publish` (automatic with OIDC) | PyPI shows verifiable provenance |
+| Human approval before upload | environment `pypi`: required reviewer = owner | uploads are irreversible, so one click approves each |
+| Deployments only from tags | environment `pypi`: deployment policy `v*` (tag) | a branch run can never publish |
+| Image provenance + SBOM | `docker.yml`: `provenance: mode=max`, `sbom: true` | GHCR image carries SLSA provenance and an SBOM |
+
+## PyPI publishing
+
+Status (2026-10-07): the name `turingtongue` is free on PyPI and TestPyPI; the protected
+`pypi` environment and the workflow are ready. Publishing stays **off** until the owner
+does the one-time setup — PyPI only lets an account owner register a publisher:
 
 1. Log in to PyPI → *Your account → Publishing* → **Add a pending publisher** (GitHub):
    - PyPI project name: `turingtongue`
    - Owner: `marcelpetrick` · Repository: `TuringTongue`
    - Workflow name: `release.yml` · Environment name: `pypi`
 2. Enable the job: `gh variable set PYPI_PUBLISH --body true`
-3. Publish: either push the next tag (`scripts/release.sh`) or re-run an existing tag via
-   *Actions → Release → Run workflow* (tag `v0.5.x`, `publish_pypi` = true).
+3. Publish: push the next tag (`scripts/release.sh`) or re-run an existing tag via
+   *Actions → Release → Run workflow*; then **approve** the waiting `pypi` deployment.
 
-The first successful upload turns the pending publisher into the real project. Fallback
-(as in lizard): if a `PYPI_API_TOKEN` repository secret exists, the publish step uses it
-instead of OIDC. Afterwards add the PyPI version badge to the README (only then is it a
-real badge).
+The first successful upload turns the pending publisher into the real project.
+Afterwards add the PyPI version badge to the README (only then is it a real badge).
