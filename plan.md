@@ -314,13 +314,13 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
   - Acceptance:
     - [x] push on main + tags
   - Notes: —
-- [ ] T104 — Release workflow: GitHub release + prepared PyPI Trusted Publishing
-  - Status: todo
+- [x] T104 — Release workflow: GitHub release + prepared PyPI Trusted Publishing
+  - Status: done
   - Depends on: T004
   - Acceptance:
-    - [ ] tag → release with artifacts
-    - [ ] PyPI job manual-only
-  - Notes: —
+    - [x] tag → release with artifacts
+    - [x] PyPI job manual-only
+  - Notes: PyPI job manual-only (workflow_dispatch publish_pypi=true) until the owner registers the trusted publisher
 - [ ] T105 — Opt-in network integration workflow
   - Status: todo
   - Depends on: T004

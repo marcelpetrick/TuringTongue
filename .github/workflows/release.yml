@@ -1,0 +1,118 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Version tag (vX.Y.Z) -> full quality gate -> GitHub Release with wheel + sdist.
+# PyPI publication via Trusted Publishing (OIDC) is prepared but manual-only: it runs
+# solely from workflow_dispatch with publish_pypi=true, after the owner has registered
+# the PyPI project and its trusted publisher (see docs/releasing.md).
+name: Release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to release, e.g. v0.4.0"
+        required: true
+        type: string
+      publish_pypi:
+        description: "Also publish to PyPI via Trusted Publishing"
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Quality gate and artifacts
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - name: Resolve tag
+        id: tag
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: echo "tag=${INPUT_TAG:-${GITHUB_REF_NAME}}" >> "$GITHUB_OUTPUT"
+
+      - name: Check out tag
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ steps.tag.outputs.tag }}
+
+      - name: Set up uv + Python 3.14
+        uses: astral-sh/setup-uv@v10.2.0
+        with:
+          python-version: "3.14"
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Tag must match package version
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          version="$(sed -n 's/^version = "\(.*\)"$/\1/p' pyproject.toml | head -1)"
+          if [[ "${TAG}" != "v${version}" ]]; then
+            echo "tag ${TAG} does not match pyproject version ${version}" >&2
+            exit 1
+          fi
+
+      - name: Full local pipeline
+        run: ./localPipeline.sh
+
+      - name: Upload distributions
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: dist
+          path: dist/*
+          if-no-files-found: error
+
+  github-release:
+    name: GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Download distributions
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: dist
+          path: dist
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.build.outputs.tag }}
+        run: |
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            gh release upload "${TAG}" dist/* --clobber
+          else
+            gh release create "${TAG}" dist/* --title "TuringTongue ${TAG}" --generate-notes --verify-tag
+          fi
+
+  pypi:
+    name: PyPI (Trusted Publishing, manual)
+    needs: build
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_pypi
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/turingtongue
+    permissions:
+      id-token: write
+    steps:
+      - name: Download distributions
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: dist
+          path: dist
+
+      - name: Publish
+        uses: pypa/gh-action-pypi-publish@v1.14.2
