@@ -1,0 +1,39 @@
+{
+  "meta": {"pagesCount": 1},
+  "version": "2025-11-28-base",
+  "neatVersion": "3.14b",
+  "scanId": "09e31219-1547-45a2-98ff-d430b9d944fc",
+  "documents": [
+    {
+      "paragraphs": [{"start_sentence_index": 0, "num_sentences": 1, "completely_generated_prob": 0.8181818033057853}],
+      "completely_generated_prob": 0.9999562639446221,
+      "average_generated_prob": 1,
+      "predicted_class": "ai",
+      "confidence_score": 0.999980510612919,
+      "confidence_category": "high",
+      "overall_burstiness": 0,
+      "writing_stats": {},
+      "sentences": [
+        {
+          "generated_prob": 0.9999976618215294,
+          "sentence": "The Natural Splendor of Uganda: A Symphony of Landscapes",
+          "perplexity": 0,
+          "class_probabilities": {"human": 2.3381784706671625e-06, "ai": 0.9992797425134252, "paraphrased": 0.0007179193081041566},
+          "highlight_sentence_for_ai": true
+        }
+      ],
+      "class_probabilities": {"human": 0, "ai": 0.999980510612919, "mixed": 1.9489387080966278e-05},
+      "subclass": {
+        "ai": {"predicted_class": "pure_ai", "confidence_score": 1, "confidence_category": "high", "class_probabilities": {"pure_ai": 1, "ai_paraphrased": 0}}
+      },
+      "pageNumber": 0,
+      "neatVersion": "3.14b",
+      "version": "2025-11-28-base",
+      "language": "en",
+      "result_message": "Our detector is highly confident that the text is written by AI.",
+      "document_classification": "AI_ONLY",
+      "inputText": "...",
+      "document_id": "df8eff3a-24e2-407b-a4df-c49f5f9dd5f9"
+    }
+  ]
+}

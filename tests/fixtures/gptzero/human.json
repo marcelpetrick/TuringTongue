@@ -1,0 +1,14 @@
+{
+  "version": "2025-11-28-base",
+  "documents": [
+    {
+      "completely_generated_prob": 0.012,
+      "predicted_class": "human",
+      "confidence_category": "medium",
+      "class_probabilities": {"human": 0.91, "ai": 0.03, "mixed": 0.06},
+      "subclass": {},
+      "document_classification": "HUMAN_ONLY",
+      "sentences": []
+    }
+  ]
+}
