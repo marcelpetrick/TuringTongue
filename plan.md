@@ -368,11 +368,11 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
   - Acceptance:
     - [ ] applied
   - Notes: —
-- [ ] T113 — IMPLEMENTATION_REPORT.md
-  - Status: todo
+- [x] T113 — IMPLEMENTATION_REPORT.md
+  - Status: done
   - Depends on: T110,T111
   - Acceptance:
-    - [ ] §33 contents
+    - [x] §33 contents
   - Notes: —
 - [ ] T114 — GitHub release
   - Status: todo
@@ -383,4 +383,11 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
 
 ## Open items / blockers
 
-- No provider API credentials are available in this environment; live provider calls are blocked on owner-supplied keys.
+- Live provider validation is blocked on owner-supplied API keys for all eight providers
+  (Originality.ai and Hive additionally need enterprise/sales-provisioned accounts).
+- Real-provider benchmark comparison blocked on the same keys (`docs/benchmarking.md`).
+- ZeroGPT stays opt-in until a live call confirms its undocumented response shape.
+- PyPI publication waits for the owner to register the trusted publisher.
+- Corpus lacks AI_HUMAN_EDITED / HUMAN_AI_ASSISTED samples and the owner's blog posts.
+- Traceability note: batch (T101) shipped inside the T072 commit; ADRs 0001/0002/0004
+  inside the T080 commit; the review fix of the CLI disclaimer inside the T107 commit.
