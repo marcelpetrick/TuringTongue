@@ -8,7 +8,7 @@ features bump the minor version (`--minor`).
 2. Tag the current version and push the tag:
 
    ```bash
-   scripts/release.sh            # tags v<pyproject version> and pushes it
+   scripts/release.sh            # refreshes + commits the history chart, tags, pushes the tag
    ```
 
 3. The **Release** workflow re-runs the full `localPipeline.sh`, checks that the tag

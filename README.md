@@ -213,6 +213,26 @@ End-to-end coverage is measured inside the `python -m turingtongue` child proces
 (coverage.py subprocess patching), not estimated. Wheel-install and Docker end-to-end
 checks run additionally in every pipeline.
 
+## History
+
+![Lines of code per area and CI coverage across the project history](docs/history/loc-history.svg)
+
+Lines of code per area (library, the four test layers, tooling, documentation) at every
+commit on `main`; blank and comment lines do not count, and test data, the benchmark
+corpus, `uv.lock` and `vision.md` are excluded. The right axis is the branch coverage
+printed by the GitHub Actions CI run of each commit.
+
+- **Coverage:** taken from the newest successful CI run of a commit. Commits whose run was
+  cancelled by a newer push have no value; the line connects their neighbours.
+- **Releases:** every `v*` tag is a dashed red line; the first release of each minor
+  version and the latest release are labelled.
+- **Data:** counted from git objects only (the working tree is never touched) and cached
+  in [`docs/history/measurements.json`](docs/history/measurements.json); current numbers in
+  [`docs/history/loc-current.md`](docs/history/loc-current.md).
+- **Refresh:** `scripts/release.sh` redraws and commits the chart for every release;
+  between releases run `uv run python scripts/history_chart.py` (`--no-github` offline,
+  `--no-measure` to redraw from the cache).
+
 ## Development
 
 ```bash

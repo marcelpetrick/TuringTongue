@@ -428,6 +428,15 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [ ] unit tests with a fake model; opt-in `slow` test with real weights
   - Notes: 2026-10-07 owner decision: the package handles external APIs only — no self-developed or local check (ADR 0005). Uncommitted prototype discarded, torch/transformers removed.
 
+- [x] T121 — Project history chart (LOC per area + CI coverage + release markers)
+  - Status: done
+  - Depends on: T115
+  - Acceptance:
+    - [x] scripts/history_chart.py (stdlib, git objects only, cached measurements) with tests
+    - [x] docs/history/loc-history.svg + loc-current.md; README "History" section
+    - [x] scripts/release.sh refreshes and commits the chart for each release
+  - Notes: own GPL implementation (stdlib); coverage parsed from GitHub Actions logs; release.sh integration
+
 ## Owner decisions
 
 - 2026-10-07 — **External detection APIs only.** No self-developed check and no local

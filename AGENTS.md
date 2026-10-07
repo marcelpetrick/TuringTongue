@@ -75,6 +75,8 @@ requirements live in [`vision.md`](vision.md); the execution ledger is [`plan.md
 - `uv run python scripts/metrics.py` regenerates `docs/metrics.md` (LOC, tests per tier,
   per-tier and end-to-end subprocess coverage, complexity); update the README summary
   table when the numbers change noticeably.
+- `uv run python scripts/history_chart.py` redraws the project history chart
+  (`docs/history/`); `scripts/release.sh` does this automatically for every release.
 
 ## Layout
 
