@@ -1,0 +1,13 @@
+{
+  "results": {
+    "properties": {"privateID": 30137337, "id": "removed from response", "title": "My API Scan", "excludedUrls": [], "publicLink": "removed from response", "content": "...", "formattedContent": "..."},
+    "credits": {"used": 9},
+    "aiAllowance": {"15": {"confidence": {"AI": 0.0265, "Original": 0.9735}, "blocks": [{"text": "I didn't realize how convenient ... last year. ", "result": {"fake": 0, "real": 1, "status": "success"}}]}},
+    "ai": {
+      "aiModel": "lite",
+      "classification": {"AI": 1, "Original": 0},
+      "confidence": {"AI": 0.9526, "Original": 0.0474},
+      "blocks": [{"text": "I didn't realize how convenient ... last year. ", "result": {"fake": 0.9456973173429567, "real": 0.0543026826570433, "status": "success"}}]
+    }
+  }
+}

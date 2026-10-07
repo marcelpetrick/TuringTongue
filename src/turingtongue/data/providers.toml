@@ -112,3 +112,20 @@ last_verified = "2026-10-07"
 docs_url = "https://docs.gowinston.ai"
 endpoint = "POST https://api.gowinston.ai/v2/ai-content-detection"
 notes = "Score is a HUMAN score (inverted). 1 credit per word; 2,000 free credits on signup at verification."
+
+[providers.originality]
+name = "Originality.ai"
+transport = "api"
+adapter = "turingtongue.providers.originality:OriginalityProvider"
+credential_env = ["ORIGINALITY_API_KEY"]
+enabled_by_default = true
+supports_segments = true
+supports_mixed_label = false
+supports_model_version = true
+limit_unit = "characters"
+known_languages = "multilang model, ~30 languages (provider claim)"
+adapter_status = "implemented; contract-tested against documented examples; not yet run live"
+last_verified = "2026-10-07"
+docs_url = "https://docs.originality.ai"
+endpoint = "POST https://api.originality.ai/api/v3/scan"
+notes = "Enterprise plan only. Accounts auto top-up credits by default. storeScan=false is sent."
