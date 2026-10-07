@@ -417,16 +417,24 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
   - Depends on: T003
   - Acceptance:
     - [x] answer documented in docs/providers.md §6 (none exist; no-signup web UIs are not APIs)
-  - Notes: only zero-signup route is local open-source detection (see T119).
-- [ ] T119 — Optional local open-source detector (Binoculars) as experimental provider
-  - Status: todo
+  - Notes: none exist; the local-detector idea (T119) was rejected by the owner (ADR 0005).
+- [ ] T119 — ~~Optional local open-source detector (Binoculars)~~ — DROPPED by owner
+  - Status: dropped
   - Depends on: T120
   - Acceptance:
     - [ ] `[local]` extra (torch + transformers), lazy import, API-only install unaffected
     - [ ] registry entry transport `local`, enabled only when installed, labelled experimental
     - [ ] small model pair chosen by measurement; benchmark on corpus before setting its weight
     - [ ] unit tests with a fake model; opt-in `slow` test with real weights
-  - Notes: proposed to the owner 2026-10-07; awaiting go-ahead (large dependency, several GB).
+  - Notes: 2026-10-07 owner decision: the package handles external APIs only — no self-developed or local check (ADR 0005). Uncommitted prototype discarded, torch/transformers removed.
+
+## Owner decisions
+
+- 2026-10-07 — **External detection APIs only.** No self-developed check and no local
+  model-based detector, not even optional (ADR 0005; overrides vision §2.1's future idea).
+- 2026-10-07 — No manual web signups for detector accounts for now; agents never create
+  accounts (live validation T118 waits for keys).
+- 2026-10-07 — Releases follow the PyPA guide (industry practice), not individual example repos.
 
 ## Open items / blockers
 

@@ -386,7 +386,7 @@ adding any browser adapter.
 
 ---
 
-## 6. No-signup options and local detectors (reviewed 2026-10-07)
+## 6. No-signup options (reviewed 2026-10-07)
 
 Question from the owner: is there an AI-text detection **API usable without creating an
 account**? Answer: **no.** Every provider with a documented API (all eight above and the
@@ -397,24 +397,14 @@ rest of the market reviewed) requires an account and a key. Services advertised 
 scraping that their terms forbid and that vision §2.3 rules out (no quota evasion, no
 session tricks). They are therefore not integrated.
 
+Running an open-source detector locally (e.g. Binoculars) would avoid signups, but the
+owner decided the package handles **external APIs only** — no self-developed and no
+local detector ([ADR 0005](adr/0005-external-apis-only.md)).
+
 Decision on account creation: the owner does not want to sign up for detector web
-accounts manually; agents must not create accounts either (it accepts terms on the
-owner's behalf and needs email verification). Live validation of the API adapters is
+accounts manually for now; agents must not create accounts either (it accepts terms on
+the owner's behalf and needs email verification). Live validation of the API adapters is
 deferred until keys exist (plan T118).
-
-The only zero-signup route is **local open-source detection** (model weights download
-from Hugging Face without an account, then run offline; the text never leaves the
-machine):
-
-| Option | Method | Size / hardware | Assessment |
-| --- | --- | --- | --- |
-| [Binoculars](https://proceedings.mlr.press/v235/hans24a.html) (ICML 2024) | zero-shot: ratio of perplexity to cross-perplexity of two related LLMs | reference pair 2×7B (~30 GB fp16); smaller pairs possible with accuracy loss | strongest open-source detector in [independent evaluation](https://www.dsta.gov.sg/staticfile/ydsp/projects/files/reports/YDSP%20Report_Evaluation%20of%20Artificial%20Intelligence%20Text%20Detection%20Models.pdf); >90 % TPR at 0.01 % FPR on ChatGPT text (paper claim) |
-| [RoBERTa OpenAI detector](https://huggingface.co/openai-community/roberta-base-openai-detector) | fine-tuned classifier on GPT-2 output | ~500 MB, CPU | outdated (GPT-2 era); weak on modern models |
-
-Vision §2.1 allows such a provider only as an **optional, clearly experimental**
-supplement after the external-API ensemble works (it does). Proposed as plan T119
-(`[local]` extra, Binoculars with a small model pair, benchmarked on the corpus before
-deciding its ensemble weight) — awaiting the owner's go-ahead.
 
 ## 7. Sources (accessed 2026-10-07)
 

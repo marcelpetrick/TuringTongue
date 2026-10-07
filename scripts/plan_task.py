@@ -9,6 +9,7 @@ Usage:
     scripts/plan_task.py T054 blocked --note "API undocumented"
 
 ``done`` ticks the task and all its acceptance checkboxes; other statuses untick them.
+``dropped`` records an owner decision not to do the task (it stays visible for history).
 """
 
 from __future__ import annotations
@@ -19,7 +20,7 @@ import sys
 from pathlib import Path
 
 PLAN = Path(__file__).resolve().parents[1] / "plan.md"
-STATUSES = ("todo", "in_progress", "done", "blocked")
+STATUSES = ("todo", "in_progress", "done", "blocked", "dropped")
 
 
 def update(text: str, task_id: str, status: str, note: str | None) -> str:

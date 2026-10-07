@@ -40,6 +40,7 @@ requirements live in [`vision.md`](vision.md); the execution ledger is [`plan.md
 - Never commit credentials. `.env` is gitignored; `.env.example` holds placeholders only.
 - Never hide provider failures — failures are data (`ProviderError` with a category).
 - API first, browser fallback second; no quota evasion, no CAPTCHA bypass, no identity rotation.
+- **External APIs only — no own or local detector** (ADR 0005).
 - **Do not preprocess the submitted text.** No stripping, normalizing, rewriting. Only an exact prefix
   may be submitted when a provider's documented hard limit requires it, and it is marked `truncated`.
 - Document provider facts with a verification date in `docs/providers.md`.
@@ -59,8 +60,10 @@ requirements live in [`vision.md`](vision.md); the execution ledger is [`plan.md
   manual web signups for now (2026-10-07); live validation (T118) waits until keys exist.
 - **No "free, no signup" web UIs.** They are not APIs; calling their private endpoints is
   scraping/quota evasion (vision §2.3). Research is recorded in `docs/providers.md` §6.
-- The only zero-signup detection route is a **local open-source detector** (T119,
-  experimental, optional `[local]` extra) — do not start it without the owner's go-ahead.
+- **External detection APIs only** (owner decision, ADR 0005): never add a self-developed
+  check, heuristic score, or local/offline model detector (no Binoculars, perplexity
+  scoring, torch/transformers, GPU/CPU inference) — not even as an optional extra.
+  The `mock` provider is a test double only and must never analyse text.
 - Releases: `scripts/release.sh` tags `v<version>`; the Release workflow publishes the
   GitHub Release and — once the owner has registered the PyPI pending publisher and set
   `PYPI_PUBLISH=true` — uploads to PyPI via Trusted Publishing from the protected `pypi`

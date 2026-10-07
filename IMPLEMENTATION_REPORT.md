@@ -104,6 +104,10 @@ optimization beyond concurrency is justified ([docs/performance.md](docs/perform
 
 ## Deviations from the vision
 
+- **External APIs only** (owner decision, [ADR 0005](docs/adr/0005-external-apis-only.md)):
+  the optional future local/heuristic detector of vision §2.1 will not be built; a brief
+  uncommitted Binoculars prototype was discarded.
+
 - `AI_HUMAN_EDITED` / `HUMAN_AI_ASSISTED` corpus categories are not populated (no human
   editor available in an autonomous run); one constructed `MIXED` sample exists.
 - Llama could not be used for corpus generation (local runtime lacks the `mllama`
@@ -120,7 +124,6 @@ optimization beyond concurrency is justified ([docs/performance.md](docs/perform
 3. Add the owner's pre-2022 blog posts (with permission) and edited/assisted samples.
 4. Consider learned weights only from the `calibration` split once data suffices.
 5. Add the PyPI pending publisher, `gh variable set PYPI_PUBLISH --body true`, re-run the release.
-6. Decide on the local Binoculars provider (T119) — the only no-signup detector route.
 
 ## Release readiness
 
