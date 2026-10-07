@@ -53,9 +53,16 @@ class ProviderSpec:
     extra: Mapping[str, Any] = field(default_factory=dict)
 
     def missing_credentials(self, env_lookup: Mapping[str, str] | None = None) -> list[str]:
-        """Names of required environment variables that are absent or blank."""
+        """Required environment variables that are absent or blank.
+
+        An entry ``"A|B"`` is satisfied by either variable (documented aliases).
+        """
         env = env_lookup or {}
-        return [name for name in self.credential_env if not env.get(name, "").strip()]
+        return [
+            entry
+            for entry in self.credential_env
+            if not any(env.get(name, "").strip() for name in entry.split("|"))
+        ]
 
     def load_adapter(self) -> ProviderFactory:
         """Import and return the adapter class."""

@@ -98,13 +98,13 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] error mapping
     - [x] raw capture opt-in
   - Notes: —
-- [ ] T021 — Sapling adapter + contract fixtures
-  - Status: todo
+- [x] T021 — Sapling adapter + contract fixtures
+  - Status: done
   - Depends on: T020,T003
   - Acceptance:
-    - [ ] adapter
-    - [ ] fixtures
-    - [ ] contract tests
+    - [x] adapter
+    - [x] fixtures
+    - [x] contract tests
   - Notes: —
 - [ ] T022 — GPTZero adapter + contract fixtures
   - Status: todo

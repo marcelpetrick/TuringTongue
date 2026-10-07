@@ -52,7 +52,11 @@ class DetectionOptions:
 
 @dataclass(slots=True)
 class Detection:
-    """Parsed provider answer, before it becomes a ProviderResult."""
+    """Parsed provider answer, before it becomes a ProviderResult.
+
+    ``exclude_reason`` keeps a result visible but out of the ensemble (e.g. sandbox
+    mode returning mock classifications).
+    """
 
     evidence: float
     score_semantics: str
@@ -68,6 +72,7 @@ class Detection:
     attempts: int = 1
     rate_limit: RateLimitInfo | None = None
     raw: Any = None
+    exclude_reason: str | None = None
 
 
 class Provider(Protocol):
@@ -147,17 +152,29 @@ class BaseProvider(abc.ABC):
 
     # -- helpers --------------------------------------------------------------------
     def credential(self, name: str) -> str:
-        """Return a required credential or raise NOT_CONFIGURED."""
-        value = self.settings.credential(name)
-        if value is None:
-            raise ProviderFailure(
-                ErrorCategory.NOT_CONFIGURED,
-                f"{self.spec.name}: environment variable {name} is not set",
-            )
-        return value
+        """Return a required credential or raise NOT_CONFIGURED.
+
+        ``name`` may list aliases as ``"A|B"``; the first one that is set wins.
+        """
+        for alias in name.split("|"):
+            value = self.settings.credential(alias)
+            if value is not None:
+                return value
+        raise ProviderFailure(
+            ErrorCategory.NOT_CONFIGURED,
+            f"{self.spec.name}: environment variable {name.replace('|', ' or ')} is not set",
+        )
+
+    def option(self, options: DetectionOptions, key: str, default: Any) -> Any:
+        """Provider option from config/call, falling back to ``default``."""
+        return options.provider_options.get(key, default)
 
     def _secrets(self) -> list[str | None]:
-        return [self.settings.credential(name) for name in self.spec.credential_env]
+        return [
+            self.settings.credential(alias)
+            for entry in self.spec.credential_env
+            for alias in entry.split("|")
+        ]
 
     def _caller(self) -> HttpCaller:
         s = self.settings
@@ -234,7 +251,9 @@ class BaseProvider(abc.ABC):
             raw_score=detection.raw_score,
             raw_confidence=detection.raw_confidence,
             score_semantics=detection.score_semantics,
-            normalized_evidence=max(-1.0, min(1.0, detection.evidence)),
+            normalized_evidence=(
+                None if detection.exclude_reason else max(-1.0, min(1.0, detection.evidence))
+            ),
             normalized_confidence=detection.confidence,
             model=detection.model,
             model_version=detection.model_version,
@@ -256,6 +275,7 @@ class BaseProvider(abc.ABC):
                 "parse_and_overhead": max(0.0, latency_ms - prepare_ms - network_ms),
             },
             raw_response=detection.raw if options.capture_raw else None,
+            exclusion_reason=detection.exclude_reason,
         )
 
 

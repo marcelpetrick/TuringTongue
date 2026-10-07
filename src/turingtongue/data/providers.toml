@@ -19,3 +19,22 @@ adapter_status = "test double — NOT a detector; returns a fixed configured ans
 last_verified = "2026-10-07"
 docs_url = ""
 notes = "Offline smoke-test provider. Answer chosen by TURINGTONGUE_MOCK_RESULT (human|ai|mixed|error)."
+
+[providers.sapling]
+name = "Sapling"
+transport = "api"
+adapter = "turingtongue.providers.sapling:SaplingProvider"
+credential_env = ["SAPLING_API_KEY"]
+enabled_by_default = true
+supports_segments = true
+supports_mixed_label = false
+supports_model_version = true
+known_max_input = 200000
+recommended_min_input = 300
+limit_unit = "characters"
+known_languages = "English only (provider claim)"
+adapter_status = "implemented; contract-tested against documented examples; not yet run live"
+last_verified = "2026-10-07"
+docs_url = "https://sapling.ai/docs/api/detector/"
+endpoint = "POST https://api.sapling.ai/api/v1/aidetect"
+notes = "Free trial key returns real results (50k chars/day, 250k/month at verification)."

@@ -31,6 +31,9 @@ from turingtongue.redaction import redact
 
 MAX_ERROR_DETAIL = 300
 
+ErrorClassifier = Callable[[int, Any], "tuple[ErrorCategory, bool] | None"]
+"""Adapter hook: ``(status, parsed_body) -> (category, retryable)`` or None for the default."""
+
 
 @dataclass(frozen=True, slots=True)
 class RetryPolicy:
@@ -99,6 +102,13 @@ def rate_limit_from_headers(headers: Mapping[str, str]) -> RateLimitInfo | None:
     return None if info == RateLimitInfo() else info
 
 
+def _try_json(body: bytes) -> Any:
+    try:
+        return json.loads(body)
+    except ValueError:
+        return None
+
+
 def _error_detail(body: bytes, secrets: Iterable[str | None]) -> str:
     text = body.decode("utf-8", errors="replace")
     try:
@@ -146,14 +156,19 @@ class HttpCaller:
         json_body: Any = None,
         form: Mapping[str, str] | None = None,
         timeout_s: float,
+        classify: ErrorClassifier | None = None,
     ) -> HttpOutcome:
-        """Send a request, retrying transient failures; return parsed JSON on 2xx."""
+        """Send a request, retrying transient failures; return parsed JSON on 2xx.
+
+        ``classify`` lets an adapter override the category/retryability of documented
+        provider-specific error responses.
+        """
         attempt = 0
         while True:
             attempt += 1
             try:
                 return await self._attempt(
-                    method, url, headers, json_body, form, timeout_s, attempt
+                    method, url, headers, json_body, form, timeout_s, attempt, classify
                 )
             except ProviderFailure as failure:
                 failure.attempt_count = attempt
@@ -176,6 +191,7 @@ class HttpCaller:
         form: Mapping[str, str] | None,
         timeout_s: float,
         attempt: int,
+        classify: ErrorClassifier | None,
     ) -> HttpOutcome:
         started = time.perf_counter()
         try:
@@ -202,12 +218,17 @@ class HttpCaller:
         rate_limit = rate_limit_from_headers(response.headers)
         if not 200 <= response.status_code < 300:
             category = category_for_status(response.status_code)
+            retryable = response.status_code in RETRYABLE_STATUSES
+            if classify is not None:
+                override = classify(response.status_code, _try_json(body))
+                if override is not None:
+                    category, retryable = override
             detail = _error_detail(body, self._secrets)
             raise ProviderFailure(
                 category,
                 f"{self._name}: HTTP {response.status_code}" + (f": {detail}" if detail else ""),
                 http_status=response.status_code,
-                retryable=response.status_code in RETRYABLE_STATUSES,
+                retryable=retryable,
                 retry_after_s=rate_limit.retry_after_s if rate_limit else None,
                 rate_limit=rate_limit,
             )

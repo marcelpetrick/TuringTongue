@@ -1,0 +1,12 @@
+{
+  "score": 0.8016229165451867,
+  "ai_fraction": 1.0,
+  "sentence_scores": [
+    {"score": 0.8016229165451867, "sentence": "Here is a sentence.", "start": 0, "end": 19}
+  ],
+  "text": "Here is a sentence.",
+  "token_probs": [0.8062431365251541, 0.8068526238203049, 0.8062431365251541, 0.8080672174692154, 0.8062431365251541],
+  "tokens": ["Here", " is", " a", " sentence", "."],
+  "version": "20260820",
+  "usage": {"characters": 19}
+}
