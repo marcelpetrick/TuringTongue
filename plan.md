@@ -50,12 +50,12 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] schema_version in every output
     - [x] round-trip tests
   - Notes: —
-- [ ] T011 — Error categories, ProviderFailure, secret redaction
-  - Status: todo
+- [x] T011 — Error categories, ProviderFailure, secret redaction
+  - Status: done
   - Depends on: T010
   - Acceptance:
-    - [ ] all §7.3 categories
-    - [ ] redaction of keys/headers tested
+    - [x] all §7.3 categories
+    - [x] redaction of keys/headers tested
   - Notes: —
 - [ ] T012 — Configuration: env credentials, optional .env and TOML config
   - Status: todo
