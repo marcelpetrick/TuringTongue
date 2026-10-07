@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Mirrors the local quality gate: CI runs exactly ./localPipeline.sh.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pipeline:
+    name: localPipeline.sh
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up uv + Python 3.14
+        uses: astral-sh/setup-uv@v10.2.0
+        with:
+          python-version: "3.14"
+          enable-cache: true
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Run local pipeline
+        run: ./localPipeline.sh
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: coverage
+          path: |
+            htmlcov
+            coverage.xml
+          if-no-files-found: ignore
+
+      - name: Upload packages
+        if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: dist
+          path: dist/*
+          if-no-files-found: ignore

@@ -21,8 +21,8 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] mantra + crash-recovery protocol in AGENTS.md
     - [x] plan with stable IDs
   - Notes: —
-- [ ] T004 — GitHub Actions CI mirroring localPipeline.sh
-  - Status: todo
+- [x] T004 — GitHub Actions CI mirroring localPipeline.sh
+  - Status: done
   - Depends on: T001
   - Acceptance:
     - [ ] workflow runs ./localPipeline.sh
