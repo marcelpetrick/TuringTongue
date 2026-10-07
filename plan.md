@@ -31,14 +31,14 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
 
 ## Phase 1 — provider research
 
-- [ ] T003 — Fresh provider research → docs/providers.md
-  - Status: todo
+- [x] T003 — Fresh provider research → docs/providers.md
+  - Status: done
   - Depends on: T001
   - Acceptance:
-    - [ ] all §4 fields per provider
-    - [ ] last_verified dates
-    - [ ] browser fallback evaluation
-  - Notes: —
+    - [x] all §4 fields per provider
+    - [x] last_verified dates
+    - [x] browser fallback evaluation
+  - Notes: fresh official-doc research 2026-10-07 by research sub-agent; reviewed
 
 ## Phase 3 — domain model
 
