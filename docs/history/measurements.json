@@ -632,5 +632,31 @@
   },
   "version": "0.6.0",
   "coverage": 98.3
+ },
+ "a5cc219838ca9be5905034bb84c7ce43c659b550": {
+  "loc": {
+   "library": 3667,
+   "tests-unit": 1640,
+   "tests-contract": 520,
+   "tests-integration": 344,
+   "tests-e2e": 53,
+   "tooling": 1882,
+   "docs": 1838
+  },
+  "version": "0.6.1",
+  "coverage": 98.3
+ },
+ "b63b2ddc480007ed55437430866ce1abdb6a7698": {
+  "loc": {
+   "library": 3667,
+   "tests-unit": 1641,
+   "tests-contract": 520,
+   "tests-integration": 344,
+   "tests-e2e": 53,
+   "tooling": 1882,
+   "docs": 1838
+  },
+  "version": "0.6.2",
+  "coverage": 98.3
  }
 }
