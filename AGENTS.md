@@ -48,6 +48,29 @@ requirements live in [`vision.md`](vision.md); the execution ledger is [`plan.md
   and the full gate before every commit (done by `scripts/commit.sh`).
 - After a sub-agent returns, review its diff and run the tests instead of trusting its summary.
 - Every source file carries the SPDX `GPL-3.0-or-later` header (`scripts/check_headers.py` enforces it).
+- Prefer `scripts/commit.sh --only <path>…` so a commit contains exactly one task's files;
+  plain `scripts/commit.sh` stages everything and prints the staged list — check it.
+- Use `scripts/plan_task.py Txxx <status> --note "…"` to update `plan.md`.
+
+## Accounts, credentials and publishing
+
+- **Agents never create accounts** at detector services, PyPI or anywhere else: signing up
+  accepts terms in the owner's name and needs email verification. The owner has declined
+  manual web signups for now (2026-10-07); live validation (T118) waits until keys exist.
+- **No "free, no signup" web UIs.** They are not APIs; calling their private endpoints is
+  scraping/quota evasion (vision §2.3). Research is recorded in `docs/providers.md` §6.
+- The only zero-signup detection route is a **local open-source detector** (T119,
+  experimental, optional `[local]` extra) — do not start it without the owner's go-ahead.
+- Releases: `scripts/release.sh` tags `v<version>`; the Release workflow publishes the
+  GitHub Release and — once the owner has registered the PyPI pending publisher and set
+  `PYPI_PUBLISH=true` — uploads to PyPI via Trusted Publishing from the `pypi`
+  environment (lizard-style). Never add a long-lived PyPI token unless the owner asks.
+
+## Measuring
+
+- `uv run python scripts/metrics.py` regenerates `docs/metrics.md` (LOC, tests per tier,
+  per-tier and end-to-end subprocess coverage, complexity); update the README summary
+  table when the numbers change noticeably.
 
 ## Layout
 
