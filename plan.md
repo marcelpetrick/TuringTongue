@@ -71,13 +71,13 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [ ] all §5.3 fields
     - [ ] selection by id/all/default/transport
   - Notes: —
-- [ ] T014 — Exact-prefix input limit handling (chars/bytes/words)
-  - Status: todo
+- [x] T014 — Exact-prefix input limit handling (chars/bytes/words)
+  - Status: done
   - Depends on: T010
   - Acceptance:
-    - [ ] no silent truncation
-    - [ ] coverage reported
-    - [ ] Unicode boundary tests
+    - [x] no silent truncation
+    - [x] coverage reported
+    - [x] Unicode boundary tests
   - Notes: —
 - [ ] T015 — HTTP transport: timeouts, bounded retry with jitter, Retry-After, body cap
   - Status: todo
