@@ -57,12 +57,12 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] all §7.3 categories
     - [x] redaction of keys/headers tested
   - Notes: —
-- [ ] T012 — Configuration: env credentials, optional .env and TOML config
-  - Status: todo
+- [x] T012 — Configuration: env credentials, optional .env and TOML config
+  - Status: done
   - Depends on: T010
   - Acceptance:
-    - [ ] missing creds → NOT_CONFIGURED, no crash
-    - [ ] no secrets in config file by default
+    - [x] missing creds → NOT_CONFIGURED, no crash
+    - [x] no secrets in config file by default
   - Notes: —
 - [ ] T013 — Machine-readable provider registry (providers.toml)
   - Status: todo
