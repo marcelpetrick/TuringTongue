@@ -246,13 +246,13 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
   - Acceptance:
     - [x] model/tool/date/prompt hash recorded
   - Notes: —
-- [ ] T072 — Benchmark runner, metrics, report + CLI command
-  - Status: todo
+- [x] T072 — Benchmark runner, metrics, report + CLI command
+  - Status: done
   - Depends on: T032,T070,T071
   - Acceptance:
-    - [ ] §10.5 metrics
-    - [ ] latency percentiles
-    - [ ] tests
+    - [x] §10.5 metrics
+    - [x] latency percentiles
+    - [x] tests
   - Notes: —
 - [ ] T073 — Initial benchmark run / documented credential blocker
   - Status: todo

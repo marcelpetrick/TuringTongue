@@ -156,3 +156,53 @@ def test_provider_label() -> None:
     }
     assert provider_label(ProviderResult(**base)) == "—"  # type: ignore[arg-type]
     assert provider_label(ProviderResult(**base, normalized_evidence=0.0)) == "MIXED"  # type: ignore[arg-type]
+
+
+def test_batch_command(tmp_path: Path) -> None:
+    (tmp_path / "a.txt").write_text("Some text here.")
+    s = Streams()
+    out_csv, out_jsonl = tmp_path / "r.csv", tmp_path / "r.jsonl"
+    assert (
+        s.run(
+            "batch", str(tmp_path), "-p", "mock", "--csv", str(out_csv), "--jsonl", str(out_jsonl)
+        )
+        == 0
+    )
+    assert "HUMAN\t" in s.stderr.getvalue()
+    assert out_csv.read_text().startswith("file,date,")
+    assert json.loads(out_jsonl.read_text().splitlines()[0])["summary"]["verdict"] == "HUMAN"
+    s = Streams()
+    assert s.run("batch", str(tmp_path / "a.txt"), "-p", "mock") == 0
+    assert s.stdout.getvalue().startswith("file,date,")
+
+
+def test_benchmark_command(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    corpus_dir = Path(__file__).parents[2] / "benchmark" / "corpus"
+    s = Streams()
+    assert (
+        s.run(
+            "benchmark",
+            "--corpus",
+            str(corpus_dir),
+            "--split",
+            "holdout",
+            "-p",
+            "mock",
+            "--out",
+            str(tmp_path),
+        )
+        == 0
+    )
+    assert "# Benchmark report" in s.stdout.getvalue()
+    results = next(tmp_path.glob("results-*.jsonl"))
+    assert results.with_suffix(".report.md").exists()
+    s = Streams()
+    assert s.run("benchmark", "--from-results", str(results)) == 0
+    monkeypatch.setenv("SAPLING_API_KEY", "k")
+    s = Streams()
+    assert s.run("benchmark", "--corpus", str(corpus_dir), "-p", "sapling") == cli.EXIT_USAGE
+    assert "--yes" in s.stderr.getvalue()
+    s = Streams()
+    monkeypatch.delenv("SAPLING_API_KEY")
+    assert s.run("benchmark", "--corpus", str(corpus_dir)) == cli.EXIT_USAGE
+    assert "no provider would run" in s.stderr.getvalue()

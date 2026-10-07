@@ -26,7 +26,7 @@ from turingtongue._version import __version__
 from turingtongue.client import TRANSPORTS, Checker
 from turingtongue.config import Settings
 from turingtongue.errors import ConfigurationError
-from turingtongue.models import Verdict
+from turingtongue.models import CheckResult, Verdict
 
 EXIT_VERDICT = 0
 EXIT_NO_VERDICT = 2
@@ -77,6 +77,41 @@ def build_parser() -> argparse.ArgumentParser:
         "-v", "--verbose", action="store_true", help="explain every provider attempt"
     )
     output.add_argument("--json", action="store_true", help="versioned JSON result on stdout")
+
+    batch = sub.add_parser("batch", help="check many files one after another", epilog=PRIVACY_NOTE)
+    batch.add_argument("paths", nargs="+", help="files or directories (*.txt, *.md searched)")
+    _add_run_options(batch)
+    batch.add_argument("--jsonl", type=Path, help="write full per-file results as JSONL")
+    batch.add_argument("--csv", type=Path, help="write the summary table as CSV (default: stdout)")
+
+    bench = sub.add_parser(
+        "benchmark", help="run the provenance-checked benchmark corpus", epilog=PRIVACY_NOTE
+    )
+    bench.add_argument(
+        "--corpus",
+        type=Path,
+        default=Path("benchmark/corpus"),
+        help="corpus directory with manifest.toml (default: benchmark/corpus)",
+    )
+    bench.add_argument("--split", choices=("calibration", "holdout"), help="only this split")
+    bench.add_argument(
+        "--out",
+        type=Path,
+        default=Path("benchmark/results"),
+        help="directory for results-*.jsonl and reports",
+    )
+    bench.add_argument(
+        "--from-results",
+        type=Path,
+        metavar="JSONL",
+        help="only recompute the report from an earlier results file",
+    )
+    bench.add_argument(
+        "--yes",
+        action="store_true",
+        help="confirm sending the corpus to real (possibly paid) providers",
+    )
+    _add_run_options(bench)
 
     providers = sub.add_parser("providers", help="list known providers and credential status")
     providers.add_argument("--json", action="store_true", help="machine-readable output")
@@ -169,6 +204,10 @@ def run(
         checker = Checker(settings)
         if args.command == "providers":
             return _providers(checker, args, stdout)
+        if args.command == "batch":
+            return _batch(checker, args, stdout, stderr)
+        if args.command == "benchmark":
+            return _benchmark(checker, args, stdout, stderr)
         text = read_text(args.file, args.text, stdin)
         providers = [p for item in args.providers or [] for p in item.split(",") if p.strip()]
         result = checker.check(
@@ -190,6 +229,97 @@ def run(
     else:
         print(result.verdict.display, file=stdout)
     return EXIT_NO_VERDICT if result.verdict is Verdict.NO_VERDICT else EXIT_VERDICT
+
+
+def _selected(args: argparse.Namespace) -> list[str] | None:
+    names = [p for item in args.providers or [] for p in item.split(",") if p.strip()]
+    return names or None
+
+
+def _batch(checker: Checker, args: argparse.Namespace, stdout: TextIO, stderr: TextIO) -> int:
+    import asyncio  # noqa: PLC0415
+
+    from turingtongue import batch  # noqa: PLC0415
+
+    files = batch.collect_files(args.paths)
+    jsonl = args.jsonl.open("w", encoding="utf-8") if args.jsonl else None
+
+    def on_result(path: Path, row: dict[str, object], result: CheckResult) -> None:
+        print(f"{row['verdict']}\t{path}", file=stderr)
+        if jsonl is not None:
+            jsonl.write(batch.jsonl_line(path, row, result) + "\n")
+
+    try:
+        rows = asyncio.run(
+            batch.run_batch(
+                checker,
+                files,
+                providers=_selected(args),
+                transport=args.transport,
+                on_result=on_result,
+            )
+        )
+    finally:
+        if jsonl is not None:
+            jsonl.close()
+    if args.csv:
+        with args.csv.open("w", encoding="utf-8", newline="") as handle:
+            batch.write_csv(rows, handle)
+    else:
+        batch.write_csv(rows, stdout)
+    return EXIT_VERDICT
+
+
+def _benchmark(checker: Checker, args: argparse.Namespace, stdout: TextIO, stderr: TextIO) -> int:
+    import asyncio  # noqa: PLC0415
+    from datetime import UTC, datetime  # noqa: PLC0415
+
+    from turingtongue.benchmark import corpus, metrics, report, runner  # noqa: PLC0415
+
+    if args.from_results:
+        records = runner.read_records(args.from_results)
+        results_path = args.from_results
+    else:
+        samples = corpus.load_corpus(args.corpus, split=args.split)
+        selection = checker.select(_selected(args), args.transport)
+        real = [s.id for s in selection.run if s.transport.value != "mock"]
+        if not selection.run:
+            raise ConfigurationError("no provider would run; configure credentials or use -p")
+        if real and not args.yes:
+            raise ConfigurationError(
+                f"this sends {len(samples)} texts to {len(real)} real provider(s) "
+                f"({', '.join(real)}) and may consume paid credits; re-run with --yes"
+            )
+
+        def progress(index: int, total: int, sample: object) -> None:
+            print(f"[{index}/{total}] {getattr(sample, 'id', '')}", file=stderr)
+
+        records = asyncio.run(
+            runner.run_samples(
+                checker,
+                samples,
+                providers=_selected(args),
+                transport=args.transport,
+                progress=progress,
+            )
+        )
+        results_path = runner.write_records(records, args.out)
+    scores = metrics.compute(records)
+    first = records[0]["result"] if records else {}
+    meta = {
+        "generated": datetime.now(UTC).isoformat(timespec="seconds"),
+        "package_version": __version__,
+        "samples": len(records),
+        "results_file": str(results_path),
+        "weights_version": first.get("aggregate", {}).get("weights_version"),
+    }
+    markdown = report.to_markdown(scores, meta=meta)
+    stem = Path(results_path).with_suffix("")
+    Path(f"{stem}.report.md").write_text(markdown + "\n", encoding="utf-8")
+    Path(f"{stem}.report.json").write_text(report.to_json(scores, meta=meta), encoding="utf-8")
+    print(markdown, file=stdout)
+    print(f"results: {results_path}", file=stderr)
+    return EXIT_VERDICT
 
 
 def _providers(checker: Checker, args: argparse.Namespace, stdout: TextIO) -> int:

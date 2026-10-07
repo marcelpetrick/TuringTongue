@@ -27,3 +27,4 @@ browser-profiles/
 .idea/
 .vscode/
 .DS_Store
+benchmark/results/
