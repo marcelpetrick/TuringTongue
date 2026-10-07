@@ -101,18 +101,25 @@ def render_verbose(result: CheckResult, console: Console) -> None:
         status = "ok" if p.error is None else p.error.category.value.lower()
         model = " ".join(x for x in (p.model, p.model_version) if x) or "—"
         table.add_row(
-            p.provider_name,
-            p.transport.value.upper(),
-            provider_label(p),
-            _num(p.raw_score, "{:.3g}"),
-            _num(p.normalized_evidence, "{:+.2f}"),
-            str(p.raw_confidence) if p.raw_confidence is not None else "—",
-            _num(p.vote_weight),
-            "—" if p.error else f"{p.input_coverage:.0%}" + (" (cut)" if p.truncated else ""),
-            model,
-            _ms(p.latency_ms),
-            str(p.attempt_count),
-            status,
+            *(
+                Text(cell)
+                for cell in (
+                    p.provider_name,
+                    p.transport.value.upper(),
+                    provider_label(p),
+                    _num(p.raw_score, "{:.3g}"),
+                    _num(p.normalized_evidence, "{:+.2f}"),
+                    str(p.raw_confidence) if p.raw_confidence is not None else "—",
+                    _num(p.vote_weight),
+                    "—"
+                    if p.error
+                    else f"{p.input_coverage:.0%}" + (" (cut)" if p.truncated else ""),
+                    model,
+                    _ms(p.latency_ms),
+                    str(p.attempt_count),
+                    status,
+                )
+            )
         )
     if result.providers:
         console.print(table)
@@ -198,14 +205,19 @@ def render_providers(registry: Registry, env: Mapping[str, str], console: Consol
             creds = "set"
         limit = f"{spec.known_max_input:,} {spec.limit_unit.value}" if spec.known_max_input else "—"
         table.add_row(
-            spec.id,
-            spec.name,
-            spec.transport.value,
-            "yes" if spec.enabled_by_default else "no",
-            creds,
-            limit,
-            spec.last_verified,
-            spec.adapter_status,
+            *(
+                Text(cell)
+                for cell in (
+                    spec.id,
+                    spec.name,
+                    spec.transport.value,
+                    "yes" if spec.enabled_by_default else "no",
+                    creds,
+                    limit,
+                    spec.last_verified,
+                    spec.adapter_status,
+                )
+            )
         )
     console.print(table)
     console.print(

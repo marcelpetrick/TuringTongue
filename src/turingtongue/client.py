@@ -9,8 +9,10 @@ service. Their processing and retention policies apply; see ``docs/privacy.md``.
 from __future__ import annotations
 
 import asyncio
+import dataclasses
 import logging
 import time
+import weakref
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Literal
@@ -92,15 +94,16 @@ class Checker:
         self.registry = registry if registry is not None else Registry.builtin()
         self.policy = policy
         self._client_factory = client_factory
-        self._provider_gates: dict[tuple[int, str], asyncio.Semaphore] = {}
+        self._provider_gates: weakref.WeakKeyDictionary[
+            asyncio.AbstractEventLoop, dict[str, asyncio.Semaphore]
+        ] = weakref.WeakKeyDictionary()
 
     def _provider_gate(self, provider_id: str) -> asyncio.Semaphore:
         """Per-provider concurrency cap, shared by concurrent ``acheck`` calls on one loop."""
-        key = (id(asyncio.get_running_loop()), provider_id)
-        if key not in self._provider_gates:
-            limit = max(1, self.settings.per_provider_concurrency)
-            self._provider_gates[key] = asyncio.Semaphore(limit)
-        return self._provider_gates[key]
+        gates = self._provider_gates.setdefault(asyncio.get_running_loop(), {})
+        if provider_id not in gates:
+            gates[provider_id] = asyncio.Semaphore(max(1, self.settings.per_provider_concurrency))
+        return gates[provider_id]
 
     # -- selection -----------------------------------------------------------------
     def _enabled(self, spec: ProviderSpec) -> bool:
@@ -244,7 +247,11 @@ class Checker:
             for spec in self.registry
             if (weight := self.settings.overrides(spec.id).weight) is not None
         }
-        verdict, aggregate = combine(results, reliability=reliability, policy=self.policy)
+        policy = self.policy
+        if reliability:
+            overrides = ",".join(f"{k}={v:g}" for k, v in sorted(reliability.items()))
+            policy = dataclasses.replace(policy, version=f"{policy.version}+overrides({overrides})")
+        verdict, aggregate = combine(results, reliability=reliability, policy=policy)
         ensemble_ms = (time.perf_counter() - ensemble_started) * 1000
         warnings.extend(_warnings(results, aggregate.agreement))
         wall_ms = (time.perf_counter() - started) * 1000

@@ -4,7 +4,10 @@
 #
 # commit.sh — the one way to commit in this repository.
 #
-#   scripts/commit.sh [--minor|--major] [--no-push] "type(scope): subject [Txxx]" [PIPELINE_ARGS...]
+#   scripts/commit.sh [--minor|--major] [--no-push] [--only PATHSPEC]... "type(scope): subject [Txxx]" [PIPELINE_ARGS...]
+#
+# --only limits what is staged (repeatable); without it every change in the tree is
+# committed, and the staged file list is printed so unrelated files are noticed.
 #
 # 1. sets the version to HEAD's version bumped by patch (default), --minor (major
 #    features) or --major — idempotent, so re-running after a red pipeline is safe,
@@ -16,11 +19,13 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 part="patch"
 push=true
+declare -a only=()
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --minor) part=minor; shift ;;
         --major) part=major; shift ;;
         --no-push) push=false; shift ;;
+        --only) only+=("$2"); shift 2 ;;
         *) break ;;
     esac
 done
@@ -43,7 +48,13 @@ printf 'version: %s\n' "${current}"
 
 ./localPipeline.sh "$@"
 
-git add -A
+if [[ ${#only[@]} -gt 0 ]]; then
+    git add -- "${only[@]}" pyproject.toml uv.lock plan.md
+else
+    git add -A
+fi
+printf 'staged:\n'
+git diff --cached --name-status
 git commit -m "${message}"
 if [[ "${push}" == true ]]; then
     git push -u origin "$(git branch --show-current)"

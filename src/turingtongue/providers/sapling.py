@@ -89,5 +89,14 @@ class SaplingProvider(BaseProvider):
             warnings=warnings,
             attempts=outcome.attempts,
             rate_limit=outcome.rate_limit,
-            raw=body,
+            raw=_without_text(body),
         )
+
+
+def _without_text(body: dict[str, Any]) -> dict[str, Any]:
+    """Raw capture without echoed input (text, sentences, tokens) — privacy."""
+    trimmed = {k: v for k, v in body.items() if k not in {"text", "tokens", "score_string"}}
+    trimmed["sentence_scores"] = [
+        {k: v for k, v in s.items() if k != "sentence"} for s in body.get("sentence_scores") or []
+    ]
+    return trimmed

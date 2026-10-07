@@ -13,6 +13,7 @@ Exit codes (an AI verdict is data, not an error):
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import json
 import logging
 import sys
@@ -170,6 +171,12 @@ def make_settings(args: argparse.Namespace) -> Settings:
     for name, value in changes.items():
         if value <= 0:
             raise ConfigurationError(f"--{name.removesuffix('_s')} must be positive")
+    if "timeout_s" in changes:
+        # An explicit --timeout beats per-provider timeouts from the config file.
+        changes_providers = {
+            pid: dataclasses.replace(o, timeout_s=None) for pid, o in settings.providers.items()
+        }
+        return settings.with_changes(providers=changes_providers, **changes)
     return settings.with_changes(**changes) if changes else settings
 
 

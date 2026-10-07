@@ -350,12 +350,12 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
 
 ## Phase 13 — review and handoff
 
-- [ ] T110 — Review A: implementation correctness (/reviewBranch) + fixes
-  - Status: todo
+- [x] T110 — Review A: implementation correctness (/reviewBranch) + fixes
+  - Status: done
   - Depends on: all
   - Acceptance:
-    - [ ] findings fixed or tracked
-  - Notes: —
+    - [x] findings fixed or tracked
+  - Notes: reviewBranch: 7 findings (raw text echo, loop-keyed gates, Pangram poll clamp, rich markup, CLI timeout precedence, weights_version, commit staging) all fixed with regression tests
 - [ ] T111 — Review B: adversarial end-to-end scenarios
   - Status: todo
   - Depends on: all

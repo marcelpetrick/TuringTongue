@@ -63,7 +63,7 @@ class PangramProvider(BaseProvider):
                     else ErrorCategory.PROVIDER_ERROR
                 )
                 raise ProviderFailure(category, f"Pangram: {headline}", retryable=False)
-            await asyncio.sleep(max(MIN_POLL_INTERVAL_S if interval > 0 else 0.0, interval))
+            await asyncio.sleep(max(MIN_POLL_INTERVAL_S, interval))
         return self._parse(body, prepared, model, attempts, polls, polled.rate_limit)
 
     def _parse(
@@ -112,7 +112,10 @@ class PangramProvider(BaseProvider):
             warnings=warnings,
             attempts=attempts,
             rate_limit=rate_limit,
-            raw={k: v for k, v in body.items() if k != "text"},
+            raw={
+                **{k: v for k, v in body.items() if k not in {"text", "windows"}},
+                "windows": [{k: v for k, v in w.items() if k != "text"} for w in windows],
+            },
         )
 
 
