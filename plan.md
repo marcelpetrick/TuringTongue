@@ -289,11 +289,11 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
 
 ## Phase 12 — delivery
 
-- [ ] T100 — Clean-install e2e script (wheel in fresh venv, outside source tree)
-  - Status: todo
+- [x] T100 — Clean-install e2e script (wheel in fresh venv, outside source tree)
+  - Status: done
   - Depends on: T040
   - Acceptance:
-    - [ ] §18.6 steps 1-6, 8-10
+    - [x] §18.6 steps 1-6, 8-10
   - Notes: —
 - [ ] T101 — Batch command (JSONL/CSV)
   - Status: todo
