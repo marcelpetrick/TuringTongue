@@ -146,7 +146,8 @@ def test_main_from_cache(tmp_path: Path) -> None:
     head = hc.git("rev-parse", "HEAD").strip()
     cache = {head: {"loc": dict.fromkeys(hc.AREAS, 5), "version": "9.9.9", "coverage": 99.0}}
     (tmp_path / "measurements.json").write_text(json.dumps(cache))
-    assert hc.main(["--no-measure", "--out-dir", str(tmp_path), "--pending-release", "v9.9.9"]) == 0
+    args = ["--no-measure", "--ref", "HEAD", "--out-dir", str(tmp_path)]
+    assert hc.main([*args, "--pending-release", "v9.9.9"]) == 0
     assert ">v9.9.9<" in (tmp_path / "loc-history.svg").read_text()
     assert "9.9.9" in (tmp_path / "loc-current.md").read_text()
-    assert hc.main(["--no-measure", "--out-dir", str(tmp_path / "empty")]) == 1
+    assert hc.main(["--no-measure", "--ref", "HEAD", "--out-dir", str(tmp_path / "empty")]) == 1
