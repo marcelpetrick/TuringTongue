@@ -295,12 +295,12 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
   - Acceptance:
     - [x] §18.6 steps 1-6, 8-10
   - Notes: —
-- [ ] T101 — Batch command (JSONL/CSV)
-  - Status: todo
+- [x] T101 — Batch command (JSONL/CSV)
+  - Status: done
   - Depends on: T032
   - Acceptance:
-    - [ ] §30 columns
-  - Notes: —
+    - [x] §30 columns
+  - Notes: shipped together with the benchmark CLI commit (T072)
 - [x] T102 — Dockerfile + docker smoke check in pipeline
   - Status: done
   - Depends on: T100
@@ -329,11 +329,11 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] only configured providers
     - [x] never on PRs
   - Notes: —
-- [ ] T106 — Docs: architecture, privacy, benchmarking, ADRs, .env.example
-  - Status: todo
+- [x] T106 — Docs: architecture, privacy, benchmarking, ADRs, .env.example
+  - Status: done
   - Depends on: T032
   - Acceptance:
-    - [ ] privacy prominent
+    - [x] privacy prominent
   - Notes: —
 - [ ] T107 — README with real badges, screenshot, usage
   - Status: todo
