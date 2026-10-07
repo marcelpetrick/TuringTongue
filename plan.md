@@ -222,14 +222,14 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
 
 ## Phase 8 — research documentation
 
-- [ ] T060 — docs/human-vs-ai-signals.md
-  - Status: todo
+- [x] T060 — docs/human-vs-ai-signals.md
+  - Status: done
   - Depends on: —
   - Acceptance:
-    - [ ] all §9 topics
-    - [ ] evidence classes
-    - [ ] references
-  - Notes: —
+    - [x] all §9 topics
+    - [x] evidence classes
+    - [x] references
+  - Notes: written by research sub-agent; reviewed by orchestrator
 
 ## Phase 9 — benchmark
 
