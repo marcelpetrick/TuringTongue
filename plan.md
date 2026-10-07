@@ -138,13 +138,13 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
   - Acceptance:
     - [x] documented orientation -1 human … +1 AI
   - Notes: —
-- [ ] T031 — Weighted mixture-of-experts, agreement, verdict + NO_VERDICT policy
-  - Status: todo
+- [x] T031 — Weighted mixture-of-experts, agreement, verdict + NO_VERDICT policy
+  - Status: done
   - Depends on: T030
   - Acceptance:
-    - [ ] formula documented in code + docs
-    - [ ] confidence/evidence/agreement distinct
-    - [ ] tests
+    - [x] formula documented in code + docs
+    - [x] confidence/evidence/agreement distinct
+    - [x] tests
   - Notes: —
 - [ ] T032 — Async orchestrator: selection, concurrency limits, timeouts, deadline, partial success
   - Status: todo
