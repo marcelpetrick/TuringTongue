@@ -1,0 +1,1 @@
+{"success": true, "code": 200, "message": "", "data": {"input_text": "...", "textWords": 120, "aiWords": 30, "fakePercentage": 25.0, "isHuman": 1, "sentences": ["a", "b"], "h": ["b"], "cost": 1}}

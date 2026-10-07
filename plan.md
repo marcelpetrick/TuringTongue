@@ -213,12 +213,12 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] adapter
     - [x] fixtures
   - Notes: —
-- [ ] T054 — ZeroGPT adapter (if documented)
-  - Status: todo
+- [x] T054 — ZeroGPT adapter (if documented)
+  - Status: done
   - Depends on: T020,T003
   - Acceptance:
-    - [ ] adapter or documented exclusion
-  - Notes: —
+    - [x] adapter or documented exclusion
+  - Notes: implemented opt-in (disabled by default) because docs lack example responses
 
 ## Phase 8 — research documentation
 

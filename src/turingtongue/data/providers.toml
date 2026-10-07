@@ -146,3 +146,20 @@ last_verified = "2026-10-07"
 docs_url = "https://docs.thehive.ai/docs/ai-generated-text-detection"
 endpoint = "POST https://api.thehive.ai/api/v2/task/sync (form field text_data)"
 notes = "Needs a sales-provisioned V2 project with the AI text model. Provider chunks text into 2,048 chars."
+
+[providers.zerogpt]
+name = "ZeroGPT"
+transport = "api"
+adapter = "turingtongue.providers.zerogpt:ZeroGPTProvider"
+credential_env = ["ZEROGPT_API_KEY"]
+enabled_by_default = false
+supports_segments = true
+supports_mixed_label = false
+supports_model_version = false
+limit_unit = "characters"
+known_languages = "not documented"
+adapter_status = "implemented from thin docs (no official example response); opt-in until verified live"
+last_verified = "2026-10-07"
+docs_url = "https://api.zerogpt.com/docs"
+endpoint = "POST https://api.zerogpt.com/api/detect/detectText"
+notes = "Disabled by default: response schema documented without examples; auth may additionally need a JWT."
