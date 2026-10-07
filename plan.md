@@ -254,12 +254,12 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] latency percentiles
     - [x] tests
   - Notes: —
-- [ ] T073 — Initial benchmark run / documented credential blocker
-  - Status: todo
+- [x] T073 — Initial benchmark run / documented credential blocker
+  - Status: done
   - Depends on: T072
   - Acceptance:
-    - [ ] docs/benchmarking.md
-  - Notes: —
+    - [x] docs/benchmarking.md
+  - Notes: offline mock run done; real-provider comparison blocked on owner API keys (docs/benchmarking.md)
 
 ## Phase 10 — browser fallback
 
@@ -274,17 +274,17 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
 
 ## Phase 11 — performance
 
-- [ ] T090 — Timing/profiling instrumentation (per phase, ensemble, wall clock)
-  - Status: todo
+- [x] T090 — Timing/profiling instrumentation (per phase, ensemble, wall clock)
+  - Status: done
   - Depends on: T032
   - Acceptance:
-    - [ ] timings in result
+    - [x] timings in result
   - Notes: —
-- [ ] T091 — Measured performance pass
-  - Status: todo
+- [x] T091 — Measured performance pass
+  - Status: done
   - Depends on: T090
   - Acceptance:
-    - [ ] before/after numbers or documented 'no bottleneck'
+    - [x] before/after numbers or documented 'no bottleneck'
   - Notes: —
 
 ## Phase 12 — delivery

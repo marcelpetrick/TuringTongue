@@ -108,3 +108,12 @@ def test_bump_from_version(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> N
     monkeypatch.setattr(bump_version, "PYPROJECT", pyproject)
     assert bump_version.main(["minor", "--from-version", "0.1.0", "--no-lock"]) == 0
     assert 'version = "0.2.0"' in pyproject.read_text()
+
+
+def test_profile_concurrency_runs_offline(capsys: pytest.CaptureFixture[str]) -> None:
+    from scripts import profile_concurrency
+
+    assert profile_concurrency.main(["--latency-ms", "20", "--runs", "1"]) == 0
+    out = capsys.readouterr().out
+    assert "| 1 |" in out
+    assert "| 4 |" in out
