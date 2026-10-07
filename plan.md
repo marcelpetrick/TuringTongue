@@ -114,13 +114,13 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] fixtures
     - [x] contract tests
   - Notes: —
-- [ ] T023 — Pangram adapter + contract fixtures
-  - Status: todo
+- [x] T023 — Pangram adapter + contract fixtures
+  - Status: done
   - Depends on: T020,T003
   - Acceptance:
-    - [ ] adapter
-    - [ ] fixtures
-    - [ ] contract tests
+    - [x] adapter
+    - [x] fixtures
+    - [x] contract tests
   - Notes: —
 - [x] T024 — Offline mock provider for smoke tests (never default)
   - Status: done

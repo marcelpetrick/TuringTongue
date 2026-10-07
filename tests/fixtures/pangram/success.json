@@ -1,0 +1,18 @@
+{
+  "stage": "STAGE_SUCCESS",
+  "text": "AI-assisted passage. Human passage.",
+  "version": "4.0",
+  "headline": "AI Assisted",
+  "prediction": "We believe that this text is a mix of AI-assisted and human-written content.",
+  "prediction_short": "Mixed",
+  "fraction_ai": 0.0,
+  "fraction_ai_assisted": 0.6,
+  "fraction_human": 0.4,
+  "num_ai_segments": 0,
+  "num_ai_assisted_segments": 1,
+  "num_human_segments": 1,
+  "windows": [
+    {"text": "AI-assisted passage. ", "label": "AI-Assisted", "ai_assistance_score": 0.55, "confidence": "High", "start_index": 0, "end_index": 21, "word_count": 2, "token_length": 5, "is_humanized": true, "humanizer_score": 0.91},
+    {"text": "Human passage.", "label": "Human Written", "ai_assistance_score": 0.02, "confidence": "Medium", "start_index": 21, "end_index": 35, "word_count": 2, "token_length": 4, "is_humanized": false, "humanizer_score": 0.0}
+  ]
+}

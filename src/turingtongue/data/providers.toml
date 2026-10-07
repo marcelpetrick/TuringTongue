@@ -56,3 +56,20 @@ last_verified = "2026-10-07"
 docs_url = "https://gptzero.stoplight.io/docs/gptzero-api"
 endpoint = "POST https://api.gptzero.me/v2/predict/text"
 notes = "Provider silently truncates at 50,000 characters; we submit an exact prefix and mark it."
+
+[providers.pangram]
+name = "Pangram"
+transport = "api"
+adapter = "turingtongue.providers.pangram:PangramProvider"
+credential_env = ["PANGRAM_API_KEY"]
+enabled_by_default = true
+supports_segments = true
+supports_mixed_label = true
+supports_model_version = true
+limit_unit = "characters"
+known_languages = "24 languages listed by the provider"
+adapter_status = "implemented; contract-tested against documented examples; not yet run live"
+last_verified = "2026-10-07"
+docs_url = "https://docs.pangram.com"
+endpoint = "POST https://text.external-api.pangram.com/task + GET /task/{id}"
+notes = "Async submit+poll. No documented size limit; text sent in full. $0.05 per 100 words at verification."
