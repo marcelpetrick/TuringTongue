@@ -9,7 +9,7 @@ messages are passed through :func:`turingtongue.redaction.redact` before use.
 
 from __future__ import annotations
 
-from turingtongue.models import ErrorCategory
+from turingtongue.models import ErrorCategory, RateLimitInfo
 
 RETRYABLE_CATEGORIES = frozenset(
     {
@@ -40,6 +40,8 @@ class ProviderFailure(TuringTongueError):
         http_status: int | None = None,
         retryable: bool | None = None,
         retry_after_s: float | None = None,
+        attempt_count: int = 1,
+        rate_limit: RateLimitInfo | None = None,
     ) -> None:
         super().__init__(message)
         self.category = category
@@ -47,6 +49,8 @@ class ProviderFailure(TuringTongueError):
         self.http_status = http_status
         self.retryable = category in RETRYABLE_CATEGORIES if retryable is None else retryable
         self.retry_after_s = retry_after_s
+        self.attempt_count = attempt_count
+        self.rate_limit = rate_limit
 
 
 def category_for_status(status: int) -> ErrorCategory:

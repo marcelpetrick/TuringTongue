@@ -79,13 +79,13 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] coverage reported
     - [x] Unicode boundary tests
   - Notes: —
-- [ ] T015 — HTTP transport: timeouts, bounded retry with jitter, Retry-After, body cap
-  - Status: todo
+- [x] T015 — HTTP transport: timeouts, bounded retry with jitter, Retry-After, body cap
+  - Status: done
   - Depends on: T011
   - Acceptance:
-    - [ ] retry only 408/429/5xx/network
-    - [ ] Retry-After respected
-    - [ ] tests
+    - [x] retry only 408/429/5xx/network
+    - [x] Retry-After respected
+    - [x] tests
   - Notes: —
 
 ## Phase 4 — first adapters
