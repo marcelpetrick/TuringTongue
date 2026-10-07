@@ -127,22 +127,26 @@ class Checker:
         if isinstance(providers, str):
             providers = [p for p in providers.split(",") if p.strip()]
         names = [p.strip().lower() for p in providers or []]
-        if not names or names == ["default"]:
-            mode = "default"
-        elif names == ["all"]:
+        named = [n for n in dict.fromkeys(names) if n not in {"all", "default"}]
+        if "all" in names:
             mode = "all"
-        else:
+        elif named:
             mode = "explicit"
-        selection = Selection(mode=mode, transport=transport)
-        if mode == "explicit":
-            candidates = [self.registry.get(name) for name in dict.fromkeys(names)]
         else:
-            candidates = list(self.registry)
+            mode = "default"
+        selection = Selection(mode=mode, transport=transport)
+        named_specs = [self.registry.get(name) for name in named]
+        candidates = named_specs if mode == "explicit" else list(self.registry)
+        explicit_ids = {spec.id for spec in named_specs}
         for spec in candidates:
             if not transport_matches(spec.transport, transport):
                 selection.skipped[spec.id] = f"transport {spec.transport.value} not selected"
                 continue
-            if mode != "explicit" and spec.transport is TransportKind.MOCK and transport != "mock":
+            if (
+                spec.transport is TransportKind.MOCK
+                and spec.id not in explicit_ids
+                and transport != "mock"
+            ):
                 continue
             if mode == "default" and not self._enabled(spec) and transport != "mock":
                 selection.skipped[spec.id] = "disabled by default/config"

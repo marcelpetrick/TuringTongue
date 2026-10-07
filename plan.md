@@ -157,29 +157,29 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
 
 ## Phase 6 — CLI
 
-- [ ] T040 — CLI check: one-line default, exit codes 0/2/3/4
-  - Status: todo
+- [x] T040 — CLI check: one-line default, exit codes 0/2/3/4
+  - Status: done
   - Depends on: T032
   - Acceptance:
-    - [ ] AI is not an error exit
+    - [x] AI is not an error exit
   - Notes: —
-- [ ] T041 — Verbose report
-  - Status: todo
+- [x] T041 — Verbose report
+  - Status: done
   - Depends on: T040
   - Acceptance:
-    - [ ] every §3.2 item shown
+    - [x] every §3.2 item shown
   - Notes: —
-- [ ] T042 — JSON output
-  - Status: todo
+- [x] T042 — JSON output
+  - Status: done
   - Depends on: T040
   - Acceptance:
-    - [ ] versioned schema
+    - [x] versioned schema
   - Notes: —
-- [ ] T043 — providers command (registry + credential presence)
-  - Status: todo
+- [x] T043 — providers command (registry + credential presence)
+  - Status: done
   - Depends on: T040
   - Acceptance:
-    - [ ] no secret values shown
+    - [x] no secret values shown
   - Notes: —
 
 ## Phase 7 — provider expansion
