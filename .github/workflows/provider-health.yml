@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Opt-in live check against real provider APIs using repository secrets.
+# Never runs on pull requests. Each configured provider receives exactly ONE short
+# public-domain sample per run (cost guardrail). Provider outages are reported in the
+# job summary as provider-health findings and do not fail the workflow; only crashes
+# of our own code do.
+name: Provider health (live, opt-in)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 5 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GPTZERO_API_KEY: ${{ secrets.GPTZERO_API_KEY }}
+      PANGRAM_API_KEY: ${{ secrets.PANGRAM_API_KEY }}
+      SAPLING_API_KEY: ${{ secrets.SAPLING_API_KEY }}
+      COPYLEAKS_EMAIL: ${{ secrets.COPYLEAKS_EMAIL }}
+      COPYLEAKS_API_KEY: ${{ secrets.COPYLEAKS_API_KEY }}
+      WINSTON_AI_API_KEY: ${{ secrets.WINSTON_AI_API_KEY }}
+      ORIGINALITY_API_KEY: ${{ secrets.ORIGINALITY_API_KEY }}
+      HIVE_API_KEY: ${{ secrets.HIVE_API_KEY }}
+      ZEROGPT_API_KEY: ${{ secrets.ZEROGPT_API_KEY }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up uv + Python 3.14
+        uses: astral-sh/setup-uv@v10.2.0
+        with:
+          python-version: "3.14"
+
+      - name: Live provider health check
+        run: uv run --locked python scripts/provider_health.py >> "$GITHUB_STEP_SUMMARY"

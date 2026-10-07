@@ -321,13 +321,13 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] tag → release with artifacts
     - [x] PyPI job manual-only
   - Notes: PyPI job manual-only (workflow_dispatch publish_pypi=true) until the owner registers the trusted publisher
-- [ ] T105 — Opt-in network integration workflow
-  - Status: todo
+- [x] T105 — Opt-in network integration workflow
+  - Status: done
   - Depends on: T004
   - Acceptance:
-    - [ ] manual/scheduled
-    - [ ] only configured providers
-    - [ ] never on PRs
+    - [x] manual/scheduled
+    - [x] only configured providers
+    - [x] never on PRs
   - Notes: —
 - [ ] T106 — Docs: architecture, privacy, benchmarking, ADRs, .env.example
   - Status: todo
