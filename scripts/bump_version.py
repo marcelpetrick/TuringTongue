@@ -8,6 +8,7 @@ Usage:
     scripts/bump_version.py minor   # 0.3.4 -> 0.4.0 (major features)
     scripts/bump_version.py major   # 0.3.4 -> 1.0.0
     scripts/bump_version.py --show  # print current version
+    scripts/bump_version.py minor --from-version 0.3.4  # always 0.4.0, however often run
 
 The new version is printed on stdout. ``uv lock`` is run afterwards so the lock
 file records the project's own version too (skip with ``--no-lock``).
@@ -57,13 +58,19 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("part", nargs="?", choices=["major", "minor", "patch"])
     parser.add_argument("--show", action="store_true", help="print the current version")
     parser.add_argument("--no-lock", action="store_true", help="do not run 'uv lock'")
+    parser.add_argument(
+        "--from-version",
+        metavar="X.Y.Z",
+        help="bump relative to this version instead of the current one (idempotent re-runs)",
+    )
     args = parser.parse_args(argv)
     text = PYPROJECT.read_text(encoding="utf-8")
     current = read_version(text)
     if args.show or args.part is None:
         print(".".join(str(n) for n in current))
         return 0
-    new = bumped(current, args.part)
+    base = read_version(f'version = "{args.from_version}"') if args.from_version else current
+    new = bumped(base, args.part)
     PYPROJECT.write_text(apply(text, new), encoding="utf-8")
     if not args.no_lock:
         subprocess.run(["uv", "lock", "--quiet"], check=True, cwd=PYPROJECT.parent)

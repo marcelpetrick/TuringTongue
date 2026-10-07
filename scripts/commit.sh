@@ -6,8 +6,8 @@
 #
 #   scripts/commit.sh [--minor|--major] [--no-push] "type(scope): subject [Txxx]" [PIPELINE_ARGS...]
 #
-# 1. bumps the version (patch by default; --minor for major features) unless
-#    the working tree already carries a bump relative to HEAD,
+# 1. sets the version to HEAD's version bumped by patch (default), --minor (major
+#    features) or --major — idempotent, so re-running after a red pipeline is safe,
 # 2. runs ./localPipeline.sh (extra args are forwarded) — aborts if not green,
 # 3. stages everything, commits with the given Conventional Commit message,
 # 4. pushes to origin (unless --no-push).
@@ -35,10 +35,9 @@ fi
 
 current="$(uv run --quiet python scripts/bump_version.py --show)"
 if git rev-parse -q --verify HEAD >/dev/null; then
+    # Always derive the target from HEAD so re-runs after a red pipeline stay idempotent.
     previous="$(git show HEAD:pyproject.toml | sed -n 's/^version = "\(.*\)"$/\1/p' | head -1)"
-    if [[ "${current}" == "${previous}" ]]; then
-        current="$(uv run --quiet python scripts/bump_version.py "${part}")"
-    fi
+    current="$(uv run --quiet python scripts/bump_version.py "${part}" --from-version "${previous}")"
 fi
 printf 'version: %s\n' "${current}"
 

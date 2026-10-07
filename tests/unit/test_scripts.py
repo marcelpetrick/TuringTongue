@@ -100,3 +100,11 @@ def test_plan_task_main(tmp_path: Path) -> None:
     plan.write_text(PLAN_SAMPLE)
     assert plan_task.main(["T002", "in_progress", "--plan", str(plan)]) == 0
     assert "Status: in_progress" in plan.read_text()
+
+
+def test_bump_from_version(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    pyproject = tmp_path / "pyproject.toml"
+    pyproject.write_text('[project]\nversion = "0.1.1"\n')
+    monkeypatch.setattr(bump_version, "PYPROJECT", pyproject)
+    assert bump_version.main(["minor", "--from-version", "0.1.0", "--no-lock"]) == 0
+    assert 'version = "0.2.0"' in pyproject.read_text()
