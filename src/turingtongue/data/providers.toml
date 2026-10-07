@@ -92,3 +92,23 @@ last_verified = "2026-10-07"
 docs_url = "https://docs.copyleaks.com/reference/actions/writer-detector/check/"
 endpoint = "POST https://api.copyleaks.com/v2/writer-detector/{scanId}/check"
 notes = "COPYLEAKS_SANDBOX=1 returns MOCK classifications (excluded from the ensemble). Privacy policy permits training use."
+
+[providers.winston]
+name = "Winston AI"
+transport = "api"
+adapter = "turingtongue.providers.winston:WinstonProvider"
+credential_env = ["WINSTON_AI_API_KEY|WINSTON_API_KEY"]
+enabled_by_default = true
+supports_segments = true
+supports_mixed_label = false
+supports_model_version = true
+known_min_input = 300
+recommended_min_input = 600
+known_max_input = 150000
+limit_unit = "characters"
+known_languages = "en, fr, es, pt, nl, de, pl, it, ro, id, tl, ru, bg, zh (provider claim)"
+adapter_status = "implemented; contract-tested against documented schema (no official example); not yet run live"
+last_verified = "2026-10-07"
+docs_url = "https://docs.gowinston.ai"
+endpoint = "POST https://api.gowinston.ai/v2/ai-content-detection"
+notes = "Score is a HUMAN score (inverted). 1 credit per word; 2,000 free credits on signup at verification."

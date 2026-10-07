@@ -55,11 +55,12 @@ class ProviderSpec:
     def missing_credentials(self, env_lookup: Mapping[str, str] | None = None) -> list[str]:
         """Required environment variables that are absent or blank.
 
-        An entry ``"A|B"`` is satisfied by either variable (documented aliases).
+        An entry ``"A|B"`` is satisfied by either variable (documented aliases) and is
+        reported as ``"A or B"``.
         """
         env = env_lookup or {}
         return [
-            entry
+            entry.replace("|", " or ")
             for entry in self.credential_env
             if not any(env.get(name, "").strip() for name in entry.split("|"))
         ]

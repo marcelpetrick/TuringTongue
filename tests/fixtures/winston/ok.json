@@ -1,0 +1,12 @@
+{
+  "status": 200,
+  "score": 12,
+  "sentences": [{"text": "First sentence.", "score": 8}, {"text": "Second sentence.", "score": 15}],
+  "input": "text",
+  "attack_detected": {"zero_width_space": false, "homoglyph_attack": true},
+  "readability_score": 55,
+  "credits_used": 412,
+  "credits_remaining": 1588,
+  "version": "5.0",
+  "language": "en"
+}
