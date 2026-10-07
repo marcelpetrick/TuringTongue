@@ -129,3 +129,20 @@ last_verified = "2026-10-07"
 docs_url = "https://docs.originality.ai"
 endpoint = "POST https://api.originality.ai/api/v3/scan"
 notes = "Enterprise plan only. Accounts auto top-up credits by default. storeScan=false is sent."
+
+[providers.hive]
+name = "Hive"
+transport = "api"
+adapter = "turingtongue.providers.hive:HiveProvider"
+credential_env = ["HIVE_API_KEY"]
+enabled_by_default = true
+supports_segments = true
+supports_mixed_label = false
+supports_model_version = true
+limit_unit = "characters"
+known_languages = "not documented"
+adapter_status = "implemented; contract-tested against documented examples (two envelope shapes); not yet run live"
+last_verified = "2026-10-07"
+docs_url = "https://docs.thehive.ai/docs/ai-generated-text-detection"
+endpoint = "POST https://api.thehive.ai/api/v2/task/sync (form field text_data)"
+notes = "Needs a sales-provisioned V2 project with the AI text model. Provider chunks text into 2,048 chars."

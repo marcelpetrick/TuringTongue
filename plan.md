@@ -206,12 +206,12 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] adapter
     - [x] fixtures
   - Notes: —
-- [ ] T053 — Hive adapter
-  - Status: todo
+- [x] T053 — Hive adapter
+  - Status: done
   - Depends on: T020,T003
   - Acceptance:
-    - [ ] adapter
-    - [ ] fixtures
+    - [x] adapter
+    - [x] fixtures
   - Notes: —
 - [ ] T054 — ZeroGPT adapter (if documented)
   - Status: todo

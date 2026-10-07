@@ -1,0 +1,22 @@
+{
+  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "code": 200,
+  "project_id": 12345,
+  "user_id": 1234,
+  "created_on": "2020-05-25T19:55:02.312Z",
+  "status": [
+    {
+      "status": {"code": "0", "message": "SUCCESS"},
+      "response": {
+        "input": {"model_type": "AI_CLASSIFICATION", "text": "..."},
+        "aggregate_score": [{"class": "ai_generated", "score": 0.9994929075028791}],
+        "output": [
+          {"time": 0, "start_index": 0, "end_index": 2048, "classes": [{"ai_generated": 0.9994929075028791}]},
+          {"time": 0, "start_index": 2048, "end_index": 2586, "classes": [{"ai_generated": 0.9978705483555693}]}
+        ]
+      }
+    }
+  ],
+  "from_cache": false,
+  "metadata": "string"
+}

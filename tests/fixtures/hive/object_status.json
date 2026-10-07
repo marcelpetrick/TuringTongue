@@ -1,0 +1,12 @@
+{
+  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "code": 200,
+  "status": {
+    "status": {"code": 0, "message": "SUCCESS"},
+    "response": {
+      "input": {"model_type": "AI_CLASSIFICATION", "model_version": 3},
+      "aggregate_score": [{"class": "ai_generated", "score": 0.02}],
+      "output": [{"start_index": 0, "end_index": 120, "classes": [{"class": "ai_generated", "score": 0.02}]}]
+    }
+  }
+}

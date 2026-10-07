@@ -1,6 +1,6 @@
 [project]
 name = "turingtongue"
-version = "0.2.7"
+version = "0.2.8"
 description = "Ask several existing AI-text detection services about a text and combine their answers into one transparent HUMAN / AI / NO_VERDICT result."
 readme = "README.md"
 requires-python = ">=3.14"
