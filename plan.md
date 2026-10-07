@@ -184,13 +184,13 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
 
 ## Phase 7 — provider expansion
 
-- [ ] T050 — Copyleaks adapter (login token flow, sandbox flag)
-  - Status: todo
+- [x] T050 — Copyleaks adapter (login token flow, sandbox flag)
+  - Status: done
   - Depends on: T020,T003
   - Acceptance:
-    - [ ] adapter
-    - [ ] fixtures
-    - [ ] sandbox = mock results documented
+    - [x] adapter
+    - [x] fixtures
+    - [x] sandbox = mock results documented
   - Notes: —
 - [ ] T051 — Winston AI adapter
   - Status: todo

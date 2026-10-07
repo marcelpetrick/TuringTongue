@@ -1,0 +1,21 @@
+{
+  "modelVersion": "v9.0",
+  "results": [
+    {
+      "classification": 2,
+      "probability": 0.7316979,
+      "matches": [
+        {"text": {"chars": {"starts": [0], "lengths": [554]}, "words": {"starts": [0], "lengths": [73]}}}
+      ]
+    }
+  ],
+  "summary": {"human": 0.0, "ai": 1.0},
+  "scannedDocument": {
+    "scanId": "scan-id",
+    "totalWords": 73,
+    "totalExcluded": 0,
+    "credits": 1,
+    "expectedCredits": 1,
+    "creationTime": "2025-08-10T08:33:05.22225Z"
+  }
+}

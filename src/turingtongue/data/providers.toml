@@ -73,3 +73,22 @@ last_verified = "2026-10-07"
 docs_url = "https://docs.pangram.com"
 endpoint = "POST https://text.external-api.pangram.com/task + GET /task/{id}"
 notes = "Async submit+poll. No documented size limit; text sent in full. $0.05 per 100 words at verification."
+
+[providers.copyleaks]
+name = "Copyleaks"
+transport = "api"
+adapter = "turingtongue.providers.copyleaks:CopyleaksProvider"
+credential_env = ["COPYLEAKS_EMAIL", "COPYLEAKS_API_KEY"]
+enabled_by_default = true
+supports_segments = true
+supports_mixed_label = false
+supports_model_version = true
+known_min_input = 255
+known_max_input = 100000
+limit_unit = "characters"
+known_languages = "30 languages, auto-detected (provider claim)"
+adapter_status = "implemented; contract-tested against documented examples; not yet run live"
+last_verified = "2026-10-07"
+docs_url = "https://docs.copyleaks.com/reference/actions/writer-detector/check/"
+endpoint = "POST https://api.copyleaks.com/v2/writer-detector/{scanId}/check"
+notes = "COPYLEAKS_SANDBOX=1 returns MOCK classifications (excluded from the ensemble). Privacy policy permits training use."
