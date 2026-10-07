@@ -42,13 +42,13 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
 
 ## Phase 3 — domain model
 
-- [ ] T010 — Typed result models + versioned JSON serialization
-  - Status: todo
+- [x] T010 — Typed result models + versioned JSON serialization
+  - Status: done
   - Depends on: T001
   - Acceptance:
-    - [ ] Verdict/ProviderResult/CheckResult dataclasses
-    - [ ] schema_version in every output
-    - [ ] round-trip tests
+    - [x] Verdict/ProviderResult/CheckResult dataclasses
+    - [x] schema_version in every output
+    - [x] round-trip tests
   - Notes: —
 - [ ] T011 — Error categories, ProviderFailure, secret redaction
   - Status: todo
