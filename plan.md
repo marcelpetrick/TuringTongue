@@ -301,12 +301,12 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
   - Acceptance:
     - [ ] §30 columns
   - Notes: —
-- [ ] T102 — Dockerfile + docker smoke check in pipeline
-  - Status: todo
+- [x] T102 — Dockerfile + docker smoke check in pipeline
+  - Status: done
   - Depends on: T100
   - Acceptance:
-    - [ ] image runs CLI
-    - [ ] pipeline stage
+    - [x] image runs CLI
+    - [x] pipeline stage
   - Notes: —
 - [ ] T103 — GHCR docker publish workflow
   - Status: todo

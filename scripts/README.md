@@ -11,3 +11,5 @@ GPL-3.0-or-later and are run from any working directory (they `cd` to the repo r
 | [`plan_task.py`](plan_task.py) | Set a task status in `plan.md` (checkbox, Status, acceptance boxes, notes). | `scripts/plan_task.py T021 done --note "..."` |
 | [`check_headers.py`](check_headers.py) | Fails when a `.py`/`.sh` file lacks the SPDX GPL-3.0-or-later + copyright header. | run by the pipeline |
 | [`audit_dependencies.sh`](audit_dependencies.sh) | `pip-audit` over every locked dependency (runtime, extras, dev). Needs network. | run by the pipeline |
+| [`e2e_clean_install.sh`](e2e_clean_install.sh) | Installs the built wheel into a fresh Python 3.14 venv outside the source tree and checks import location, CLI help/version, mock-provider smoke runs, exit codes, graceful missing credentials and the JSON schema. `TURINGTONGUE_E2E_LIVE=1` adds real-provider smoke runs (may cost credits). | run by the pipeline · `scripts/e2e_clean_install.sh [WHEEL]` |
+| [`docker_check.sh`](docker_check.sh) | Builds the Docker image and smoke-tests it offline (version, non-root, mock verdicts, stdin, JSON without credentials). | run by the pipeline · `scripts/docker_check.sh [TAG]` |
