@@ -341,11 +341,11 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
   - Acceptance:
     - [ ] §20 questions answered
   - Notes: —
-- [ ] T108 — Dependabot config
-  - Status: todo
+- [x] T108 — Dependabot config
+  - Status: done
   - Depends on: T004
   - Acceptance:
-    - [ ] pip + actions + docker
+    - [x] pip + actions + docker
   - Notes: —
 
 ## Phase 13 — review and handoff
