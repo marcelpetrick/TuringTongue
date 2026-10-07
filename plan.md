@@ -308,11 +308,11 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] image runs CLI
     - [x] pipeline stage
   - Notes: —
-- [ ] T103 — GHCR docker publish workflow
-  - Status: todo
+- [x] T103 — GHCR docker publish workflow
+  - Status: done
   - Depends on: T102
   - Acceptance:
-    - [ ] push on main + tags
+    - [x] push on main + tags
   - Notes: —
 - [ ] T104 — Release workflow: GitHub release + prepared PyPI Trusted Publishing
   - Status: todo
