@@ -10,13 +10,12 @@ from rich.console import Console
 from rich.table import Table
 from rich.text import Text
 
-from turingtongue.models import CheckResult, ProviderResult, Verdict
+from turingtongue.models import CheckResult, ErrorCategory, ProviderResult, TransportKind, Verdict
 from turingtongue.registry import Registry
 
-DISCLAIMER = (
-    "Detector results are probabilistic indicators, not proof of authorship. "
-    "The text was sent to the third-party services listed above."
-)
+DISCLAIMER = "Detector results are probabilistic indicators, not proof of authorship."
+SENT_NOTE = "The text was sent to these third-party services: {names}."
+NOT_SENT_NOTE = "The text was not sent to any third-party service."
 _VERDICT_STYLE = {
     Verdict.HUMAN: "bold green",
     Verdict.AI: "bold red",
@@ -148,7 +147,23 @@ def render_verbose(result: CheckResult, console: Console) -> None:
         console.print("\nWarnings:")
         for warning in result.warnings:
             console.print(f"- {warning}", markup=False)
-    console.print(f"\n[dim]{DISCLAIMER}[/dim]")
+    contacted = [
+        p.provider_name
+        for p in result.providers
+        if p.transport is not TransportKind.MOCK
+        and not (p.error and p.error.category in _NOT_CONTACTED)
+    ]
+    note = SENT_NOTE.format(names=", ".join(contacted)) if contacted else NOT_SENT_NOTE
+    console.print(f"\n{DISCLAIMER} {note}", style="dim", markup=False)
+
+
+_NOT_CONTACTED = {
+    ErrorCategory.NOT_CONFIGURED,
+    ErrorCategory.INPUT_TOO_SHORT,
+    ErrorCategory.INPUT_TOO_LARGE,
+    ErrorCategory.TERMS_NOT_PERMITTED,
+}
+"""Failures raised before any request leaves the machine."""
 
 
 def _slots(obj: object) -> dict[str, object]:

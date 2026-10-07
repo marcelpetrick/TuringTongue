@@ -335,11 +335,11 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
   - Acceptance:
     - [x] privacy prominent
   - Notes: —
-- [ ] T107 — README with real badges, screenshot, usage
-  - Status: todo
+- [x] T107 — README with real badges, screenshot, usage
+  - Status: done
   - Depends on: T040
   - Acceptance:
-    - [ ] §20 questions answered
+    - [x] §20 questions answered
   - Notes: —
 - [x] T108 — Dependabot config
   - Status: done
