@@ -362,11 +362,11 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
   - Acceptance:
     - [x] §21.3 scenarios tested
   - Notes: tests/integration/test_adversarial.py covers every §21.3 scenario across all seven API adapters; clean install via e2e script; no new defects found
-- [ ] T112 — GitHub About + topics
-  - Status: todo
+- [x] T112 — GitHub About + topics
+  - Status: done
   - Depends on: T107
   - Acceptance:
-    - [ ] applied
+    - [x] applied
   - Notes: —
 - [x] T113 — IMPLEMENTATION_REPORT.md
   - Status: done
@@ -374,12 +374,12 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
   - Acceptance:
     - [x] §33 contents
   - Notes: —
-- [ ] T114 — GitHub release
-  - Status: todo
+- [x] T114 — GitHub release
+  - Status: done
   - Depends on: T104,T113
   - Acceptance:
-    - [ ] release published with artifacts
-  - Notes: —
+    - [x] release published with artifacts
+  - Notes: released via scripts/release.sh; Release workflow publishes wheel+sdist, Docker workflow publishes GHCR image
 
 ## Open items / blockers
 
