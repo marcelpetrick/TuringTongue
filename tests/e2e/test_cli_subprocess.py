@@ -18,6 +18,8 @@ def run(*args: str, stdin: str = "", **env: str) -> subprocess.CompletedProcess[
         "PATH": os.environ["PATH"],
         "HOME": str(Path.cwd()),
         "TURINGTONGUE_NO_DOTENV": "1",
+        # keep coverage.py's subprocess measurement working (scripts/metrics.py)
+        **{k: v for k, v in os.environ.items() if k.startswith("COVERAGE_")},
         **env,
     }
     return subprocess.run(

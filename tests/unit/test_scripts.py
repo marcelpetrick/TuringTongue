@@ -117,3 +117,41 @@ def test_profile_concurrency_runs_offline(capsys: pytest.CaptureFixture[str]) ->
     out = capsys.readouterr().out
     assert "| 1 |" in out
     assert "| 4 |" in out
+
+
+def test_metrics_render_and_structure(tmp_path: Path) -> None:
+    from scripts import metrics
+
+    structure = metrics.structure()
+    assert structure["modules"] > 10
+    assert structure["documentable"] >= structure["docstrings"] > 0
+    zero = {"nFiles": 1, "blank": 0, "comment": 0, "code": 10}
+    cov = {
+        "percent": 90.0,
+        "statements": 10,
+        "covered_lines": 9,
+        "branches": 2,
+        "covered_branches": 2,
+    }
+    data = {
+        "generated": "now",
+        "version": "1.2.3",
+        "commit": "abc",
+        "loc": dict.fromkeys(metrics.AREAS, zero),
+        "structure": structure,
+        "complexity": {
+            "blocks": 2,
+            "average": 1.5,
+            "max": (2, "f"),
+            "top": [(2, "f")],
+            "grades": {"A": 2},
+            "mi_avg": 80.0,
+            "mi_min": 70.0,
+        },
+        "tests": dict.fromkeys((*metrics.TIERS, "network or paid or browser"), 1),
+        "coverage": {"e2e": cov},
+    }
+    text = metrics.render(data)
+    assert "| e2e | 90.0 % | 9/10 | 2/2 |" in text
+    assert "Test-to-code ratio:** 1.00" in text
+    assert "average cyclomatic complexity **1.50**" in text

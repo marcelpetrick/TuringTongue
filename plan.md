@@ -380,6 +380,19 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
   - Acceptance:
     - [x] release published with artifacts
   - Notes: released via scripts/release.sh; Release workflow publishes wheel+sdist, Docker workflow publishes GHCR image
+- [x] T115 — Project metrics (LOC, tests, per-tier and e2e coverage, complexity) documented
+  - Status: done
+  - Depends on: T111
+  - Acceptance:
+    - [x] scripts/metrics.py with test
+    - [x] docs/metrics.md + README summary
+  - Notes: metrics snapshot in docs/metrics.md; e2e coverage measured in subprocesses (52.8 % alone, 98.4 % combined)
+- [ ] T116 — README quick start for first-time users
+  - Status: todo
+  - Depends on: T107
+  - Acceptance:
+    - [ ] offline mock, real key and Docker paths documented
+  - Notes: —
 
 ## Open items / blockers
 

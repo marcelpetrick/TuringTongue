@@ -33,6 +33,33 @@ every provider attempt, score, confidence, weight, latency, cost and failure beh
 API keys: the offline mock provider answers (it is a fixed test double, not a detector),
 and every real provider is reported as `not_configured` instead of being silently dropped.*
 
+## Quick start — try it in two minutes
+
+```bash
+git clone https://github.com/marcelpetrick/TuringTongue.git && cd TuringTongue
+uv sync                                    # installs Python deps from uv.lock
+
+# 1) offline smoke test, no account needed (the mock is a fixed test double, NOT a detector)
+uv run turingtongue check --text "Any text you like." -p mock          # → HUMAN
+uv run turingtongue check --text "Any text you like." -p mock -v       # full report
+
+# 2) a real check: get a free trial key at https://sapling.ai (real results, ~50k chars/day)
+export SAPLING_API_KEY=your-key            # or put it into .env (see .env.example)
+uv run turingtongue check benchmark/corpus/human/frankenstein.txt -v   # known human text
+uv run turingtongue check benchmark/corpus/ai/claude-blog.txt -v       # known AI text
+uv run turingtongue check my-essay.txt                                 # your own file → one word
+```
+
+The same without cloning, via Docker:
+
+```bash
+docker run --rm ghcr.io/marcelpetrick/turingtongue check --text "Any text." -p mock
+docker run --rm -i -e SAPLING_API_KEY ghcr.io/marcelpetrick/turingtongue check - < my-essay.txt
+```
+
+Add more keys (GPTZero, Pangram, …) and the ensemble uses every configured provider
+automatically; `uv run turingtongue providers` shows which are set up.
+
 ## What it does — and what it does not prove
 
 - Asks up to eight detector APIs: **Sapling, GPTZero, Pangram, Copyleaks, Winston AI,
@@ -166,6 +193,25 @@ turingtongue benchmark -p sapling -p gptzero --yes  # real providers (costs cred
 Qwen, one mixed) → accuracy, balanced accuracy, FPR/FNR, abstention, ROC-AUC, latency
 percentiles and cost per provider and for the ensemble. See
 [docs/benchmarking.md](docs/benchmarking.md) and [docs/performance.md](docs/performance.md).
+
+## Project metrics
+
+Measured by [`scripts/metrics.py`](scripts/metrics.py); full tables in
+[docs/metrics.md](docs/metrics.md).
+
+| Metric | Value |
+| --- | --- |
+| Library code (src) | 3,439 lines in 41 files · 48 classes · 172 functions |
+| Test code | 2,335 lines in 30 files (+166 lines JSON fixtures) · ratio 0.68 : 1 |
+| Scripts / CI / docs | 814 / 270 / 1,314 lines |
+| Tests | 313 (227 unit · 49 contract · 31 integration · 6 e2e) + 1 opt-in live |
+| Branch coverage, combined | **98.4 %** (gate ≥ 95 %) |
+| Coverage by tier alone | unit 91.0 % · contract 62.5 % · integration 62.5 % · **end-to-end 52.8 %** |
+| Cyclomatic complexity | average 4.49 (radon), 163 of 217 blocks rank A; max 31 (`render_verbose`) |
+
+End-to-end coverage is measured inside the `python -m turingtongue` child processes
+(coverage.py subprocess patching), not estimated. Wheel-install and Docker end-to-end
+checks run additionally in every pipeline.
 
 ## Development
 
