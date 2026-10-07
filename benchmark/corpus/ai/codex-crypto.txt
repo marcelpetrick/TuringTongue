@@ -1,0 +1,9 @@
+Public-key cryptography lets people communicate securely even when strangers may be listening. Unlike a traditional lock, which uses the same key to lock and unlock something, it uses a matched pair of keys: one public and one private. The public key can be shared freely, like an address. The private key is kept secret by its owner.
+
+Suppose Maya wants to send Leo a confidential message. Leo first gives Maya his public key. Her software uses it to scramble the message into unreadable data called ciphertext. Once encrypted, the message can be restored only with Leo’s private key. Anyone who intercepts it sees nonsense, while Leo can decrypt and read it. The crucial point is that knowing the public key does not provide a way to calculate the private one; the security relies on mathematical problems that are hard for computers to reverse.
+
+Public-key cryptography also supports digital signatures. Instead of hiding a message, Leo uses his private key to produce a signature tied to that message. Anyone can check the signature with Leo’s public key. A valid result shows that the message was signed by someone controlling Leo’s private key and that it was not altered afterward. This provides authenticity and integrity, though protecting the private key remains essential.
+
+In practice, public-key methods are slower than ordinary symmetric encryption, so secure apps combine both. They use public-key cryptography to authenticate participants and safely establish a temporary shared secret, then use that secret for fast encryption of the conversation. Web browsers, messaging apps, software updates, and payment systems use this hybrid approach.
+
+Public-key cryptography does not guarantee that a public key truly belongs to the person named. Certificates, trusted authorities, fingerprints, or verification connect keys to identities. Used correctly, the system enables privacy, trust, and secure communication across open networks.

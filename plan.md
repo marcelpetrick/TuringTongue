@@ -233,18 +233,18 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
 
 ## Phase 9 — benchmark
 
-- [ ] T070 — Human ground-truth corpus (public domain, provenance)
-  - Status: todo
+- [x] T070 — Human ground-truth corpus (public domain, provenance)
+  - Status: done
   - Depends on: —
   - Acceptance:
-    - [ ] pre-LLM texts
-    - [ ] source + license per sample
+    - [x] pre-LLM texts
+    - [x] source + license per sample
   - Notes: —
-- [ ] T071 — AI ground-truth corpus from several model families
-  - Status: todo
+- [x] T071 — AI ground-truth corpus from several model families
+  - Status: done
   - Depends on: —
   - Acceptance:
-    - [ ] model/tool/date/prompt hash recorded
+    - [x] model/tool/date/prompt hash recorded
   - Notes: —
 - [ ] T072 — Benchmark runner, metrics, report + CLI command
   - Status: todo

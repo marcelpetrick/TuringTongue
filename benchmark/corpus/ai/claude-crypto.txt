@@ -1,0 +1,11 @@
+Imagine you want strangers to be able to send you secret messages, but you have never met them and cannot hand each of them a key in person. Public-key cryptography solves exactly this problem by giving each person not one key, but a matched pair.
+
+The first key is the public key. As the name suggests, you can share it with anyone: post it on a website, print it on a business card, or send it by email. The second key is the private key, and it never leaves your possession. The two keys are mathematically linked, yet knowing the public key does not let anyone work out the private one in any reasonable amount of time.
+
+A helpful picture is a padlock that anyone can snap shut, but only you can open. You hand out open padlocks freely. When someone wants to send you a message, they put it in a box, close one of your padlocks on it, and send it over. Anyone can intercept the box, but nobody except you holds the key that opens the lock.
+
+The same pair works in reverse for digital signatures. If you scramble a short summary of a document with your private key, anyone can use your public key to check that only you could have produced it and that the document has not been changed since.
+
+What makes this safe is a family of mathematical problems that are easy to perform in one direction and extraordinarily hard to undo, such as multiplying two huge prime numbers versus factoring the result. Your web browser relies on this every time it shows a padlock icon: it uses the website's public key to agree on a fresh secret, and from then on the conversation is protected.
+
+The main weakness is not the mathematics but people: a private key that is stolen, or a public key that secretly belongs to someone else.
