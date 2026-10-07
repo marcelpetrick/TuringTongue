@@ -53,3 +53,50 @@ def test_header_check_flags_missing(tmp_path: Path, capsys: pytest.CaptureFixtur
 
 def test_header_check_passes_on_repository() -> None:
     assert check_headers.main([]) == 0
+
+
+PLAN_SAMPLE = """## Phase
+
+- [ ] T001 — First
+  - Status: todo
+  - Depends on: —
+  - Acceptance:
+    - [ ] a
+    - [ ] b
+  - Notes: —
+- [ ] T002 — Second
+  - Status: todo
+  - Acceptance:
+    - [ ] c
+  - Notes: —
+
+## Next
+"""
+
+
+def test_plan_task_done_ticks_only_target() -> None:
+    from scripts import plan_task
+
+    out = plan_task.update(PLAN_SAMPLE, "T001", "done", "shipped")
+    first, second = out.split("- [ ] T002")
+    assert "- [x] T001" in first
+    assert "Status: done" in first
+    assert first.count("    - [x]") == 2
+    assert "Notes: shipped" in first
+    assert "    - [ ] c" in second
+
+
+def test_plan_task_unknown_id() -> None:
+    from scripts import plan_task
+
+    with pytest.raises(KeyError):
+        plan_task.update(PLAN_SAMPLE, "T999", "done", None)
+
+
+def test_plan_task_main(tmp_path: Path) -> None:
+    from scripts import plan_task
+
+    plan = tmp_path / "plan.md"
+    plan.write_text(PLAN_SAMPLE)
+    assert plan_task.main(["T002", "in_progress", "--plan", str(plan)]) == 0
+    assert "Status: in_progress" in plan.read_text()
