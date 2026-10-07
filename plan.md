@@ -356,12 +356,12 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
   - Acceptance:
     - [x] findings fixed or tracked
   - Notes: reviewBranch: 7 findings (raw text echo, loop-keyed gates, Pangram poll clamp, rich markup, CLI timeout precedence, weights_version, commit staging) all fixed with regression tests
-- [ ] T111 — Review B: adversarial end-to-end scenarios
-  - Status: todo
+- [x] T111 — Review B: adversarial end-to-end scenarios
+  - Status: done
   - Depends on: all
   - Acceptance:
-    - [ ] §21.3 scenarios tested
-  - Notes: —
+    - [x] §21.3 scenarios tested
+  - Notes: tests/integration/test_adversarial.py covers every §21.3 scenario across all seven API adapters; clean install via e2e script; no new defects found
 - [ ] T112 — GitHub About + topics
   - Status: todo
   - Depends on: T107
