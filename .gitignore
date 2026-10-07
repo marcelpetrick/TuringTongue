@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+reports/
+
+# Secrets — never commit real credentials
+.env
+.env.*
+!.env.example
+
+# Browser automation debris
+playwright-debug/
+browser-profiles/
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store

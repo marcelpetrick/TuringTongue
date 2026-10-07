@@ -1,0 +1,95 @@
+[project]
+name = "turingtongue"
+version = "0.0.1"
+description = "Ask several existing AI-text detection services about a text and combine their answers into one transparent HUMAN / AI / NO_VERDICT result."
+readme = "README.md"
+requires-python = ">=3.14"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+authors = [{ name = "Marcel Petrick", email = "mail@marcelpetrick.it" }]
+keywords = ["ai-detection", "ai-text-detector", "ensemble", "gptzero", "sapling", "pangram"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Text Processing :: Linguistic",
+    "Typing :: Typed",
+]
+dependencies = [
+    "httpx>=0.28.1",
+    "rich>=15.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/marcelpetrick/TuringTongue"
+Issues = "https://github.com/marcelpetrick/TuringTongue/issues"
+
+[build-system]
+requires = ["uv_build>=0.12,<0.13"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+minversion = "9.0"
+addopts = [
+    "--strict-config",
+    "--strict-markers",
+    "-ra",
+    "-m", "not network and not paid and not browser",
+]
+testpaths = ["tests"]
+markers = [
+    "unit: fast, isolated, no network",
+    "contract: provider response-parsing tests against sanitized fixtures",
+    "integration: several components together, still offline (HTTP mocked)",
+    "e2e: end-to-end through the CLI entry point",
+    "network: talks to real provider services (opt-in)",
+    "paid: may consume paid provider credits (opt-in)",
+    "browser: needs a real browser via Playwright (opt-in)",
+    "slow: slow tests",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["turingtongue"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 95
+exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError", "@overload"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+src = ["src", "tests", "scripts"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "C4", "RUF", "PL", "S", "PT", "RET", "TID"]
+ignore = ["PLR0913", "PLR2004", "PLR0911", "PLR0912"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106", "PLR2004", "PLC0415", "S603", "S607"]
+"scripts/**" = ["S603", "S607", "T201"]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+warn_unreachable = true
+files = ["src", "tests", "scripts"]
+
+[dependency-groups]
+dev = [
+    "mypy>=2.4.0",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "pytest-cov>=7.1.0",
+    "respx>=0.23.1",
+    "ruff>=0.16.10",
+    "twine>=7.0.0",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["turingtongue", "scripts"]
