@@ -393,14 +393,46 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
   - Acceptance:
     - [x] offline mock, real key and Docker paths documented
   - Notes: quick start shipped in the same README commit as T115 (1ba61c7)
+- [ ] T117 — Lizard-style automatic PyPI publishing (Trusted Publishing on tags)
+  - Status: blocked
+  - Depends on: T104
+  - Acceptance:
+    - [x] release.yml publishes from `pypi` environment via OIDC on every tag, PYPI_PUBLISH-gated
+    - [x] GitHub environment `pypi` created; name `turingtongue` verified free on PyPI/TestPyPI
+    - [x] docs/releasing.md documents the one-time owner setup
+    - [ ] owner adds the pending publisher on PyPI and sets PYPI_PUBLISH=true
+    - [ ] first upload visible under Environments → pypi
+  - Notes: PyPI only lets an account owner register a publisher; this cannot be automated from the repo.
+- [ ] T118 — Live validation of API adapters with real keys
+  - Status: blocked
+  - Depends on: T021–T054
+  - Acceptance:
+    - [ ] TURINGTONGUE_E2E_LIVE=1 scripts/e2e_clean_install.sh green for ≥ 3 providers
+    - [ ] real benchmark run committed to docs/benchmarking.md; drift captured as fixtures
+  - Notes: 2026-10-07 owner declined manual web signups ("maybe automate later"); agents must not create accounts. Sapling free trial is the cheapest first step when revisited.
+- [x] T120 — Research: detector APIs usable without signup
+  - Status: done
+  - Depends on: T003
+  - Acceptance:
+    - [x] answer documented in docs/providers.md §6 (none exist; no-signup web UIs are not APIs)
+  - Notes: only zero-signup route is local open-source detection (see T119).
+- [ ] T119 — Optional local open-source detector (Binoculars) as experimental provider
+  - Status: todo
+  - Depends on: T120
+  - Acceptance:
+    - [ ] `[local]` extra (torch + transformers), lazy import, API-only install unaffected
+    - [ ] registry entry transport `local`, enabled only when installed, labelled experimental
+    - [ ] small model pair chosen by measurement; benchmark on corpus before setting its weight
+    - [ ] unit tests with a fake model; opt-in `slow` test with real weights
+  - Notes: proposed to the owner 2026-10-07; awaiting go-ahead (large dependency, several GB).
 
 ## Open items / blockers
 
-- Live provider validation is blocked on owner-supplied API keys for all eight providers
+- Live provider validation (T118) is blocked on owner-supplied API keys for all eight providers
   (Originality.ai and Hive additionally need enterprise/sales-provisioned accounts).
 - Real-provider benchmark comparison blocked on the same keys (`docs/benchmarking.md`).
 - ZeroGPT stays opt-in until a live call confirms its undocumented response shape.
-- PyPI publication waits for the owner to register the trusted publisher.
+- PyPI publication waits for the owner's one-time pending-publisher registration (T117).
 - Corpus lacks AI_HUMAN_EDITED / HUMAN_AI_ASSISTED samples and the owner's blog posts.
 - Traceability note: batch (T101) shipped inside the T072 commit; ADRs 0001/0002/0004
   inside the T080 commit; the review fix of the CLI disclaimer inside the T107 commit.

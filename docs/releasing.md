@@ -16,9 +16,28 @@ features bump the minor version (`--minor`).
    both files attached. The **Docker** workflow publishes
    `ghcr.io/marcelpetrick/turingtongue:<version>` and `:latest`.
 
-## PyPI (prepared, not active)
+## PyPI (automatic on tags once enabled)
 
-The release workflow contains a `pypi` job using **Trusted Publishing (OIDC)** — no
-long-lived token. It only runs from a manual *Run workflow* with `publish_pypi = true`.
-Before using it the owner must confirm the distribution name and register the trusted
-publisher on PyPI (project `turingtongue`, workflow `release.yml`, environment `pypi`).
+Modelled on [lizard](https://github.com/terryyin/lizard/deployments/pypi): every version
+tag builds once, publishes the GitHub Release, and — when enabled — uploads the same
+wheel + sdist to PyPI from the `pypi` GitHub environment using **Trusted Publishing
+(OIDC)**: no PyPI password or long-lived token is stored in GitHub. Deployments show
+up under the repository's *Environments → pypi* tab, exactly like lizard's.
+
+Status (2026-10-07): the name `turingtongue` is free on PyPI and TestPyPI; the `pypi`
+GitHub environment exists; the workflow is ready. Publishing is **off** until the owner
+does the one-time setup — PyPI only lets an account owner register a publisher, so this
+step cannot be automated from the repository:
+
+1. Log in to PyPI → *Your account → Publishing* → **Add a pending publisher** (GitHub):
+   - PyPI project name: `turingtongue`
+   - Owner: `marcelpetrick` · Repository: `TuringTongue`
+   - Workflow name: `release.yml` · Environment name: `pypi`
+2. Enable the job: `gh variable set PYPI_PUBLISH --body true`
+3. Publish: either push the next tag (`scripts/release.sh`) or re-run an existing tag via
+   *Actions → Release → Run workflow* (tag `v0.5.x`, `publish_pypi` = true).
+
+The first successful upload turns the pending publisher into the real project. Fallback
+(as in lizard): if a `PYPI_API_TOKEN` repository secret exists, the publish step uses it
+instead of OIDC. Afterwards add the PyPI version badge to the README (only then is it a
+real badge).

@@ -1,8 +1,16 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Version tag (vX.Y.Z) -> full quality gate -> GitHub Release with wheel + sdist.
-# PyPI publication via Trusted Publishing (OIDC) is prepared but manual-only: it runs
-# solely from workflow_dispatch with publish_pypi=true, after the owner has registered
-# the PyPI project and its trusted publisher (see docs/releasing.md).
+# Version tag (vX.Y.Z) -> full quality gate -> GitHub Release with wheel + sdist
+# -> PyPI via Trusted Publishing (OIDC, no stored token), modelled on
+# https://github.com/terryyin/lizard/blob/master/.github/workflows/release.yml
+#
+# PyPI matches the OIDC claims on: owner, repository, workflow filename (release.yml)
+# and environment (pypi). One-time owner setup (see docs/releasing.md):
+#   1. PyPI -> Your account -> Publishing -> add a *pending* GitHub publisher:
+#      project turingtongue, owner marcelpetrick, repo TuringTongue,
+#      workflow release.yml, environment pypi
+#   2. gh variable set PYPI_PUBLISH --body true
+# Until PYPI_PUBLISH is "true" the PyPI job is skipped, so releases stay green.
+# Fallback (like lizard): a PYPI_API_TOKEN repository secret is used when present.
 name: Release
 
 on:
@@ -15,9 +23,9 @@ on:
         required: true
         type: string
       publish_pypi:
-        description: "Also publish to PyPI via Trusted Publishing"
+        description: "Publish to PyPI (also requires repository variable PYPI_PUBLISH=true)"
         required: true
-        default: false
+        default: true
         type: boolean
 
 permissions:
@@ -98,9 +106,9 @@ jobs:
           fi
 
   pypi:
-    name: PyPI (Trusted Publishing, manual)
+    name: PyPI (Trusted Publishing)
     needs: build
-    if: github.event_name == 'workflow_dispatch' && inputs.publish_pypi
+    if: vars.PYPI_PUBLISH == 'true' && (github.event_name == 'push' || inputs.publish_pypi)
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -116,3 +124,6 @@ jobs:
 
       - name: Publish
         uses: pypa/gh-action-pypi-publish@v1.14.2
+        with:
+          # empty -> OIDC trusted publishing; a PYPI_API_TOKEN secret is the fallback
+          password: ${{ secrets.PYPI_API_TOKEN }}

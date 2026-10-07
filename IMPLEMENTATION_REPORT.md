@@ -22,7 +22,7 @@ and combines them with a documented weighted mixture-of-experts into `HUMAN`, `A
 - Docs: provider matrix, human-vs-AI signals research, architecture, privacy,
   benchmarking, performance, releasing, 4 ADRs, `AGENTS.md`, `plan.md`.
 - Tooling: `localPipeline.sh` (mirrored 1:1 by GitHub Actions), helper scripts, Docker
-  image on GHCR, tag-driven GitHub Release, prepared PyPI Trusted Publishing, opt-in
+  image on GHCR, tag-driven GitHub Release, lizard-style automatic PyPI Trusted Publishing (enabled by one owner step), opt-in
   live provider-health workflow, Dependabot.
 
 ## Provider status
@@ -99,8 +99,8 @@ optimization beyond concurrency is justified ([docs/performance.md](docs/perform
 - API keys for all eight providers (owner-supplied; put them in `.env` or repo secrets).
 - Originality.ai and Hive require enterprise/sales-provisioned accounts.
 - Browser automation: all reviewed sites' terms forbid it → no site adapter.
-- PyPI: workflow ready; publication waits for the owner to confirm the name and register
-  the trusted publisher.
+- PyPI: workflow and `pypi` environment ready, name `turingtongue` free; publication waits
+  for the owner to add the pending publisher on PyPI and set `PYPI_PUBLISH=true`.
 
 ## Deviations from the vision
 
@@ -119,7 +119,8 @@ optimization beyond concurrency is justified ([docs/performance.md](docs/perform
 2. Re-verify ZeroGPT live; enable by default if the schema holds.
 3. Add the owner's pre-2022 blog posts (with permission) and edited/assisted samples.
 4. Consider learned weights only from the `calibration` split once data suffices.
-5. Register the PyPI trusted publisher and publish.
+5. Add the PyPI pending publisher, `gh variable set PYPI_PUBLISH --body true`, re-run the release.
+6. Decide on the local Binoculars provider (T119) — the only no-signup detector route.
 
 ## Release readiness
 
