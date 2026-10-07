@@ -146,14 +146,14 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] confidence/evidence/agreement distinct
     - [x] tests
   - Notes: —
-- [ ] T032 — Async orchestrator: selection, concurrency limits, timeouts, deadline, partial success
-  - Status: todo
+- [x] T032 — Async orchestrator: selection, concurrency limits, timeouts, deadline, partial success
+  - Status: done
   - Depends on: T020,T031
   - Acceptance:
-    - [ ] partial success
-    - [ ] all-fail → NO_VERDICT
-    - [ ] sync façade
-  - Notes: —
+    - [x] partial success
+    - [x] all-fail → NO_VERDICT
+    - [x] sync façade
+  - Notes: shipped in commit 13604a5 together with T013/T020/T024
 
 ## Phase 6 — CLI
 
