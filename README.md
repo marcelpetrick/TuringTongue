@@ -202,9 +202,9 @@ Measured by [`scripts/metrics.py`](scripts/metrics.py); full tables in
 | Metric | Value |
 | --- | --- |
 | Library code (src) | 3,439 lines in 41 files · 48 classes · 172 functions |
-| Test code | 2,335 lines in 30 files (+166 lines JSON fixtures) · ratio 0.68 : 1 |
-| Scripts / CI / docs | 814 / 270 / 1,314 lines |
-| Tests | 313 (227 unit · 49 contract · 31 integration · 6 e2e) + 1 opt-in live |
+| Test code | 2,480 lines in 32 files (+166 lines JSON fixtures) · ratio 0.72 : 1 |
+| Scripts / CI / docs | 1,246 / 280 / 2,192 lines |
+| Tests | 350 (264 unit · 49 contract · 31 integration · 6 e2e) + 1 opt-in live |
 | Branch coverage, combined | **98.4 %** (gate ≥ 95 %) |
 | Coverage by tier alone | unit 91.0 % · contract 62.5 % · integration 62.5 % · **end-to-end 52.8 %** |
 | Cyclomatic complexity | average 4.49 (radon), 163 of 217 blocks rank A; max 31 (`render_verbose`) |

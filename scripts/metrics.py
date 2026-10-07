@@ -139,10 +139,12 @@ def complexity() -> dict[str, Any] | None:
 def test_counts() -> dict[str, int]:
     """Number of collected tests per marker tier (plus the opt-in ones)."""
     counts = {}
-    for tier in (*TIERS, "network or paid or browser"):
+    opt_in = "network or paid or browser"
+    for tier in (*TIERS, opt_in):
+        expr = tier if tier == opt_in else f"{tier} and not ({opt_in})"
         out = (
             run(
-                [sys.executable, "-m", "pytest", "--co", "-q", "-p", "no:cacheprovider", "-m", tier]
+                [sys.executable, "-m", "pytest", "--co", "-q", "-p", "no:cacheprovider", "-m", expr]
             )
             .stdout.strip()
             .splitlines()

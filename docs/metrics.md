@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 # Project metrics
 
-Generated 2026-10-07 11:49 UTC for version `0.5.2` at commit `114a59c` by [`scripts/metrics.py`](../scripts/metrics.py) — regenerate with
+Generated 2026-10-07 16:08 UTC for version `0.6.3` at commit `113c5e2` by [`scripts/metrics.py`](../scripts/metrics.py) — regenerate with
 `uv run python scripts/metrics.py`. Counting tool: cloc (code lines exclude blanks and comments).
 
 ## Lines of code
@@ -9,20 +9,20 @@ Generated 2026-10-07 11:49 UTC for version `0.5.2` at commit `114a59c` by [`scri
 | Area | Files | Code | Comment | Blank |
 | --- | ---: | ---: | ---: | ---: |
 | Library (src/turingtongue) | 41 | 3,439 | 473 | 616 |
-| Tests (Python) | 30 | 2,335 | 146 | 616 |
+| Tests (Python) | 32 | 2,480 | 151 | 656 |
 | Test fixtures (JSON) | 12 | 166 | 0 | 0 |
-| Helper scripts + pipeline | 14 | 814 | 171 | 136 |
-| CI / container | 6 | 270 | 24 | 41 |
-| Documentation (Markdown) | 17 | 1,314 | 15 | 347 |
+| Helper scripts + pipeline | 15 | 1,248 | 221 | 197 |
+| CI / container | 6 | 280 | 37 | 42 |
+| Documentation (Markdown) | 21 | 2,187 | 17 | 377 |
 
-- **Test-to-code ratio:** 0.68 lines of test code per line of library code (2,335 : 3,439); fixtures and scripts not counted.
+- **Test-to-code ratio:** 0.72 lines of test code per line of library code (2,480 : 3,439); fixtures and scripts not counted.
 - **Library structure:** 40 modules, 48 classes, 172 functions/methods; docstrings on 179/260 (69%) modules, classes and functions.
 
 ## Tests per tier
 
 | Tier (pytest marker) | Tests | What it exercises |
 | --- | ---: | --- |
-| `unit` | 227 | single modules, no network; incl. in-process CLI, benchmark, browser fakes |
+| `unit` | 264 | single modules, no network; incl. in-process CLI, benchmark, browser fakes |
 | `contract` | 49 | each provider adapter against sanitized documented responses (HTTP mocked) |
 | `integration` | 31 | orchestrator + adapters + ensemble together, incl. adversarial Review B |
 | `e2e` | 6 | real `python -m turingtongue` subprocesses |
