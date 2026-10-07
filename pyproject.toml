@@ -1,6 +1,6 @@
 [project]
 name = "turingtongue"
-version = "0.0.8"
+version = "0.0.9"
 description = "Ask several existing AI-text detection services about a text and combine their answers into one transparent HUMAN / AI / NO_VERDICT result."
 readme = "README.md"
 requires-python = ">=3.14"
@@ -19,8 +19,8 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "httpx>=0.28.1",
-    "rich>=15.0.0",
+    "httpx>=0.28.1,<1",
+    "rich>=15.0.0,<16",
 ]
 
 [project.urls]
@@ -28,7 +28,7 @@ Homepage = "https://github.com/marcelpetrick/TuringTongue"
 Issues = "https://github.com/marcelpetrick/TuringTongue/issues"
 
 [build-system]
-requires = ["uv_build>=0.12,<0.13"]
+requires = ["uv_build==0.12.23"]
 build-backend = "uv_build"
 
 [tool.pytest.ini_options]
@@ -82,13 +82,13 @@ files = ["src", "tests", "scripts"]
 
 [dependency-groups]
 dev = [
-    "mypy>=2.4.0",
-    "pytest>=9.1.1",
-    "pytest-asyncio>=1.4.0",
-    "pytest-cov>=7.1.0",
-    "respx>=0.23.1",
-    "ruff>=0.16.10",
-    "twine>=7.0.0",
+    "mypy==2.4.0",
+    "pytest==9.1.1",
+    "pytest-asyncio==1.4.0",
+    "pytest-cov==7.1.0",
+    "respx==0.23.1",
+    "ruff==0.16.10",
+    "twine==7.0.0",
 ]
 
 [tool.ruff.lint.isort]
