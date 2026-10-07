@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Provider registry — the single place for frequently changing provider facts.
+# Every fact must be re-verified against official documentation; see docs/providers.md.
+# Fields: see turingtongue.registry.ProviderSpec. Sizes are in `limit_unit`.
+
+[providers.mock]
+name = "Mock (offline)"
+transport = "mock"
+adapter = "turingtongue.providers.mock:MockProvider"
+requires_credentials = false
+credential_env = []
+enabled_by_default = false
+supports_segments = false
+supports_mixed_label = true
+supports_model_version = true
+limit_unit = "characters"
+known_languages = "any (no analysis performed)"
+adapter_status = "test double — NOT a detector; returns a fixed configured answer"
+last_verified = "2026-10-07"
+docs_url = ""
+notes = "Offline smoke-test provider. Answer chosen by TURINGTONGUE_MOCK_RESULT (human|ai|mixed|error)."

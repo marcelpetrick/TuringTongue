@@ -64,12 +64,12 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] missing creds → NOT_CONFIGURED, no crash
     - [x] no secrets in config file by default
   - Notes: —
-- [ ] T013 — Machine-readable provider registry (providers.toml)
-  - Status: todo
+- [x] T013 — Machine-readable provider registry (providers.toml)
+  - Status: done
   - Depends on: T010
   - Acceptance:
-    - [ ] all §5.3 fields
-    - [ ] selection by id/all/default/transport
+    - [x] all §5.3 fields
+    - [x] selection by id/all/default/transport
   - Notes: —
 - [x] T014 — Exact-prefix input limit handling (chars/bytes/words)
   - Status: done
@@ -90,13 +90,13 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
 
 ## Phase 4 — first adapters
 
-- [ ] T020 — Provider base adapter + protocol
-  - Status: todo
+- [x] T020 — Provider base adapter + protocol
+  - Status: done
   - Depends on: T011,T013,T014,T015
   - Acceptance:
-    - [ ] common flow
-    - [ ] error mapping
-    - [ ] raw capture opt-in
+    - [x] common flow
+    - [x] error mapping
+    - [x] raw capture opt-in
   - Notes: —
 - [ ] T021 — Sapling adapter + contract fixtures
   - Status: todo
@@ -122,12 +122,12 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [ ] fixtures
     - [ ] contract tests
   - Notes: —
-- [ ] T024 — Offline mock provider for smoke tests (never default)
-  - Status: todo
+- [x] T024 — Offline mock provider for smoke tests (never default)
+  - Status: done
   - Depends on: T020
   - Acceptance:
-    - [ ] clearly labeled
-    - [ ] deterministic
+    - [x] clearly labeled
+    - [x] deterministic
   - Notes: —
 
 ## Phase 5 — ensemble
