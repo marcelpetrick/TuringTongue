@@ -14,7 +14,7 @@ from turingtongue.normalization.limits import (
 
 pytestmark = pytest.mark.unit
 
-TEXT = "Ünïcödé  text\twith 👩‍💻 emoji\nand nbsp."  # noqa: RUF001 - deliberate exotic whitespace
+TEXT = "Ünïcödé  text\twith 👩‍💻 emoji\nand nbsp."
 
 
 def test_measure() -> None:

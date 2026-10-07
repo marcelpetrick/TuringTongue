@@ -132,11 +132,11 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
 
 ## Phase 5 — ensemble
 
-- [ ] T030 — Score/label/confidence normalization
-  - Status: todo
+- [x] T030 — Score/label/confidence normalization
+  - Status: done
   - Depends on: T010
   - Acceptance:
-    - [ ] documented orientation -1 human … +1 AI
+    - [x] documented orientation -1 human … +1 AI
   - Notes: —
 - [ ] T031 — Weighted mixture-of-experts, agreement, verdict + NO_VERDICT policy
   - Status: todo
