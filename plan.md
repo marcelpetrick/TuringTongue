@@ -263,14 +263,14 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
 
 ## Phase 10 — browser fallback
 
-- [ ] T080 — Optional Playwright framework + evaluation ADR
-  - Status: todo
+- [x] T080 — Optional Playwright framework + evaluation ADR
+  - Status: done
   - Depends on: T020
   - Acceptance:
-    - [ ] [browser] extra
-    - [ ] API package imports without playwright
-    - [ ] decision documented
-  - Notes: —
+    - [x] [browser] extra
+    - [x] API package imports without playwright
+    - [x] decision documented
+  - Notes: framework + terms gate shipped; no site adapter because all candidates forbid automation and have APIs (ADR 0003)
 
 ## Phase 11 — performance
 

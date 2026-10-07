@@ -1,6 +1,6 @@
 [project]
 name = "turingtongue"
-version = "0.4.0"
+version = "0.4.1"
 description = "Ask several existing AI-text detection services about a text and combine their answers into one transparent HUMAN / AI / NO_VERDICT result."
 readme = "README.md"
 requires-python = ">=3.14"
@@ -29,6 +29,11 @@ Issues = "https://github.com/marcelpetrick/TuringTongue/issues"
 
 [project.scripts]
 turingtongue = "turingtongue.cli.main:main"
+
+[project.optional-dependencies]
+browser = [
+    "playwright>=1.63.0,<2",
+]
 
 [build-system]
 requires = ["uv_build==0.12.23"]
