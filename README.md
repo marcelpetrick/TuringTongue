@@ -44,7 +44,7 @@ uv run turingtongue check --text "Any text you like." -p mock          # → HUM
 uv run turingtongue check --text "Any text you like." -p mock -v       # full report
 
 # 2) a real check: get a free trial key at https://sapling.ai (real results, ~50k chars/day)
-export SAPLING_API_KEY=your-key            # or put it into .env (see .env.example)
+scripts/setup_credentials.sh sapling --test   # paste the key (hidden) → .env, live check
 uv run turingtongue check benchmark/corpus/human/frankenstein.txt -v   # known human text
 uv run turingtongue check benchmark/corpus/ai/claude-blog.txt -v       # known AI text
 uv run turingtongue check my-essay.txt                                 # your own file → one word

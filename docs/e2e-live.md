@@ -31,7 +31,17 @@ response schema is undocumented (no example), and detection calls need a paid ba
 It would not remove the one-time signup either. Revisit if ZeroGPT documents expiring or
 scoped keys.
 
-## Make CI run it (one time, ~3 minutes)
+## After the one-time signup: one command
+
+```bash
+scripts/setup_credentials.sh sapling --github --test     # or: copyleaks
+```
+
+Paste the key when asked (hidden input). It is written to the gitignored `.env` (0600),
+optionally stored as GitHub secrets with the provider added to `E2E_PROVIDERS`, and the
+live E2E runs immediately.
+
+## Make CI run it manually (alternative to the script)
 
 1. Create the free Copyleaks account (link above) and copy the API key.
 2. Store the account secret in GitHub — never in the repo:
