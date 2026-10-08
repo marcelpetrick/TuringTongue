@@ -113,6 +113,29 @@ class Checker:
     def _configured(self, spec: ProviderSpec) -> bool:
         return not spec.missing_credentials(self.settings.env)
 
+    @staticmethod
+    def _parse_request(providers: ProviderSelection) -> tuple[str, list[str]]:
+        """``(mode, named ids)`` where mode is ``default``, ``all`` or ``explicit``."""
+        if isinstance(providers, str):
+            providers = [p for p in providers.split(",") if p.strip()]
+        names = [p.strip().lower() for p in providers or []]
+        named = [n for n in dict.fromkeys(names) if n not in {"all", "default"}]
+        if "all" in names:
+            return "all", named
+        return ("explicit" if named else "default"), named
+
+    def _exclusion(
+        self, spec: ProviderSpec, mode: str, transport: str, explicit_ids: set[str]
+    ) -> str | None:
+        """Why ``spec`` does not run: None = eligible, "" = silently hidden, else a reason."""
+        if not transport_matches(spec.transport, transport):
+            return f"transport {spec.transport.value} not selected"
+        if spec.transport is TransportKind.MOCK and spec.id not in explicit_ids:
+            return None if transport == "mock" else ""
+        if mode == "default" and not self._enabled(spec) and transport != "mock":
+            return "disabled by default/config"
+        return None
+
     def select(self, providers: ProviderSelection = None, transport: str = "any") -> Selection:
         """Resolve a provider request into the providers that will run.
 
@@ -127,32 +150,16 @@ class Checker:
             raise ConfigurationError(
                 f"unknown transport '{transport}' (use {', '.join(TRANSPORTS)})"
             )
-        if isinstance(providers, str):
-            providers = [p for p in providers.split(",") if p.strip()]
-        names = [p.strip().lower() for p in providers or []]
-        named = [n for n in dict.fromkeys(names) if n not in {"all", "default"}]
-        if "all" in names:
-            mode = "all"
-        elif named:
-            mode = "explicit"
-        else:
-            mode = "default"
+        mode, named = self._parse_request(providers)
         selection = Selection(mode=mode, transport=transport)
         named_specs = [self.registry.get(name) for name in named]
         candidates = named_specs if mode == "explicit" else list(self.registry)
         explicit_ids = {spec.id for spec in named_specs}
         for spec in candidates:
-            if not transport_matches(spec.transport, transport):
-                selection.skipped[spec.id] = f"transport {spec.transport.value} not selected"
-                continue
-            if (
-                spec.transport is TransportKind.MOCK
-                and spec.id not in explicit_ids
-                and transport != "mock"
-            ):
-                continue
-            if mode == "default" and not self._enabled(spec) and transport != "mock":
-                selection.skipped[spec.id] = "disabled by default/config"
+            reason = self._exclusion(spec, mode, transport, explicit_ids)
+            if reason is not None:
+                if reason:
+                    selection.skipped[spec.id] = reason
                 continue
             if self._configured(spec):
                 selection.run.append(spec)
