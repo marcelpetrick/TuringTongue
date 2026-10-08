@@ -80,22 +80,9 @@ class PangramProvider(BaseProvider):
         human = float(body["fraction_human"])
         windows = body.get("windows") or []
         offsets_valid = body.get("text") == prepared.text
-        segments = [
-            Segment(
-                start=int(w["start_index"]) if offsets_valid else None,
-                end=int(w["end_index"]) if offsets_valid else None,
-                label=w.get("label"),
-                score=_float(w.get("ai_assistance_score")),
-                kind="window",
-            )
-            for w in windows
-        ]
+        segments = _window_segments(windows, offsets_valid)
         confidence = _mean_window_confidence(windows)
-        warnings = [f"POLLS={polls}"]
-        if windows and not offsets_valid:
-            warnings.append("WINDOW_OFFSETS_REFER_TO_PROVIDER_NORMALIZED_TEXT")
-        if any(w.get("is_humanized") for w in windows):
-            warnings.append("HUMANIZER_DETECTED")
+        warnings = [f"POLLS={polls}", *_window_warnings(windows, offsets_valid)]
         return Detection(
             evidence=fractions_to_evidence(ai, human, assisted),
             score_semantics=(
@@ -121,6 +108,29 @@ class PangramProvider(BaseProvider):
 
 def _float(value: Any) -> float | None:
     return None if value is None else float(value)
+
+
+def _window_segments(windows: list[dict[str, Any]], offsets_valid: bool) -> list[Segment]:
+    """Window results; offsets only when they index the text we actually submitted."""
+    return [
+        Segment(
+            start=int(w["start_index"]) if offsets_valid else None,
+            end=int(w["end_index"]) if offsets_valid else None,
+            label=w.get("label"),
+            score=_float(w.get("ai_assistance_score")),
+            kind="window",
+        )
+        for w in windows
+    ]
+
+
+def _window_warnings(windows: list[dict[str, Any]], offsets_valid: bool) -> list[str]:
+    warnings: list[str] = []
+    if windows and not offsets_valid:
+        warnings.append("WINDOW_OFFSETS_REFER_TO_PROVIDER_NORMALIZED_TEXT")
+    if any(w.get("is_humanized") for w in windows):
+        warnings.append("HUMANIZER_DETECTED")
+    return warnings
 
 
 def _mean_window_confidence(windows: list[dict[str, Any]]) -> float | None:

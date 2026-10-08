@@ -120,23 +120,7 @@ class CopyleaksProvider(BaseProvider):
         ai, human = float(summary["ai"]), float(summary["human"])
         document = body.get("scannedDocument") or {}
         credits = document.get("credits", document.get("actualCredits"))
-        segments = []
-        for section in body.get("results") or []:
-            label = {1: "human", 2: "ai"}.get(section.get("classification"))
-            for match in section.get("matches") or []:
-                chars = (match.get("text") or {}).get("chars") or {}
-                for start, length in zip(
-                    chars.get("starts", []), chars.get("lengths", []), strict=False
-                ):
-                    segments.append(
-                        Segment(
-                            start=int(start),
-                            end=int(start) + int(length),
-                            label=label,
-                            score=_float(section.get("probability")),
-                            kind="section",
-                        )
-                    )
+        segments = _sections(body)
         return Detection(
             evidence=fractions_to_evidence(ai, human) if ai + human > 0 else 0.0,
             score_semantics="summary ai/human confidences; evidence = (ai − human)/(ai + human)",
@@ -180,3 +164,19 @@ class CopyleaksProvider(BaseProvider):
 
 def _float(value: Any) -> float | None:
     return None if value is None else float(value)
+
+
+def _sections(body: dict[str, Any]) -> list[Segment]:
+    """Per-section human/AI classification with character offsets."""
+    segments: list[Segment] = []
+    for section in body.get("results") or []:
+        label = {1: "human", 2: "ai"}.get(section.get("classification"))
+        score = _float(section.get("probability"))
+        for match in section.get("matches") or []:
+            chars = (match.get("text") or {}).get("chars") or {}
+            starts, lengths = chars.get("starts", []), chars.get("lengths", [])
+            segments.extend(
+                Segment(int(start), int(start) + int(length), label, score, "section")
+                for start, length in zip(starts, lengths, strict=False)
+            )
+    return segments
