@@ -449,6 +449,13 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] ADR 0006, docs/e2e-live.md, AGENTS.md; tests incl. budget, secrets, exit codes
   - Notes: framework + Copyleaks bootstrap shipped; waits only for the owner's one-time free Copyleaks signup + 2 GitHub secrets to run live
 
+- [ ] T123 — Evaluate per-run API-key minting (ZeroGPT) as a second bootstrap provider
+  - Status: dropped
+  - Depends on: T122
+  - Acceptance:
+    - [ ] official mechanism yields a temporary, documented credential
+  - Notes: 2026-10-08 evaluated from ZeroGPT's OpenAPI: generateApiKey keys never expire ("only required once"), response schema undocumented, detection needs paid balance, signup still manual → not adopted (docs/e2e-live.md).
+
 ## Owner decisions
 
 - 2026-10-07 — **External detection APIs only.** No self-developed check and no local

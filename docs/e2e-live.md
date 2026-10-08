@@ -23,6 +23,14 @@ exactly what to do).
 No provider offers machine-driven account registration (checked 2026-10-08), so the
 account itself is always created once by the owner. Signup flows are never scripted.
 
+**Evaluated and not adopted — ZeroGPT key minting.** ZeroGPT's official API has
+`POST /api/auth/login` (email + password → JWT) and `GET /api/auth/generateApiKey`. Its
+own documentation says the key is "only required once" and "doesn't expire", so it is not
+a temporary credential; minting one per run could invalidate keys used elsewhere, and the
+response schema is undocumented (no example), and detection calls need a paid balance.
+It would not remove the one-time signup either. Revisit if ZeroGPT documents expiring or
+scoped keys.
+
 ## Make CI run it (one time, ~3 minutes)
 
 1. Create the free Copyleaks account (link above) and copy the API key.
