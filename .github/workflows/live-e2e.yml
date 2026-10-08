@@ -56,6 +56,7 @@ jobs:
         run: uv sync --locked
 
       - name: init -> e2e -> cleanup
+        shell: bash  # -eo pipefail: the script's exit code is never masked by tee
         run: |
           if [[ -z "${PROVIDERS}" ]]; then
             echo "::notice::Live E2E skipped: no providers configured (set repository variable E2E_PROVIDERS)"

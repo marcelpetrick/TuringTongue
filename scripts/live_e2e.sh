@@ -26,7 +26,7 @@ done
 
 tt() { uv run --quiet turingtongue "$@"; }
 export TURINGTONGUE_E2E_STATE_DIR="${TURINGTONGUE_E2E_STATE_DIR:-$(mktemp -d)}"
-# shellcheck disable=SC2329  # invoked via trap
+# shellcheck disable=SC2317,SC2329  # invoked via trap (rule id differs by shellcheck version)
 cleanup_all() { for p in "${providers[@]}"; do tt cleanup "${p}" >/dev/null || true; done; }
 trap cleanup_all EXIT
 
