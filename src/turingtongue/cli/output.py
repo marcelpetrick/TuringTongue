@@ -52,116 +52,123 @@ def _agreement_word(agreement: float | None) -> str:
     return "low"
 
 
-def render_verbose(result: CheckResult, console: Console) -> None:
-    """Explain every provider attempt, the ensemble inputs and the timing."""
+_COLUMNS = (
+    "Provider",
+    "Transport",
+    "Result",
+    "Raw score",
+    "Evidence",
+    "Confidence",
+    "Weight",
+    "Coverage",
+    "Model",
+    "Time",
+    "Tries",
+    "Status",
+)
+
+
+def _header_lines(result: CheckResult) -> list[str]:
     agg = result.aggregate
-    console.print(Text(f"Verdict: {result.verdict.display}", style=_VERDICT_STYLE[result.verdict]))
-    console.print(
+    sel = result.selection
+    selected = ", ".join(map(str, sel.get("selected", []))) or "none"
+    return [
         f"Aggregate evidence: {agg.diagnostic.value.replace('_', '-')}"
-        f" (score {_num(agg.evidence_score, '{:+.2f}')}, -1 human … +1 AI)"
-    )
-    console.print(
+        f" (score {_num(agg.evidence_score, '{:+.2f}')}, -1 human … +1 AI)",
         f"Agreement: {_agreement_word(agg.agreement)} ({_num(agg.agreement)})"
         f"   Ensemble confidence: {_num(agg.confidence)}"
-        f"   Effective weight: {agg.effective_weight:.2f}"
-    )
-    console.print(
+        f"   Effective weight: {agg.effective_weight:.2f}",
         f"Wall clock: {_ms(result.timing.wall_clock_ms)}"
         f"   (sum of provider latencies {_ms(result.timing.provider_latency_sum_ms)},"
-        f" ensemble {result.timing.ensemble_ms:.2f} ms)"
-    )
-    console.print(
+        f" ensemble {result.timing.ensemble_ms:.2f} ms)",
         f"Input: {result.input.characters} characters, {result.input.words} words,"
-        f" sha256 {result.input.sha256[:16]}…"
-    )
-    sel = result.selection
-    console.print(
-        f"Providers selected ({sel.get('mode')}, transport {sel.get('transport')}):"
-        f" {', '.join(map(str, sel.get('selected', []))) or 'none'}"
-    )
-    console.print()
+        f" sha256 {result.input.sha256[:16]}…",
+        f"Providers selected ({sel.get('mode')}, transport {sel.get('transport')}): {selected}",
+    ]
 
+
+def _row(p: ProviderResult) -> tuple[str, ...]:
+    coverage = "—" if p.error else f"{p.input_coverage:.0%}" + (" (cut)" if p.truncated else "")
+    return (
+        p.provider_name,
+        p.transport.value.upper(),
+        provider_label(p),
+        _num(p.raw_score, "{:.3g}"),
+        _num(p.normalized_evidence, "{:+.2f}"),
+        "—" if p.raw_confidence is None else str(p.raw_confidence),
+        _num(p.vote_weight),
+        coverage,
+        " ".join(x for x in (p.model, p.model_version) if x) or "—",
+        _ms(p.latency_ms),
+        str(p.attempt_count),
+        "ok" if p.error is None else p.error.category.value.lower(),
+    )
+
+
+def _provider_table(result: CheckResult) -> Table:
     table = Table(show_lines=False, header_style="bold")
-    for column in (
-        "Provider",
-        "Transport",
-        "Result",
-        "Raw score",
-        "Evidence",
-        "Confidence",
-        "Weight",
-        "Coverage",
-        "Model",
-        "Time",
-        "Tries",
-        "Status",
-    ):
+    for column in _COLUMNS:
         table.add_column(column, overflow="fold")
     for p in result.providers:
-        status = "ok" if p.error is None else p.error.category.value.lower()
-        model = " ".join(x for x in (p.model, p.model_version) if x) or "—"
-        table.add_row(
-            *(
-                Text(cell)
-                for cell in (
-                    p.provider_name,
-                    p.transport.value.upper(),
-                    provider_label(p),
-                    _num(p.raw_score, "{:.3g}"),
-                    _num(p.normalized_evidence, "{:+.2f}"),
-                    str(p.raw_confidence) if p.raw_confidence is not None else "—",
-                    _num(p.vote_weight),
-                    "—"
-                    if p.error
-                    else f"{p.input_coverage:.0%}" + (" (cut)" if p.truncated else ""),
-                    model,
-                    _ms(p.latency_ms),
-                    str(p.attempt_count),
-                    status,
-                )
-            )
-        )
-    if result.providers:
-        console.print(table)
-    else:
-        console.print("No provider ran.")
+        # Text() so provider-controlled strings are never parsed as rich markup.
+        table.add_row(*(Text(cell) for cell in _row(p)))
+    return table
 
-    details: list[str] = []
-    for p in result.providers:
-        if p.score_semantics:
-            details.append(f"{p.provider_name}: score = {p.score_semantics}")
-        if p.weight_factors:
-            factors = ", ".join(f"{k} {v:.2f}" for k, v in p.weight_factors.items())
-            details.append(f"{p.provider_name}: weight factors {factors}")
-        if p.cost is not None:
-            details.append(f"{p.provider_name}: cost/credits {_mapping(_slots(p.cost))}")
-        if p.rate_limit is not None:
-            details.append(f"{p.provider_name}: rate limit {_mapping(_slots(p.rate_limit))}")
-        if p.segments:
-            details.append(
-                f"{p.provider_name}: {len(p.segments)} {p.segments[0].kind}-level results"
-            )
-    skipped: Mapping[str, str] = sel.get("skipped", {})
-    details.extend(f"{pid}: skipped — {why}" for pid, why in skipped.items())
-    if details:
-        console.print("\nDetails:")
-        for line in details:
-            console.print(f"- {line}", markup=False)
-    console.print("\nEnsemble reasoning:")
-    for reason in agg.reasons:
-        console.print(f"- {reason}", markup=False)
-    if result.warnings:
-        console.print("\nWarnings:")
-        for warning in result.warnings:
-            console.print(f"- {warning}", markup=False)
+
+def _provider_details(p: ProviderResult) -> list[str]:
+    name = p.provider_name
+    lines = []
+    if p.score_semantics:
+        lines.append(f"{name}: score = {p.score_semantics}")
+    if p.weight_factors:
+        factors = ", ".join(f"{k} {v:.2f}" for k, v in p.weight_factors.items())
+        lines.append(f"{name}: weight factors {factors}")
+    if p.cost is not None:
+        lines.append(f"{name}: cost/credits {_mapping(_slots(p.cost))}")
+    if p.rate_limit is not None:
+        lines.append(f"{name}: rate limit {_mapping(_slots(p.rate_limit))}")
+    if p.segments:
+        lines.append(f"{name}: {len(p.segments)} {p.segments[0].kind}-level results")
+    return lines
+
+
+def _sent_note(result: CheckResult) -> str:
     contacted = [
         p.provider_name
         for p in result.providers
         if p.transport is not TransportKind.MOCK
         and not (p.error and p.error.category in _NOT_CONTACTED)
     ]
-    note = SENT_NOTE.format(names=", ".join(contacted)) if contacted else NOT_SENT_NOTE
-    console.print(f"\n{DISCLAIMER} {note}", style="dim", markup=False)
+    return SENT_NOTE.format(names=", ".join(contacted)) if contacted else NOT_SENT_NOTE
+
+
+def _print_section(console: Console, title: str, lines: list[str]) -> None:
+    if not lines:
+        return
+    console.print(f"\n{title}:")
+    for line in lines:
+        console.print(f"- {line}", markup=False)
+
+
+def render_verbose(result: CheckResult, console: Console) -> None:
+    """Explain every provider attempt, the ensemble inputs and the timing."""
+    console.print(Text(f"Verdict: {result.verdict.display}", style=_VERDICT_STYLE[result.verdict]))
+    for line in _header_lines(result):
+        console.print(line, markup=False)
+    console.print()
+    if result.providers:
+        console.print(_provider_table(result))
+    else:
+        console.print("No provider ran.")
+    details = [line for p in result.providers for line in _provider_details(p)]
+    skipped: Mapping[str, str] = result.selection.get("skipped", {})
+    details.extend(f"{pid}: skipped — {why}" for pid, why in skipped.items())
+    _print_section(console, "Details", details)
+    console.print("\nEnsemble reasoning:")
+    for reason in result.aggregate.reasons:
+        console.print(f"- {reason}", markup=False)
+    _print_section(console, "Warnings", result.warnings)
+    console.print(f"\n{DISCLAIMER} {_sent_note(result)}", style="dim", markup=False)
 
 
 _NOT_CONTACTED = {
