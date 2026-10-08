@@ -1,30 +1,30 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 # Project metrics
 
-Generated 2026-10-07 16:08 UTC for version `0.6.3` at commit `113c5e2` by [`scripts/metrics.py`](../scripts/metrics.py) — regenerate with
+Generated 2026-10-08 08:15 UTC for version `0.7.1` at commit `5de654e` by [`scripts/metrics.py`](../scripts/metrics.py) — regenerate with
 `uv run python scripts/metrics.py`. Counting tool: cloc (code lines exclude blanks and comments).
 
 ## Lines of code
 
 | Area | Files | Code | Comment | Blank |
 | --- | ---: | ---: | ---: | ---: |
-| Library (src/turingtongue) | 41 | 3,439 | 473 | 616 |
-| Tests (Python) | 32 | 2,480 | 151 | 656 |
+| Library (src/turingtongue) | 47 | 3,884 | 542 | 709 |
+| Tests (Python) | 32 | 2,657 | 152 | 692 |
 | Test fixtures (JSON) | 12 | 166 | 0 | 0 |
-| Helper scripts + pipeline | 15 | 1,248 | 221 | 197 |
-| CI / container | 6 | 280 | 37 | 42 |
-| Documentation (Markdown) | 21 | 2,187 | 17 | 377 |
+| Helper scripts + pipeline | 15 | 1,211 | 227 | 188 |
+| CI / container | 6 | 311 | 42 | 45 |
+| Documentation (Markdown) | 23 | 2,286 | 19 | 398 |
 
-- **Test-to-code ratio:** 0.72 lines of test code per line of library code (2,480 : 3,439); fixtures and scripts not counted.
-- **Library structure:** 40 modules, 48 classes, 172 functions/methods; docstrings on 179/260 (69%) modules, classes and functions.
+- **Test-to-code ratio:** 0.68 lines of test code per line of library code (2,657 : 3,884); fixtures and scripts not counted.
+- **Library structure:** 46 modules, 54 classes, 197 functions/methods; docstrings on 209/297 (70%) modules, classes and functions.
 
 ## Tests per tier
 
 | Tier (pytest marker) | Tests | What it exercises |
 | --- | ---: | --- |
-| `unit` | 264 | single modules, no network; incl. in-process CLI, benchmark, browser fakes |
+| `unit` | 262 | single modules, no network; incl. in-process CLI, benchmark, browser fakes |
 | `contract` | 49 | each provider adapter against sanitized documented responses (HTTP mocked) |
-| `integration` | 31 | orchestrator + adapters + ensemble together, incl. adversarial Review B |
+| `integration` | 46 | orchestrator + adapters + ensemble together, incl. adversarial Review B |
 | `e2e` | 6 | real `python -m turingtongue` subprocesses |
 | `network or paid or browser` | 1 | opt-in live tests, deselected by default |
 
@@ -39,21 +39,21 @@ so end-to-end coverage is real, not inferred.
 
 | Tier | Coverage | Lines covered | Branches covered |
 | --- | ---: | ---: | ---: |
-| unit | 91.0 % | 1947/2092 | 406/494 |
-| contract | 62.5 % | 1415/2092 | 201/494 |
-| integration | 62.5 % | 1427/2092 | 189/494 |
-| e2e | 52.8 % | 1238/2092 | 127/494 |
-| all (combined) | 98.4 % | 2075/2092 | 470/494 |
+| unit | 84.7 % | 2069/2383 | 404/538 |
+| contract | 59.6 % | 1537/2383 | 203/538 |
+| integration | 69.9 % | 1790/2383 | 251/538 |
+| e2e | 51.2 % | 1369/2383 | 128/538 |
+| all (combined) | 98.6 % | 2366/2383 | 513/538 |
 
 The pipeline gate (`./localPipeline.sh`) enforces **≥ 95 %** combined branch coverage
 on every commit; the per-tier numbers show how much each layer covers on its own.
 
 ## Complexity (radon)
 
-- 217 functions/methods/classes analysed; average cyclomatic complexity **4.49**, maximum 31 (`render_verbose`).
-- Rank distribution (A = simplest): A: 163, B: 29, C: 21, D: 3, E: 1.
-- Most complex: `render_verbose` (31), `Checker.select` (24), `compute` (22), `combine` (22), `run` (20).
-- Maintainability index: average 69.5, lowest 33.4 (radon scale 0–100, ≥ 20 = rank A).
+- 247 functions/methods/classes analysed; average cyclomatic complexity **4.32**, maximum 31 (`render_verbose`).
+- Rank distribution (A = simplest): A: 189, B: 31, C: 22, D: 4, E: 1.
+- Most complex: `render_verbose` (31), `Checker.select` (24), `compute` (22), `combine` (22), `run` (21).
+- Maintainability index: average 70.0, lowest 32.8 (radon scale 0–100, ≥ 20 = rank A).
 
 ## Quality gates (enforced on every commit and in CI)
 
