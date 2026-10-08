@@ -6,7 +6,7 @@
 [![Latest Release](https://img.shields.io/github/v/release/marcelpetrick/TuringTongue?sort=semver)](https://github.com/marcelpetrick/TuringTongue/releases/latest)
 [![License: GPL v3 or later](https://img.shields.io/badge/license-GPLv3%20or%20later-blue.svg)](LICENSE)
 [![Python 3.14+](https://img.shields.io/badge/Python-3.14%2B-3776ab.svg)](https://www.python.org/)
-[![Coverage: 98%](https://img.shields.io/badge/coverage-98%25-brightgreen.svg)](localPipeline.sh)
+[![Coverage: 99%](https://img.shields.io/badge/coverage-99%25-brightgreen.svg)](localPipeline.sh)
 [![Typed: mypy strict](https://img.shields.io/badge/typed-mypy%20strict-2a6db2.svg)](pyproject.toml)
 [![GHCR image](https://img.shields.io/badge/ghcr.io-turingtongue-2496ed.svg?logo=docker&logoColor=white)](https://github.com/marcelpetrick/TuringTongue/pkgs/container/turingtongue)
 
@@ -201,13 +201,13 @@ Measured by [`scripts/metrics.py`](scripts/metrics.py); full tables in
 
 | Metric | Value |
 | --- | --- |
-| Library code (src) | 3,884 lines in 47 files · 54 classes · 197 functions |
-| Test code | 2,657 lines in 32 files (+166 lines JSON fixtures) · ratio 0.68 : 1 |
-| Scripts / CI / docs | 1,211 / 311 / 2,286 lines |
-| Tests | 363 (262 unit · 49 contract · 46 integration · 6 e2e) + 1 opt-in live |
-| Branch coverage, combined | **98.6 %** (gate ≥ 95 %) |
-| Coverage by tier alone | unit 84.7 % · contract 59.6 % · integration 69.9 % · **end-to-end 51.2 %** |
-| Cyclomatic complexity | average 4.32 (radon), 189 of 247 blocks rank A; max 31 (`render_verbose`) |
+| Library code (src) | 3,881 lines in 47 files · 54 classes · 205 functions |
+| Test code | 2,703 lines in 33 files (+166 lines JSON fixtures) · ratio 0.70 : 1 |
+| Scripts / CI / docs | 1,211 / 311 / 2,363 lines |
+| Tests | 371 (270 unit · 49 contract · 46 integration · 6 e2e) + 1 opt-in live |
+| Branch coverage, combined | **99.1 %** (gate ≥ 95 %) |
+| Coverage by tier alone | unit 85.3 % · contract 59.8 % · integration 70.1 % · **end-to-end 51.5 %** |
+| Cyclomatic complexity | average 4.22 (radon), 192 of 255 blocks rank A; max 22 (`compute`, `combine`) |
 
 End-to-end coverage is measured inside the `python -m turingtongue` child processes
 (coverage.py subprocess patching), not estimated. Wheel-install and Docker end-to-end
