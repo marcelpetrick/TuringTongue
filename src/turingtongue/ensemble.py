@@ -91,6 +91,92 @@ def _diagnostic(evidence: float, policy: EnsemblePolicy) -> Diagnostic:
     return Diagnostic.BORDERLINE
 
 
+def _collect_votes(
+    results: Sequence[ProviderResult], reliability: Mapping[str, float], policy: EnsemblePolicy
+) -> list[tuple[float, float]]:
+    """``(evidence, weight)`` per usable result; annotates inclusion on every result."""
+    used: list[tuple[float, float]] = []
+    for result in results:
+        if not result.ok or result.normalized_evidence is None:
+            result.included_in_ensemble = False
+            result.exclusion_reason = result.exclusion_reason or "no usable evidence"
+            continue
+        weight = _weigh(result, reliability, policy)
+        result.included_in_ensemble = weight > 0
+        result.exclusion_reason = None if weight > 0 else "zero vote weight"
+        if weight > 0:
+            used.append((result.normalized_evidence, weight))
+    return used
+
+
+def _agreement(used: Sequence[tuple[float, float]], policy: EnsemblePolicy) -> float | None:
+    """Directional agreement; neutral votes (|e| <= epsilon) do not count."""
+    ai_weight = sum(w for e, w in used if e > policy.neutral_epsilon)
+    human_weight = sum(w for e, w in used if e < -policy.neutral_epsilon)
+    directional = ai_weight + human_weight
+    return abs(ai_weight - human_weight) / directional if directional > 0 else None
+
+
+def _decide(
+    evidence: float, agreement: float | None, total: float, voters: int, policy: EnsemblePolicy
+) -> tuple[Verdict, Diagnostic, list[str]]:
+    """Apply the NO_VERDICT policy, then map the evidence sign to HUMAN / AI."""
+    if total < policy.min_effective_weight:
+        return (
+            Verdict.NO_VERDICT,
+            Diagnostic.NO_EVIDENCE,
+            [
+                f"effective vote weight {total:.2f} is below the minimum "
+                f"{policy.min_effective_weight:.2f}"
+            ],
+        )
+    if agreement is not None and agreement < policy.min_agreement:
+        return (
+            Verdict.NO_VERDICT,
+            Diagnostic.CONFLICTED,
+            [
+                f"providers disagree (agreement {agreement:.2f} < {policy.min_agreement:.2f}); "
+                "inspect individual results"
+            ],
+        )
+    diagnostic = _diagnostic(evidence, policy)
+    if diagnostic is Diagnostic.BORDERLINE:
+        return (
+            Verdict.NO_VERDICT,
+            diagnostic,
+            [f"ensemble evidence {evidence:+.2f} lies inside the ±{policy.deadband} deadband"],
+        )
+    reasons = [f"weighted evidence {evidence:+.2f} from {voters} provider(s)"]
+    if agreement is not None and agreement < 1.0:
+        reasons.append("providers partially disagree; inspect individual results")
+    return (Verdict.AI if evidence > 0 else Verdict.HUMAN), diagnostic, reasons
+
+
+def _aggregate(
+    evidence: float | None,
+    agreement: float | None,
+    total: float,
+    voters: int,
+    diagnostic: Diagnostic,
+    reasons: list[str],
+    policy: EnsemblePolicy,
+) -> Aggregate:
+    strength = abs(evidence) if evidence is not None else 0.0
+    support = min(1.0, total / policy.full_support_weight)
+    return Aggregate(
+        evidence_score=evidence,
+        strength=strength,
+        confidence=strength * (agreement or 0.0) * support,
+        agreement=agreement,
+        effective_weight=total,
+        providers_used=voters,
+        diagnostic=diagnostic,
+        reasons=reasons,
+        weights_version=policy.version,
+        policy=policy.as_dict(),
+    )
+
+
 def combine(
     results: Sequence[ProviderResult],
     *,
@@ -98,78 +184,14 @@ def combine(
     policy: EnsemblePolicy = DEFAULT_POLICY,
 ) -> tuple[Verdict, Aggregate]:
     """Aggregate provider results. Annotates each result with its weight/inclusion."""
-    weights_by_provider = reliability or {}
-    used: list[tuple[float, float]] = []
-    for result in results:
-        if not result.ok or result.normalized_evidence is None:
-            result.included_in_ensemble = False
-            result.exclusion_reason = result.exclusion_reason or "no usable evidence"
-            continue
-        weight = _weigh(result, weights_by_provider, policy)
-        if weight <= 0:
-            result.included_in_ensemble = False
-            result.exclusion_reason = "zero vote weight"
-            continue
-        result.included_in_ensemble = True
-        result.exclusion_reason = None
-        used.append((result.normalized_evidence, weight))
-
-    def aggregate(
-        evidence: float | None,
-        agreement: float | None,
-        total: float,
-        diagnostic: Diagnostic,
-        reasons: list[str],
-    ) -> Aggregate:
-        strength = abs(evidence) if evidence is not None else 0.0
-        support = min(1.0, total / policy.full_support_weight)
-        confidence = strength * (agreement or 0.0) * support
-        return Aggregate(
-            evidence_score=evidence,
-            strength=strength,
-            confidence=confidence,
-            agreement=agreement,
-            effective_weight=total,
-            providers_used=len(used),
-            diagnostic=diagnostic,
-            reasons=reasons,
-            weights_version=policy.version,
-            policy=policy.as_dict(),
-        )
-
+    used = _collect_votes(results, reliability or {}, policy)
     if not used:
         reasons = ["no provider returned usable evidence"]
-        return Verdict.NO_VERDICT, aggregate(None, None, 0.0, Diagnostic.NO_EVIDENCE, reasons)
-
+        aggregate = _aggregate(None, None, 0.0, 0, Diagnostic.NO_EVIDENCE, reasons, policy)
+        return Verdict.NO_VERDICT, aggregate
     total = sum(w for _, w in used)
     evidence = sum(e * w for e, w in used) / total
-    ai_weight = sum(w for e, w in used if e > policy.neutral_epsilon)
-    human_weight = sum(w for e, w in used if e < -policy.neutral_epsilon)
-    directional = ai_weight + human_weight
-    agreement = abs(ai_weight - human_weight) / directional if directional > 0 else None
-
-    if total < policy.min_effective_weight:
-        reasons = [
-            f"effective vote weight {total:.2f} is below the minimum "
-            f"{policy.min_effective_weight:.2f}"
-        ]
-        return Verdict.NO_VERDICT, aggregate(
-            evidence, agreement, total, Diagnostic.NO_EVIDENCE, reasons
-        )
-    if agreement is not None and agreement < policy.min_agreement:
-        reasons = [
-            f"providers disagree (agreement {agreement:.2f} < {policy.min_agreement:.2f}); "
-            "inspect individual results"
-        ]
-        return Verdict.NO_VERDICT, aggregate(
-            evidence, agreement, total, Diagnostic.CONFLICTED, reasons
-        )
-    diagnostic = _diagnostic(evidence, policy)
-    if diagnostic is Diagnostic.BORDERLINE:
-        reasons = [f"ensemble evidence {evidence:+.2f} lies inside the ±{policy.deadband} deadband"]
-        return Verdict.NO_VERDICT, aggregate(evidence, agreement, total, diagnostic, reasons)
-    verdict = Verdict.AI if evidence > 0 else Verdict.HUMAN
-    reasons = [f"weighted evidence {evidence:+.2f} from {len(used)} provider(s)"]
-    if agreement is not None and agreement < 1.0:
-        reasons.append("providers partially disagree; inspect individual results")
-    return verdict, aggregate(evidence, agreement, total, diagnostic, reasons)
+    agreement = _agreement(used, policy)
+    verdict, diagnostic, reasons = _decide(evidence, agreement, total, len(used), policy)
+    aggregate = _aggregate(evidence, agreement, total, len(used), diagnostic, reasons, policy)
+    return verdict, aggregate
