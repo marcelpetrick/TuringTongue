@@ -55,9 +55,19 @@ requirements live in [`vision.md`](vision.md); the execution ledger is [`plan.md
 
 ## Accounts, credentials and publishing
 
-- **Agents never create accounts** at detector services, PyPI or anywhere else: signing up
-  accepts terms in the owner's name and needs email verification. The owner has declined
-  manual web signups for now (2026-10-07); live validation (T118) waits until keys exist.
+- **Live end-to-end tests are required** (owner decision 2026-10-08, ADR 0006): real-service
+  validation runs through `turingtongue init <p> --mode e2e` → `turingtongue e2e <p>` →
+  `turingtongue cleanup <p>` (`scripts/live_e2e.sh`, workflow `Live E2E`, and inside every
+  release when `vars.E2E_PROVIDERS` is set). First provider: **Copyleaks** (machine-issued
+  48 h token via the official login API + free sandbox). Keep the request budget
+  (≤ 2 per run), never fall back to the mock in a live run, never print secrets.
+- **Automate credentials only through provider-supported mechanisms** (preference:
+  environment → sandbox → machine-issued token → OAuth → owned ephemeral identity →
+  CI secret → manual; declared per provider as `bootstrap` in `data/providers.toml`).
+  No provider supports machine-driven *account registration*, so agents never script
+  website signups, CAPTCHAs, email verification or mass accounts; such providers report
+  `manual-credential-required` with exact steps. Long-lived account secrets live only in
+  `.env` (gitignored) or GitHub secrets.
 - **No "free, no signup" web UIs.** They are not APIs; calling their private endpoints is
   scraping/quota evasion (vision §2.3). Research is recorded in `docs/providers.md` §6.
 - **External detection APIs only** (owner decision, ADR 0005): never add a self-developed

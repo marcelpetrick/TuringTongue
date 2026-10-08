@@ -3,6 +3,7 @@
 # using GitHub Actions" (https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/):
 #
 #   protected tag vX.Y.Z -> full quality gate -> build once -> signed build provenance
+#   -> live E2E against real providers (when vars.E2E_PROVIDERS is set; must pass)
 #   -> GitHub Release -> [owner approval in the `pypi` environment] -> PyPI via
 #   Trusted Publishing (OIDC; no stored token; PEP 740 attestations are generated).
 #
@@ -92,9 +93,19 @@ jobs:
           path: dist/*
           if-no-files-found: error
 
+  live-e2e:
+    name: Live E2E against real providers
+    needs: build
+    if: vars.E2E_PROVIDERS != ''
+    uses: ./.github/workflows/live-e2e.yml
+    secrets: inherit
+
   github-release:
     name: GitHub Release
-    needs: build
+    needs: [build, live-e2e]
+    if: >-
+      always() && needs.build.result == 'success' &&
+      (needs.live-e2e.result == 'success' || needs.live-e2e.result == 'skipped')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -121,8 +132,10 @@ jobs:
 
   pypi:
     name: PyPI (Trusted Publishing)
-    needs: build
-    if: vars.PYPI_PUBLISH == 'true' && (github.event_name == 'push' || inputs.publish_pypi)
+    needs: [build, github-release]
+    if: >-
+      always() && needs.github-release.result == 'success' &&
+      vars.PYPI_PUBLISH == 'true' && (github.event_name == 'push' || inputs.publish_pypi)
     runs-on: ubuntu-latest
     environment:
       name: pypi

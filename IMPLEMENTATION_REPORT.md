@@ -23,7 +23,7 @@ and combines them with a documented weighted mixture-of-experts into `HUMAN`, `A
   benchmarking, performance, releasing, 4 ADRs, `AGENTS.md`, `plan.md`.
 - Tooling: `localPipeline.sh` (mirrored 1:1 by GitHub Actions), helper scripts, Docker
   image on GHCR, tag-driven GitHub Release, PyPA-style hardened release (protected tags, provenance, approval-gated Trusted Publishing; enabled by one owner step), opt-in
-  live provider-health workflow, Dependabot.
+  live E2E workflow with credential bootstrap (ADR 0006), Dependabot.
 
 ## Provider status
 
@@ -51,7 +51,7 @@ environment. This is the main credential blocker (see below).
   `--strict`, clean-wheel-install e2e, pip-audit (no known vulnerabilities), Docker
   build + offline smoke. GitHub Actions CI and Docker workflows green.
 - Opt-in only: `network`, `paid`, `browser` markers; `TURINGTONGUE_E2E_LIVE=1`;
-  scheduled `provider-health` workflow (secrets, never on PRs).
+  `Live E2E` workflow: init → ≤ 2 real requests → cleanup, weekly/on demand/in releases (secrets, never on PRs).
 
 ## Clean-install result
 

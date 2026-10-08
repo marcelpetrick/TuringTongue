@@ -47,6 +47,33 @@ def clear_token_cache() -> None:
     _TOKENS.clear()
 
 
+def cached_token(email: str) -> tuple[str, datetime] | None:
+    """A cached token for ``email`` that is still valid beyond the refresh margin."""
+    token = _TOKENS.get(email)
+    if token is None or token.expires - REFRESH_MARGIN <= datetime.now(UTC):
+        return None
+    return token.value, token.expires
+
+
+def seed_token(email: str, value: str, expires: datetime) -> None:
+    """Install a token obtained elsewhere (e.g. by the E2E credential bootstrap)."""
+    _TOKENS[email] = _Token(value, expires)
+
+
+async def login(caller: HttpCaller, email: str, key: str, timeout_s: float) -> tuple[str, datetime]:
+    """Exchange email + API key for a short-lived (48 h) bearer token and cache it."""
+    outcome = await caller.request_json(
+        "POST",
+        LOGIN_URL,
+        headers={"Accept": "application/json"},
+        json_body={"email": email, "key": key},
+        timeout_s=timeout_s,
+    )
+    token = _Token(str(outcome.body["access_token"]), _parse_expiry(outcome.body.get(".expires")))
+    _TOKENS[email] = token
+    return token.value, token.expires
+
+
 def _parse_expiry(value: Any) -> datetime:
     try:
         parsed = datetime.fromisoformat(str(value))
@@ -61,21 +88,11 @@ class CopyleaksProvider(BaseProvider):
     async def _token(self, caller: HttpCaller, options: DetectionOptions, *, fresh: bool) -> str:
         email = self.credential("COPYLEAKS_EMAIL")
         key = self.credential("COPYLEAKS_API_KEY")
-        cached = _TOKENS.get(email)
-        if not fresh and cached and cached.expires - REFRESH_MARGIN > datetime.now(UTC):
-            return cached.value
-        outcome = await caller.request_json(
-            "POST",
-            LOGIN_URL,
-            headers={"Accept": "application/json"},
-            json_body={"email": email, "key": key},
-            timeout_s=options.timeout_s,
-        )
-        token = _Token(
-            str(outcome.body["access_token"]), _parse_expiry(outcome.body.get(".expires"))
-        )
-        _TOKENS[email] = token
-        return token.value
+        cached = None if fresh else cached_token(email)
+        if cached is not None:
+            return cached[0]
+        value, _ = await login(caller, email, key, options.timeout_s)
+        return value
 
     async def _detect(
         self, prepared: PreparedInput, caller: HttpCaller, options: DetectionOptions

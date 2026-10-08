@@ -114,6 +114,36 @@ def build_parser() -> argparse.ArgumentParser:
     )
     _add_run_options(bench)
 
+    init = sub.add_parser(
+        "init",
+        help="prepare a provider for a live E2E check (credential bootstrap)",
+        description="Obtain or verify a credential through a provider-supported mechanism. "
+        "Never creates accounts; reports manual-credential-required instead.",
+    )
+    init.add_argument("provider")
+    init.add_argument("--mode", choices=("e2e",), default="e2e")
+    init.add_argument("--json", action="store_true")
+
+    e2e = sub.add_parser(
+        "e2e",
+        help="run a tiny, budget-limited LIVE check against a real provider",
+        epilog=PRIVACY_NOTE,
+    )
+    e2e.add_argument("provider")
+    e2e.add_argument("--max-requests", type=int, default=2, help="hard request budget (default 2)")
+    e2e.add_argument("--timeout", type=float, default=30.0, metavar="S")
+    e2e.add_argument("--retries", type=int, default=1)
+    e2e.add_argument(
+        "--no-sandbox",
+        action="store_true",
+        help="use real (billed) classification even if a free sandbox exists",
+    )
+    e2e.add_argument("--json", action="store_true")
+
+    clean = sub.add_parser("cleanup", help="discard run-scoped E2E credentials")
+    clean.add_argument("provider")
+    clean.add_argument("--json", action="store_true")
+
     providers = sub.add_parser("providers", help="list known providers and credential status")
     providers.add_argument("--json", action="store_true", help="machine-readable output")
     return parser
@@ -211,6 +241,8 @@ def run(
         checker = Checker(settings)
         if args.command == "providers":
             return _providers(checker, args, stdout)
+        if args.command in {"init", "e2e", "cleanup"}:
+            return _live(args, settings, stdout)
         if args.command == "batch":
             return _batch(checker, args, stdout, stderr)
         if args.command == "benchmark":
@@ -236,6 +268,51 @@ def run(
     else:
         print(result.verdict.display, file=stdout)
     return EXIT_NO_VERDICT if result.verdict is Verdict.NO_VERDICT else EXIT_VERDICT
+
+
+def _live(args: argparse.Namespace, settings: Settings, stdout: TextIO) -> int:
+    """``init`` / ``e2e`` / ``cleanup``: exit 0 ready/ok, 1 failed, 3 manual credential needed."""
+    import asyncio  # noqa: PLC0415
+
+    from turingtongue.credentials import CredentialState, bootstrap, cleanup  # noqa: PLC0415
+    from turingtongue.e2e import run_e2e  # noqa: PLC0415
+
+    if args.command == "e2e":
+        if args.max_requests < 1:
+            raise ConfigurationError("--max-requests must be at least 1")
+        report = asyncio.run(
+            run_e2e(
+                args.provider,
+                settings,
+                max_requests=args.max_requests,
+                timeout_s=args.timeout,
+                retries=args.retries,
+                sandbox=not args.no_sandbox,
+            )
+        )
+        data: dict[str, object] = report.as_dict()
+        manual = report.message.startswith("manual-credential-required")
+        code = EXIT_VERDICT if report.ok else (EXIT_USAGE if manual else 1)
+        summary = (
+            f"E2E {report.provider_id}: {'PASS' if report.ok else 'FAIL'} "
+            f"({report.requests_used}/{report.max_requests} requests"
+            f"{', sandbox' if report.sandbox else ''}) — {report.message}"
+        )
+    else:
+        if args.command == "init":
+            boot = asyncio.run(bootstrap(args.provider, settings))
+        else:
+            boot = cleanup(args.provider, settings)
+        data = boot.as_dict()
+        if args.command == "cleanup" or boot.ready:
+            code = EXIT_VERDICT
+        elif boot.state is CredentialState.MISSING and boot.message.startswith("manual"):
+            code = EXIT_USAGE
+        else:
+            code = 1
+        summary = f"{args.command} {boot.provider_id}: {boot.state.value} — {boot.message}"
+    print(json.dumps(data, indent=2) if args.json else summary, file=stdout)
+    return code
 
 
 def _selected(args: argparse.Namespace) -> list[str] | None:

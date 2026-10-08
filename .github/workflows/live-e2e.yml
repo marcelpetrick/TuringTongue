@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Live end-to-end validation against REAL provider services (docs/e2e-live.md).
+#
+#   init (credential bootstrap) -> e2e (<= 2 requests per provider) -> cleanup (always)
+#
+# Providers come from the repository variable E2E_PROVIDERS (space separated, e.g.
+# "copyleaks") or the manual input. Account secrets come from repository secrets and are
+# only exposed to this job. Never runs on pull requests (no secrets to forks). A run with
+# no providers configured is reported as skipped, never silently turned into a mock run.
+name: Live E2E
+
+on:
+  workflow_dispatch:
+    inputs:
+      providers:
+        description: "Space-separated provider ids (default: vars.E2E_PROVIDERS)"
+        required: false
+        type: string
+  workflow_call:
+  schedule:
+    - cron: "17 5 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-e2e
+  cancel-in-progress: false
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PROVIDERS: ${{ inputs.providers || vars.E2E_PROVIDERS }}
+      COPYLEAKS_EMAIL: ${{ secrets.COPYLEAKS_EMAIL }}
+      COPYLEAKS_API_KEY: ${{ secrets.COPYLEAKS_API_KEY }}
+      SAPLING_API_KEY: ${{ secrets.SAPLING_API_KEY }}
+      GPTZERO_API_KEY: ${{ secrets.GPTZERO_API_KEY }}
+      PANGRAM_API_KEY: ${{ secrets.PANGRAM_API_KEY }}
+      WINSTON_AI_API_KEY: ${{ secrets.WINSTON_AI_API_KEY }}
+      ORIGINALITY_API_KEY: ${{ secrets.ORIGINALITY_API_KEY }}
+      HIVE_API_KEY: ${{ secrets.HIVE_API_KEY }}
+      ZEROGPT_API_KEY: ${{ secrets.ZEROGPT_API_KEY }}
+      TURINGTONGUE_NO_DOTENV: "1"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up uv + Python 3.14
+        uses: astral-sh/setup-uv@v10.2.0
+        with:
+          python-version: "3.14"
+
+      - name: Install
+        run: uv sync --locked
+
+      - name: init -> e2e -> cleanup
+        run: |
+          if [[ -z "${PROVIDERS}" ]]; then
+            echo "::notice::Live E2E skipped: no providers configured (set repository variable E2E_PROVIDERS)"
+            echo "Live E2E **skipped** — no providers configured (vars.E2E_PROVIDERS)." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          # shellcheck disable=SC2086 # word splitting of the provider list is intended
+          scripts/live_e2e.sh ${PROVIDERS} -- --max-requests 2 --json | tee e2e.log

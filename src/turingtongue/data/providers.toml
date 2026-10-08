@@ -38,6 +38,9 @@ last_verified = "2026-10-07"
 docs_url = "https://sapling.ai/docs/api/detector/"
 endpoint = "POST https://api.sapling.ai/api/v1/aidetect"
 notes = "Free trial key returns real results (50k chars/day, 250k/month at verification)."
+bootstrap = ["environment"]
+credential_help = "One-time: register at https://sapling.ai and create an API key in the API settings dashboard (free trial key, real results)."
+
 
 [providers.gptzero]
 name = "GPTZero"
@@ -56,6 +59,9 @@ last_verified = "2026-10-07"
 docs_url = "https://gptzero.stoplight.io/docs/gptzero-api"
 endpoint = "POST https://api.gptzero.me/v2/predict/text"
 notes = "Provider silently truncates at 50,000 characters; we submit an exact prefix and mark it."
+bootstrap = ["environment"]
+credential_help = "One-time: create a GPTZero account and an API key in its developer dashboard (https://gptzero.stoplight.io)."
+
 
 [providers.pangram]
 name = "Pangram"
@@ -73,6 +79,9 @@ last_verified = "2026-10-07"
 docs_url = "https://docs.pangram.com"
 endpoint = "POST https://text.external-api.pangram.com/task + GET /task/{id}"
 notes = "Async submit+poll. No documented size limit; text sent in full. $0.05 per 100 words at verification."
+bootstrap = ["environment"]
+credential_help = "One-time: create a Pangram account and an API key at https://docs.pangram.com (paid credits)."
+
 
 [providers.copyleaks]
 name = "Copyleaks"
@@ -92,6 +101,9 @@ last_verified = "2026-10-07"
 docs_url = "https://docs.copyleaks.com/reference/actions/writer-detector/check/"
 endpoint = "POST https://api.copyleaks.com/v2/writer-detector/{scanId}/check"
 notes = "COPYLEAKS_SANDBOX=1 returns MOCK classifications (excluded from the ensemble). Privacy policy permits training use."
+bootstrap = ["environment", "machine_token", "sandbox"]
+credential_help = "One-time: free signup at https://api.copyleaks.com/signup, copy the API key from https://api.copyleaks.com/dashboard. Afterwards everything is automated: a 48 h token is machine-issued per run and the free sandbox is used."
+
 
 [providers.winston]
 name = "Winston AI"
@@ -112,6 +124,9 @@ last_verified = "2026-10-07"
 docs_url = "https://docs.gowinston.ai"
 endpoint = "POST https://api.gowinston.ai/v2/ai-content-detection"
 notes = "Score is a HUMAN score (inverted). 1 credit per word; 2,000 free credits on signup at verification."
+bootstrap = ["environment"]
+credential_help = "One-time: create an account at https://dev.gowinston.ai and copy the API token (2,000 free credits at verification)."
+
 
 [providers.originality]
 name = "Originality.ai"
@@ -129,6 +144,9 @@ last_verified = "2026-10-07"
 docs_url = "https://docs.originality.ai"
 endpoint = "POST https://api.originality.ai/api/v3/scan"
 notes = "Enterprise plan only. Accounts auto top-up credits by default. storeScan=false is sent."
+bootstrap = ["environment"]
+credential_help = "One-time: Originality.ai Enterprise account, API key in the account settings (https://docs.originality.ai)."
+
 
 [providers.hive]
 name = "Hive"
@@ -146,6 +164,9 @@ last_verified = "2026-10-07"
 docs_url = "https://docs.thehive.ai/docs/ai-generated-text-detection"
 endpoint = "POST https://api.thehive.ai/api/v2/task/sync (form field text_data)"
 notes = "Needs a sales-provisioned V2 project with the AI text model. Provider chunks text into 2,048 chars."
+bootstrap = ["environment"]
+credential_help = "One-time: Hive project with the AI-generated text model, provisioned via Hive sales (https://docs.thehive.ai)."
+
 
 [providers.zerogpt]
 name = "ZeroGPT"
@@ -163,3 +184,5 @@ last_verified = "2026-10-07"
 docs_url = "https://api.zerogpt.com/docs"
 endpoint = "POST https://api.zerogpt.com/api/detect/detectText"
 notes = "Disabled by default: response schema documented without examples; auth may additionally need a JWT."
+bootstrap = ["environment"]
+credential_help = "One-time: ZeroGPT business account with API balance; key from the dashboard (https://api.zerogpt.com/docs)."

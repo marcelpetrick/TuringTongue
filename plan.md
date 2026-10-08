@@ -411,7 +411,7 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
   - Acceptance:
     - [ ] TURINGTONGUE_E2E_LIVE=1 scripts/e2e_clean_install.sh green for ≥ 3 providers
     - [ ] real benchmark run committed to docs/benchmarking.md; drift captured as fixtures
-  - Notes: 2026-10-07 owner declined manual web signups ("maybe automate later"); agents must not create accounts. Sapling free trial is the cheapest first step when revisited.
+  - Notes: unblocked technically by T122: run scripts/live_e2e.sh copyleaks once COPYLEAKS_EMAIL/COPYLEAKS_API_KEY exist (one-time free signup)
 - [x] T120 — Research: detector APIs usable without signup
   - Status: done
   - Depends on: T003
@@ -437,12 +437,27 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] scripts/release.sh refreshes and commits the chart for each release
   - Notes: own GPL implementation (stdlib); coverage parsed from GitHub Actions logs; release.sh integration
 
+- [x] T122 — Self-configuring credential bootstrap + live E2E (POC, first provider Copyleaks)
+  - Status: done
+  - Depends on: T050
+  - Acceptance:
+    - [x] credentials package: mechanisms in owner preference order, lifecycle states, run-scoped 0600 token store
+    - [x] per-provider `bootstrap` capabilities + actionable `manual-credential-required` messages
+    - [x] Copyleaks: machine-issued token via official login API, reuse, cleanup, free sandbox
+    - [x] `init` / `e2e` / `cleanup` CLI, transport-enforced request budget (≤ 2), no mock downgrade
+    - [x] scripts/live_e2e.sh, Live E2E workflow, release gated on it when vars.E2E_PROVIDERS is set
+    - [x] ADR 0006, docs/e2e-live.md, AGENTS.md; tests incl. budget, secrets, exit codes
+  - Notes: framework + Copyleaks bootstrap shipped; waits only for the owner's one-time free Copyleaks signup + 2 GitHub secrets to run live
+
 ## Owner decisions
 
 - 2026-10-07 — **External detection APIs only.** No self-developed check and no local
   model-based detector, not even optional (ADR 0005; overrides vision §2.1's future idea).
 - 2026-10-07 — No manual web signups for detector accounts for now; agents never create
   accounts (live validation T118 waits for keys).
+- 2026-10-08 — **Live E2E against real services is required** for releases (ADR 0006):
+  self-configuring credential bootstrap, provider-supported mechanisms only, ≤ 2 requests;
+  Copyleaks first (machine token + free sandbox). The one-time free account is the owner's step.
 - 2026-10-07 — Releases follow the PyPA guide (industry practice), not individual example repos.
 
 ## Open items / blockers

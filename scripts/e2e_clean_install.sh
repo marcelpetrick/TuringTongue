@@ -10,7 +10,8 @@
 #   4. import the package and prove it comes from site-packages (no source leakage)
 #   5. run CLI --help / --version
 #   6. offline smoke test through the mock provider (HUMAN, AI, exit codes)
-#   7. real provider smoke tests — only with TURINGTONGUE_E2E_LIVE=1 (may cost credits)
+#   7. live init -> e2e -> cleanup against real providers — only with
+#      TURINGTONGUE_E2E_LIVE=1 (providers from E2E_PROVIDERS, default copyleaks sandbox)
 #   8. missing credentials fail gracefully (NOT_CONFIGURED, exit 2)
 #   9. JSON output carries schema_version and the documented top-level keys
 #
@@ -84,21 +85,15 @@ assert {e["provider_id"] for e in data["errors"]} == {"sapling", "gptzero"}
 PY
 
 if [[ "${TURINGTONGUE_E2E_LIVE:-0}" == "1" ]]; then
-    step "LIVE provider smoke tests (may consume credits)"
-    sample="It was on a dreary night of November that I beheld the accomplishment of my toils."
-    for id in $(iso turingtongue providers --json | python3 -c 'import json,sys; print(" ".join(r["id"] for r in json.load(sys.stdin) if r["id"] != "mock"))'); do
-        if env TURINGTONGUE_NO_DOTENV=1 "${BIN}/turingtongue" providers --json \
-            | python3 -c "import json,sys; sys.exit(0 if any(r['id']=='${id}' and r['credentials_present'] for r in json.load(sys.stdin)) else 1)"; then
-            set +e
-            "${BIN}/turingtongue" check --text "${sample}" -p "${id}" -v; rc=$?
-            set -e
-            printf 'live %s: exit %s\n' "${id}" "${rc}"
-        else
-            printf 'live %s: skipped (no credentials)\n' "${id}"
-        fi
+    step "LIVE init -> e2e -> cleanup with the installed wheel (providers: ${E2E_PROVIDERS:-copyleaks})"
+    export TURINGTONGUE_E2E_STATE_DIR="${WORK}/e2e-state"
+    for id in ${E2E_PROVIDERS:-copyleaks}; do
+        "${BIN}/turingtongue" init "${id}" --mode e2e || fail "live init ${id}"
+        "${BIN}/turingtongue" e2e "${id}" --max-requests 2 || { "${BIN}/turingtongue" cleanup "${id}"; fail "live e2e ${id}"; }
+        "${BIN}/turingtongue" cleanup "${id}"
     done
 else
-    step "live provider smoke tests skipped (set TURINGTONGUE_E2E_LIVE=1 to enable)"
+    step "live provider E2E skipped (set TURINGTONGUE_E2E_LIVE=1 and the provider secrets)"
 fi
 
 printf 'E2E clean install: OK (%s)\n' "$(basename "${wheel}")"

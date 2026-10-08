@@ -50,6 +50,10 @@ class ProviderSpec:
     docs_url: str
     notes: str = ""
     endpoint: str = ""
+    bootstrap: tuple[str, ...] = ("environment",)
+    """Credential bootstrap mechanisms the provider supports (see credentials.Mechanism)."""
+    credential_help: str = ""
+    """Actionable instructions when a credential has to be provisioned manually."""
     extra: Mapping[str, Any] = field(default_factory=dict)
 
     def missing_credentials(self, env_lookup: Mapping[str, str] | None = None) -> list[str]:
@@ -101,6 +105,8 @@ def _spec(provider_id: str, raw: Mapping[str, Any]) -> ProviderSpec:
         docs_url=raw.get("docs_url", ""),
         notes=raw.get("notes", ""),
         endpoint=raw.get("endpoint", ""),
+        bootstrap=tuple(raw.get("bootstrap", ("environment",))),
+        credential_help=raw.get("credential_help", ""),
         extra={k: v for k, v in raw.items() if k not in known},
     )
 
