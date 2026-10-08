@@ -129,50 +129,70 @@ def _tally(s: Scores, truth: str, predicted: str | None) -> None:
         s.fn += 1
 
 
+@dataclass(slots=True)
+class _Accumulator:
+    """Raw observations for one provider (or the ensemble) before metrics are derived."""
+
+    scores: Scores
+    latencies: list[float] = field(default_factory=list)
+    positives: list[float] = field(default_factory=list)
+    negatives: list[float] = field(default_factory=list)
+    credits: list[float] = field(default_factory=list)
+    words: int = 0
+
+    def evidence(self, truth: str, value: float) -> None:
+        """Record an evidence score for ROC-AUC under the sample's ground truth."""
+        (self.positives if truth == "ai" else self.negatives).append(value)
+
+    def finish(self) -> Scores:
+        """Derive all metrics."""
+        return _finish(
+            self.scores, self.latencies, self.positives, self.negatives, self.credits, self.words
+        )
+
+
+def _add_ensemble(acc: _Accumulator, truth: str, result: dict[str, Any]) -> None:
+    acc.scores.samples += 1
+    verdict = result["verdict"]
+    _tally(acc.scores, truth, None if verdict == "no_verdict" else verdict)
+    acc.latencies.append(result["timing"]["wall_clock_ms"])
+    evidence = result["aggregate"]["evidence_score"]
+    if evidence is not None:
+        acc.evidence(truth, evidence)
+
+
+def _add_provider(acc: _Accumulator, truth: str, p: dict[str, Any], words: int) -> None:
+    s = acc.scores
+    s.samples += 1
+    ev = p["normalized_evidence"]
+    if p["status"] != "ok" or ev is None:
+        s.failed += p["status"] != "ok"
+        s.abstained += 1
+        return
+    _tally(s, truth, None if abs(ev) <= NEUTRAL else ("ai" if ev > 0 else "human"))
+    acc.evidence(truth, ev)
+    if p["latency_ms"] is not None:
+        acc.latencies.append(p["latency_ms"])
+    used = (p.get("cost") or {}).get("credits_used")
+    if used is not None:
+        acc.credits.append(used)
+        acc.words += words
+    version = " ".join(x for x in (p.get("model"), p.get("model_version")) if x)
+    if version and version not in s.model_versions:
+        s.model_versions.append(version)
+
+
 def compute(records: Iterable[dict[str, Any]]) -> list[Scores]:
     """Metrics for the ensemble and every provider seen in ``records``."""
-    binary = [r for r in records if r.get("truth") in {"ai", "human"}]
-    ensemble = Scores(ENSEMBLE)
-    providers: dict[str, Scores] = {}
-    lat: dict[str, list[float]] = {ENSEMBLE: []}
-    pos: dict[str, list[float]] = {ENSEMBLE: []}
-    neg: dict[str, list[float]] = {ENSEMBLE: []}
-    cred: dict[str, list[float]] = {ENSEMBLE: []}
-    words: dict[str, int] = {ENSEMBLE: 0}
-    for record in binary:
-        truth = record["truth"]
-        result = record["result"]
-        ensemble.samples += 1
-        verdict = result["verdict"]
-        _tally(ensemble, truth, None if verdict == "no_verdict" else verdict)
-        lat[ENSEMBLE].append(result["timing"]["wall_clock_ms"])
-        evidence = result["aggregate"]["evidence_score"]
-        if evidence is not None:
-            (pos if truth == "ai" else neg)[ENSEMBLE].append(evidence)
-        for p in result["providers"]:
+    ensemble = _Accumulator(Scores(ENSEMBLE))
+    providers: dict[str, _Accumulator] = {}
+    for record in records:
+        truth = record.get("truth")
+        if truth not in {"ai", "human"}:
+            continue
+        _add_ensemble(ensemble, truth, record["result"])
+        for p in record["result"]["providers"]:
             pid = p["provider_id"]
-            s = providers.setdefault(pid, Scores(pid))
-            for bucket in (lat, pos, neg, cred):
-                bucket.setdefault(pid, [])
-            words.setdefault(pid, 0)
-            s.samples += 1
-            ev = p["normalized_evidence"]
-            if p["status"] != "ok" or ev is None:
-                s.failed += p["status"] != "ok"
-                s.abstained += 1
-                continue
-            _tally(s, truth, None if abs(ev) <= NEUTRAL else ("ai" if ev > 0 else "human"))
-            (pos if truth == "ai" else neg)[pid].append(ev)
-            if p["latency_ms"] is not None:
-                lat[pid].append(p["latency_ms"])
-            used = (p.get("cost") or {}).get("credits_used")
-            if used is not None:
-                cred[pid].append(used)
-                words[pid] += record["words"]
-            version = " ".join(x for x in (p.get("model"), p.get("model_version")) if x)
-            if version and version not in s.model_versions:
-                s.model_versions.append(version)
-    results = [_finish(ensemble, lat[ENSEMBLE], pos[ENSEMBLE], neg[ENSEMBLE], [], 0)]
-    for pid, s in sorted(providers.items()):
-        results.append(_finish(s, lat[pid], pos[pid], neg[pid], cred[pid], words[pid]))
-    return results
+            acc = providers.setdefault(pid, _Accumulator(Scores(pid)))
+            _add_provider(acc, truth, p, record["words"])
+    return [ensemble.finish(), *(providers[pid].finish() for pid in sorted(providers))]
