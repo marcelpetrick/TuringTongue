@@ -709,5 +709,18 @@
   },
   "version": "0.7.1",
   "coverage": 98.46
+ },
+ "b56c307bd63005e41091a8b3def73baa5141db4e": {
+  "loc": {
+   "library": 4153,
+   "tests-unit": 1616,
+   "tests-contract": 520,
+   "tests-integration": 547,
+   "tests-e2e": 53,
+   "tooling": 1885,
+   "docs": 1948
+  },
+  "version": "0.7.2",
+  "coverage": 98.46
  }
 }
