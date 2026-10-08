@@ -236,22 +236,17 @@ def run(
         logging.basicConfig(
             level=logging.DEBUG, stream=stderr, format="%(levelname)s %(name)s: %(message)s"
         )
+    handlers = {
+        "check": lambda c: _check(c, args, stdin, stdout),
+        "providers": lambda c: _providers(c, args, stdout),
+        "batch": lambda c: _batch(c, args, stdout, stderr),
+        "benchmark": lambda c: _benchmark(c, args, stdout, stderr),
+        "init": lambda c: _live(args, c.settings, stdout),
+        "e2e": lambda c: _live(args, c.settings, stdout),
+        "cleanup": lambda c: _live(args, c.settings, stdout),
+    }
     try:
-        settings = make_settings(args)
-        checker = Checker(settings)
-        if args.command == "providers":
-            return _providers(checker, args, stdout)
-        if args.command in {"init", "e2e", "cleanup"}:
-            return _live(args, settings, stdout)
-        if args.command == "batch":
-            return _batch(checker, args, stdout, stderr)
-        if args.command == "benchmark":
-            return _benchmark(checker, args, stdout, stderr)
-        text = read_text(args.file, args.text, stdin)
-        providers = [p for item in args.providers or [] for p in item.split(",") if p.strip()]
-        result = checker.check(
-            text, providers=providers or None, transport=args.transport, verbose=args.verbose
-        )
+        return handlers[args.command](Checker(make_settings(args)))
     except ConfigurationError as exc:
         print(f"turingtongue: error: {exc}", file=stderr)
         return EXIT_USAGE
@@ -259,6 +254,14 @@ def run(
         logging.getLogger("turingtongue").debug("internal failure", exc_info=True)
         print(f"turingtongue: internal error: {type(exc).__name__}: {exc}", file=stderr)
         return EXIT_INTERNAL
+
+
+def _check(checker: Checker, args: argparse.Namespace, stdin: TextIO, stdout: TextIO) -> int:
+    """``check``: one word by default, verbose report or versioned JSON on request."""
+    text = read_text(args.file, args.text, stdin)
+    result = checker.check(
+        text, providers=_selected(args), transport=args.transport, verbose=args.verbose
+    )
     if args.json:
         print(result.to_json(), file=stdout)
     elif args.verbose:
