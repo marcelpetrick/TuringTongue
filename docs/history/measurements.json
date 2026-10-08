@@ -772,6 +772,71 @@
    "tooling": 1885,
    "docs": 1961
   },
-  "version": "0.7.6"
+  "version": "0.7.6",
+  "coverage": 99.05
+ },
+ "4a99d7b4086dda876bb8534dbe641d464f280ce7": {
+  "loc": {
+   "library": 4152,
+   "tests-unit": 1662,
+   "tests-contract": 520,
+   "tests-integration": 547,
+   "tests-e2e": 53,
+   "tooling": 1885,
+   "docs": 1961
+  },
+  "version": "0.7.7",
+  "coverage": 99.05
+ },
+ "caea916c454a9cd10919e6e49faba8deb874434c": {
+  "loc": {
+   "library": 4170,
+   "tests-unit": 1662,
+   "tests-contract": 520,
+   "tests-integration": 547,
+   "tests-e2e": 53,
+   "tooling": 1885,
+   "docs": 1961
+  },
+  "version": "0.7.8",
+  "coverage": 99.05
+ },
+ "81ecde91ca29b6ea4e3771959cfd0518bb16e064": {
+  "loc": {
+   "library": 4181,
+   "tests-unit": 1662,
+   "tests-contract": 520,
+   "tests-integration": 547,
+   "tests-e2e": 53,
+   "tooling": 1885,
+   "docs": 1961
+  },
+  "version": "0.7.9",
+  "coverage": 99.05
+ },
+ "e25d12aeca4a86f831a0e6e31da9ae128b53fdea": {
+  "loc": {
+   "library": 4182,
+   "tests-unit": 1662,
+   "tests-contract": 520,
+   "tests-integration": 547,
+   "tests-e2e": 53,
+   "tooling": 1885,
+   "docs": 1961
+  },
+  "version": "0.7.10",
+  "coverage": 99.04
+ },
+ "99eb01df9b503174787e60024f39c83198b0821a": {
+  "loc": {
+   "library": 4186,
+   "tests-unit": 1662,
+   "tests-contract": 520,
+   "tests-integration": 547,
+   "tests-e2e": 53,
+   "tooling": 1885,
+   "docs": 1961
+  },
+  "version": "0.7.11"
  }
 }

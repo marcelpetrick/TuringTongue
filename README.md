@@ -201,13 +201,13 @@ Measured by [`scripts/metrics.py`](scripts/metrics.py); full tables in
 
 | Metric | Value |
 | --- | --- |
-| Library code (src) | 3,881 lines in 47 files · 54 classes · 205 functions |
-| Test code | 2,703 lines in 33 files (+166 lines JSON fixtures) · ratio 0.70 : 1 |
-| Scripts / CI / docs | 1,211 / 311 / 2,363 lines |
+| Library code (src) | 3,906 lines in 47 files · 55 classes · 216 functions |
+| Test code | 2,703 lines in 33 files (+166 lines JSON fixtures) · ratio 0.69 : 1 |
+| Scripts / CI / docs | 1,211 / 311 / 2,417 lines |
 | Tests | 371 (270 unit · 49 contract · 46 integration · 6 e2e) + 1 opt-in live |
 | Branch coverage, combined | **99.1 %** (gate ≥ 95 %) |
-| Coverage by tier alone | unit 85.3 % · contract 59.8 % · integration 70.1 % · **end-to-end 51.5 %** |
-| Cyclomatic complexity | average 4.22 (radon), 192 of 255 blocks rank A; max 22 (`compute`, `combine`) |
+| Coverage by tier alone | unit 85.3 % · contract 60.7 % · integration 70.9 % · **end-to-end 52.1 %** |
+| Cyclomatic complexity | average 4.01 (radon), 202 of 268 blocks rank A, none above C; max 17 |
 
 End-to-end coverage is measured inside the `python -m turingtongue` child processes
 (coverage.py subprocess patching), not estimated. Wheel-install and Docker end-to-end
