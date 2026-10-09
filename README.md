@@ -120,7 +120,7 @@ skipped in the default selection.
 | Winston AI | `WINSTON_AI_API_KEY` (or `WINSTON_API_KEY`) |
 | Originality.ai | `ORIGINALITY_API_KEY` (note: accounts auto top-up credits by default) |
 | Hive | `HIVE_API_KEY` |
-| ZeroGPT | `ZEROGPT_API_KEY` (opt-in: `-p zerogpt`) |
+| ZeroGPT | `ZEROGPT_API_KEY` + current login JWT (`ZEROGPT_BEARER_TOKEN`), or `ZEROGPT_EMAIL` + `ZEROGPT_PASSWORD` for explicit `init --acquire-credential` (opt-in: `-p zerogpt`) |
 
 `turingtongue providers` shows which are configured (never the values). Optional
 non-secret settings (timeouts, concurrency, per-provider weights/options) go in

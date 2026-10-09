@@ -487,15 +487,15 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] offline integration and CLI tests cover both paths
   - Notes: CLI, shell helper, clean-install path and Live E2E workflow now opt in explicitly; no-flag init only reuses a valid token and e2e cannot trigger login.
 
-- [ ] T127 — Add explicit ZeroGPT existing-account API-key acquisition
-  - Status: todo
+- [x] T127 — Add explicit ZeroGPT existing-account API-key acquisition
+  - Status: done
   - Depends on: T123,T125,T126
   - Acceptance:
-    - [ ] `init zerogpt --mode e2e --acquire-credential` uses only documented login/key-generation APIs
-    - [ ] requires a human-created, verified and funded account; never automates signup
-    - [ ] generated non-expiring key is not minted per run and its lifecycle limitations are explicit
-    - [ ] response-schema uncertainty fails safely; secrets are redacted; mocked contract/integration tests pass
-  - Notes: 2026-10-09 owner explicitly requests a guarded existing-account acquisition experiment, superseding only T123's decision not to adopt per-run key minting
+    - [x] `init zerogpt --mode e2e --acquire-credential` uses only documented login/key-generation APIs
+    - [x] requires a human-created, verified and funded account; never automates signup
+    - [x] generated non-expiring key is not minted per run and its lifecycle limitations are explicit
+    - [x] response-schema uncertainty fails safely; secrets are redacted; mocked contract/integration tests pass
+  - Notes: Implemented documented existing-account login plus one-time non-expiring key issuance (max two non-retried requests), persistent 0600 .env key, run-scoped JWT, dual-header detection and fail-closed schema parsing; mocked flow green, live schema confirmation remains in T118.
 
 - [ ] T128 — Human credential workflow guide for every supported provider
   - Status: todo

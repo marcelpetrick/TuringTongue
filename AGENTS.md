@@ -64,8 +64,9 @@ requirements live in [`vision.md`](vision.md); the execution ledger is [`plan.md
   48 h token via the official login API + free sandbox). Keep the request budget
   (≤ 2 per run), never fall back to the mock in a live run, never print secrets.
 - **Automate credentials only through provider-supported mechanisms** (preference:
-  environment → sandbox → machine-issued token → OAuth → owned ephemeral identity →
-  CI secret → manual; declared per provider as `bootstrap` in `data/providers.toml`).
+  environment → sandbox → machine-issued token → existing-account API-key issuance → OAuth →
+  owned ephemeral identity → CI secret → manual; declared per provider as `bootstrap` in
+  `data/providers.toml`).
   No provider supports machine-driven *account registration*, so agents never script
   website signups, CAPTCHAs, email verification or mass accounts; such providers report
   `manual-credential-required` with exact steps. Long-lived account secrets live only in

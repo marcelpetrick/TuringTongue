@@ -28,6 +28,8 @@ class Mechanism(enum.StrEnum):
     """Official provider sandbox: real service, test-only classifications, no cost."""
     MACHINE_TOKEN = "machine_token"  # noqa: S105 - mechanism name, not a secret
     """Official API that issues a short-lived token from a long-lived account secret."""
+    ACCOUNT_KEY = "account_key"
+    """Official API that issues a non-expiring key inside an existing human account."""
     OAUTH = "oauth"
     OWNED_EPHEMERAL = "owned_ephemeral"
     """Short-lived test identity from a service we operate (none exists today)."""
@@ -40,6 +42,7 @@ PREFERENCE: tuple[Mechanism, ...] = (
     Mechanism.ENVIRONMENT,
     Mechanism.SANDBOX,
     Mechanism.MACHINE_TOKEN,
+    Mechanism.ACCOUNT_KEY,
     Mechanism.OAUTH,
     Mechanism.OWNED_EPHEMERAL,
     Mechanism.CI_SECRET,

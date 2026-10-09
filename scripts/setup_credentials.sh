@@ -37,7 +37,7 @@ case "${provider}" in
     winston) vars=(WINSTON_AI_API_KEY) ;;
     originality) vars=(ORIGINALITY_API_KEY) ;;
     hive) vars=(HIVE_API_KEY) ;;
-    zerogpt) vars=(ZEROGPT_API_KEY) ;;
+    zerogpt) vars=(ZEROGPT_EMAIL ZEROGPT_PASSWORD ZEROGPT_API_KEY) ;;
     *) sed -n '5,17p' "$0" | sed 's/^# \{0,1\}//'; exit 64 ;;
 esac
 

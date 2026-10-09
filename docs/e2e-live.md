@@ -6,6 +6,11 @@ turingtongue init copyleaks --mode e2e --acquire-credential  # explicit; max 1 l
 turingtongue e2e copyleaks                  # ≤ 2 provider attempts, free sandbox, 30 s timeout
 turingtongue cleanup copyleaks              # discard run-scoped token
 scripts/live_e2e.sh --acquire-credential copyleaks  # all three; cleanup guaranteed
+
+# Existing, human-created + verified + funded ZeroGPT account only:
+turingtongue init zerogpt --mode e2e --acquire-credential  # 1 login + at most 1 key issue
+turingtongue e2e zerogpt --no-sandbox                     # paid live classification
+turingtongue cleanup zerogpt                              # local JWT only; key remains
 ```
 
 Exit codes: `0` passed/ready · `1` failed (auth, network, schema, budget) · `3`
@@ -18,18 +23,20 @@ exactly what to do).
 | --- | --- | --- | --- |
 | **Copyleaks** | environment, machine_token, sandbox | free signup at <https://api.copyleaks.com/signup>, API key from <https://api.copyleaks.com/dashboard> | fresh 48 h token via official login API; check in the free **sandbox** (no cost) |
 | Sapling | environment | account + trial key in the dashboard | 1–2 real requests with the key |
-| GPTZero, Pangram, Winston, Originality, Hive, ZeroGPT | environment | account + key (some paid/enterprise) | 1–2 real requests with the key |
+| **ZeroGPT** | environment, account_key | human-created, verified account with funded business API balance | login for a run-scoped JWT; issue one non-expiring key only when `ZEROGPT_API_KEY` is absent |
+| GPTZero, Pangram, Winston, Originality, Hive | environment | account + key (some paid/enterprise) | 1–2 real requests with the key |
 
-No provider offers machine-driven account registration (checked 2026-10-08), so the
+No provider offers machine-driven account registration (checked 2026-10-09), so the
 account itself is always created once by the owner. Signup flows are never scripted.
 
-**Evaluated and not adopted — ZeroGPT key minting.** ZeroGPT's official API has
+**Guarded ZeroGPT existing-account acquisition.** ZeroGPT's official API has
 `POST /api/auth/login` (email + password → JWT) and `GET /api/auth/generateApiKey`. Its
-own documentation says the key is "only required once" and "doesn't expire", so it is not
-a temporary credential; minting one per run could invalidate keys used elsewhere, and the
-response schema is undocumented (no example), and detection calls need a paid balance.
-It would not remove the one-time signup either. Revisit if ZeroGPT documents expiring or
-scoped keys.
+documentation says the key is "only required once" and "doesn't expire". Therefore the
+explicit flow never calls key generation when `ZEROGPT_API_KEY` already exists. A newly
+issued key is atomically saved to the gitignored `.env` (0600); only the login JWT is
+run-scoped and removed by cleanup. Both success response schemas are undocumented, so
+unknown or ambiguous envelopes fail closed without including response bodies in errors.
+Account creation, verification and funding remain human steps.
 
 ## After the one-time signup: one command
 
@@ -62,15 +69,18 @@ Locally: put the two values in `.env` (gitignored) and run
 
 ## Guarantees
 
-- **Budget:** `init` sends at most one login request and never retries it. During `e2e`,
+- **Budget:** Copyleaks `init` sends at most one login request. ZeroGPT `init` sends one
+  login and, only when no API key exists, one key-generation request. Acquisition calls
+  are never retried. During `e2e`,
   a transport wrapper refuses provider attempt number `max+1` (default 2), so the one
   permitted retry is included in that limit. Timeout is 30 seconds. Reported request
   counts are the actual outbound attempts.
-- **Secrets:** account secrets only in env/CI secrets; the machine-issued token lives in
+- **Secrets:** account secrets only in env/CI secrets. Run-scoped bearer tokens live in
   a 0700 directory / 0600 file for the run (`$TURINGTONGUE_E2E_STATE_DIR`, else
-  `$XDG_RUNTIME_DIR/turingtongue-e2e`) and is deleted by `cleanup`. Copyleaks documents
-  no revoke endpoint; the token expires after 48 h on its own. Nothing secret is logged
-  or printed; reports are redacted.
+  `$XDG_RUNTIME_DIR/turingtongue-e2e`) and are deleted by `cleanup`. A newly issued
+  non-expiring ZeroGPT API key is stored atomically in gitignored `.env` (0600) and is
+  deliberately not deleted or claimed revoked by cleanup. Copyleaks documents no revoke
+  endpoint; its token expires after 48 h. Nothing secret is logged or printed.
 - **No silent downgrade:** a live run never uses the mock provider; missing credentials
   fail with `manual-credential-required`.
 - **No implicit acquisition:** without `--acquire-credential`, `init` may reuse a valid

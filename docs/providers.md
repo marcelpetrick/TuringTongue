@@ -275,7 +275,7 @@ the user's original string without checking for equality first.
 | Official docs | https://api.zerogpt.com/docs (Swagger UI), https://api.zerogpt.com/openapi.json, linked official Postman collection |
 | Documented API | Yes, but thin: `POST https://api.zerogpt.com/api/detect/detectText` with `{"input_text": ...}`. No example response, few error codes. |
 | Official SDK | None. |
-| Auth | `ApiKey: <key>` header ("Mandatory Header" per endpoint descriptions). Swagger also marks endpoints as JWT-secured and the Postman collection sends `Authorization: Bearer <token>` from `POST /api/auth/login` (email + password). AMBIGUOUS whether the bearer token is required in addition to `ApiKey`. |
+| Auth | Both `ApiKey: <key>` and `Authorization: Bearer <token>`. The linked official Postman request sends both headers; the bearer JWT comes from documented `POST /api/auth/login` (email + password). `GET /api/auth/generateApiKey` issues the API key and is documented as needed only once because the key does not expire. Login/key-generation success schemas remain undocumented. |
 | Free trial / sandbox | No; "This is a paid service". Balance must be funded in the dashboard. |
 | Sandbox real or mock | None. |
 | Pricing model | Prepaid balance, per words. Official rates not published (third-party: from $0.034 per 1,000 words, unverified). |
@@ -295,12 +295,12 @@ the user's original string without checking for equality first.
 | API terms re automation | ToS: "Automated access to ZeroGPT is permitted only through an authorized API or another method expressly approved by ZeroGPT." Scraping/crawling forbidden. |
 | Web UI | Yes (zerogpt.com), free tier. |
 | Browser automation | **Forbidden.** |
-| Integration status | adapter implemented (contract-tested, no live credentials) |
-| last_verified | 2026-10-07 |
+| Integration status | adapter + deliberate existing-account key acquisition implemented (contract-tested, no live credentials) |
+| last_verified | 2026-10-09 |
 
 Recommendation: ZeroGPT meets the "documented API" bar only minimally. Keep
 it `enabled_by_default = false` until a live response confirms field names
-and auth.
+and success-envelope field names.
 
 ### 2.9 Other detectors noted (not integrated)
 

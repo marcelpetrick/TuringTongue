@@ -20,7 +20,7 @@ from turingtongue.credentials.bootstrap import activate, manual_message
 from turingtongue.credentials.store import CredentialStore
 from turingtongue.errors import ProviderFailure
 from turingtongue.models import ErrorCategory, ProviderStatus, TransportKind
-from turingtongue.providers import copyleaks
+from turingtongue.providers import copyleaks, zerogpt
 from turingtongue.registry import Registry
 
 SAMPLE = (
@@ -129,6 +129,17 @@ async def run_e2e(
         if copyleaks.cached_token(email) is None:
             report.message = (
                 "credential-acquisition-required: run 'turingtongue init copyleaks "
+                "--mode e2e --acquire-credential' before the live check"
+            )
+            return report
+    elif spec.id == "zerogpt":
+        email = settings.credential("ZEROGPT_EMAIL") or ""
+        if (
+            settings.credential("ZEROGPT_BEARER_TOKEN") is None
+            and zerogpt.cached_token(email) is None
+        ):
+            report.message = (
+                "credential-acquisition-required: run 'turingtongue init zerogpt "
                 "--mode e2e --acquire-credential' before the live check"
             )
             return report

@@ -20,20 +20,27 @@ LONG = "This paragraph is long enough for every provider minimum. " * 12
 @respx.mock
 def test_zerogpt(run_provider: Runner) -> None:
     route = respx.post(zerogpt.URL).respond(200, json=fixture("zerogpt", "ok-synthetic"))
-    p = run_provider("zerogpt", LONG, {"ZEROGPT_API_KEY": "z-secret"}).providers[0]
+    p = run_provider(
+        "zerogpt",
+        LONG,
+        {"ZEROGPT_API_KEY": "z-secret", "ZEROGPT_BEARER_TOKEN": "jwt-secret"},
+    ).providers[0]
     assert p.normalized_evidence == pytest.approx(2 * 0.25 - 1)
     assert p.raw_label == "human"
     assert p.warning_codes == ["AI_WORDS=30/120"]
     assert p.cost is not None
     assert len(p.segments) == 1
     assert route.calls.last.request.headers["ApiKey"] == "z-secret"
+    assert route.calls.last.request.headers["Authorization"] == "Bearer jwt-secret"
     assert json.loads(route.calls.last.request.content) == {"input_text": LONG}
 
 
 @respx.mock
 def test_zerogpt_unsuccessful_envelope(run_provider: Runner) -> None:
     respx.post(zerogpt.URL).respond(200, json={"success": False, "message": "No balance"})
-    error = run_provider("zerogpt", LONG, {"ZEROGPT_API_KEY": "k"}).errors[0]
+    error = run_provider(
+        "zerogpt", LONG, {"ZEROGPT_API_KEY": "k", "ZEROGPT_BEARER_TOKEN": "jwt"}
+    ).errors[0]
     assert error.category is ErrorCategory.PROVIDER_ERROR
     assert "No balance" in error.message
 
@@ -41,6 +48,14 @@ def test_zerogpt_unsuccessful_envelope(run_provider: Runner) -> None:
 @respx.mock
 def test_zerogpt_minimal(run_provider: Runner) -> None:
     respx.post(zerogpt.URL).respond(200, json={"success": True, "data": {"fakePercentage": 90}})
-    p = run_provider("zerogpt", LONG, {"ZEROGPT_API_KEY": "k"}).providers[0]
+    p = run_provider(
+        "zerogpt", LONG, {"ZEROGPT_API_KEY": "k", "ZEROGPT_BEARER_TOKEN": "jwt"}
+    ).providers[0]
     assert p.raw_label is None
     assert p.cost is None
+
+
+def test_zerogpt_requires_login_jwt(run_provider: Runner) -> None:
+    result = run_provider("zerogpt", LONG, {"ZEROGPT_API_KEY": "k"})
+    assert result.errors[0].category is ErrorCategory.NOT_CONFIGURED
+    assert "--acquire-credential" in result.errors[0].message

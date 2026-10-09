@@ -2,6 +2,7 @@
 # Copyright (C) 2026 Marcel Petrick <mail@marcelpetrick.it>
 """Credential bootstrap + budgeted live-E2E runner, with the real services mocked."""
 
+import base64
 import io
 import json
 import stat
@@ -20,11 +21,24 @@ from turingtongue.credentials import CredentialState, CredentialStore, bootstrap
 from turingtongue.credentials.bootstrap import activate
 from turingtongue.credentials.store import default_state_dir
 from turingtongue.e2e import RequestBudget, run_e2e
-from turingtongue.providers import copyleaks
+from turingtongue.providers import copyleaks, zerogpt
 from turingtongue.providers.sapling import URL as SAPLING_URL
 
 pytestmark = pytest.mark.integration
 ENV = {"COPYLEAKS_EMAIL": "ci@example.test", "COPYLEAKS_API_KEY": "cl-account-secret"}
+ZEROGPT_ACCOUNT = {
+    "ZEROGPT_EMAIL": "owner@example.test",
+    "ZEROGPT_PASSWORD": "correct-horse-battery-staple",
+}
+ZEROGPT_KEY = "zg-issued-non-expiring-key"
+
+
+def _jwt() -> str:
+    payload = base64.urlsafe_b64encode(json.dumps({"exp": 4_102_444_800}).encode()).decode()
+    return f"header.{payload.rstrip('=')}.signature"
+
+
+ZEROGPT_JWT = _jwt()
 TOKEN = "ACLNSKNSDAACCAJANCOIUiausoo_saidjaskldjoa"
 CHECK = respx.patterns.M(
     url__regex=r"https://api\.copyleaks\.com/v2/writer-detector/[0-9a-f]{32}/check"
@@ -34,8 +48,10 @@ CHECK = respx.patterns.M(
 @pytest.fixture(autouse=True)
 def _clean_cache() -> Iterator[None]:
     copyleaks.clear_token_cache()
+    zerogpt.clear_token_cache()
     yield
     copyleaks.clear_token_cache()
+    zerogpt.clear_token_cache()
 
 
 @pytest.fixture
@@ -124,6 +140,218 @@ async def test_environment_mechanism_for_other_providers(store: CredentialStore)
     report = await bootstrap("sapling", settings({"SAPLING_API_KEY": "k"}), store=store)
     assert report.state is CredentialState.VALID
     assert "verified by the first live E2E request" in report.message
+
+
+@respx.mock
+async def test_zerogpt_issues_key_once_and_persists_only_expected_secrets(
+    store: CredentialStore, tmp_path: Path
+) -> None:
+    login = respx.post(zerogpt.LOGIN_URL).respond(
+        200, json={"success": True, "data": {"token": ZEROGPT_JWT}}
+    )
+    generate = respx.get(zerogpt.GENERATE_KEY_URL).respond(
+        200, json={"success": True, "data": {"apiKey": ZEROGPT_KEY}}
+    )
+    dotenv = tmp_path / ".env"
+
+    report = await bootstrap(
+        "zerogpt",
+        settings(ZEROGPT_ACCOUNT),
+        store=store,
+        acquire_credential=True,
+        dotenv_path=dotenv,
+    )
+
+    assert (report.state, report.requests_used, report.reused) == (
+        CredentialState.VALID,
+        2,
+        False,
+    )
+    assert login.call_count == generate.call_count == 1
+    assert stat.S_IMODE(dotenv.stat().st_mode) == 0o600
+    assert "ZEROGPT_API_KEY=" in dotenv.read_text()
+    assert ZEROGPT_ACCOUNT["ZEROGPT_PASSWORD"] not in dotenv.read_text()
+    assert ZEROGPT_JWT not in dotenv.read_text()
+    assert ZEROGPT_KEY not in json.dumps(report.as_dict())
+    token_state = (store.directory / "zerogpt.json").read_text()
+    assert ZEROGPT_KEY not in token_state
+    assert ZEROGPT_ACCOUNT["ZEROGPT_PASSWORD"] not in token_state
+
+
+@respx.mock
+async def test_zerogpt_existing_api_key_is_never_reissued(
+    store: CredentialStore, tmp_path: Path
+) -> None:
+    env = {**ZEROGPT_ACCOUNT, "ZEROGPT_API_KEY": "already-owned"}
+    login = respx.post(zerogpt.LOGIN_URL).respond(
+        200, json={"success": True, "data": {"token": ZEROGPT_JWT}}
+    )
+    generate = respx.get(zerogpt.GENERATE_KEY_URL).respond(
+        200, json={"success": True, "data": {"apiKey": "must-not-be-used"}}
+    )
+
+    report = await bootstrap(
+        "zerogpt",
+        settings(env),
+        store=store,
+        acquire_credential=True,
+        dotenv_path=tmp_path / ".env",
+    )
+
+    assert (report.state, report.requests_used) == (CredentialState.VALID, 1)
+    assert "retained" in report.message
+    assert login.call_count == 1
+    assert generate.call_count == 0
+    assert not (tmp_path / ".env").exists()
+
+
+@respx.mock
+async def test_zerogpt_acquisition_is_explicit_and_account_is_human_created(
+    store: CredentialStore,
+) -> None:
+    login = respx.post(zerogpt.LOGIN_URL).respond(500)
+    report = await bootstrap("zerogpt", settings(ZEROGPT_ACCOUNT), store=store)
+    assert report.state is CredentialState.MISSING
+    assert report.requests_used == 0
+    assert report.message.startswith("manual-credential-required")
+    assert login.call_count == 0
+    missing = await bootstrap("zerogpt", settings({}), store=store, acquire_credential=True)
+    assert "ZEROGPT_EMAIL" in missing.message
+    assert "no machine-driven account registration" in missing.message
+
+
+@respx.mock
+async def test_zerogpt_acquisition_has_no_retries_and_fails_closed(
+    store: CredentialStore, tmp_path: Path
+) -> None:
+    login = respx.post(zerogpt.LOGIN_URL).mock(
+        side_effect=[
+            httpx.Response(503, json={"message": ZEROGPT_ACCOUNT["ZEROGPT_PASSWORD"]}),
+            httpx.Response(200, json={"success": True, "data": {"token": ZEROGPT_JWT}}),
+        ]
+    )
+    report = await bootstrap(
+        "zerogpt",
+        Settings(env=ZEROGPT_ACCOUNT, max_retries=9),
+        store=store,
+        acquire_credential=True,
+        dotenv_path=tmp_path / ".env",
+    )
+    assert (report.state, report.requests_used, login.call_count) == (
+        CredentialState.MISSING,
+        1,
+        1,
+    )
+    assert ZEROGPT_ACCOUNT["ZEROGPT_PASSWORD"] not in report.message
+
+    login.reset()
+    login.mock(
+        return_value=httpx.Response(200, json={"success": True, "data": {"token": "not-a-jwt"}})
+    )
+    schema = await bootstrap(
+        "zerogpt",
+        settings(ZEROGPT_ACCOUNT),
+        store=store,
+        acquire_credential=True,
+        dotenv_path=tmp_path / ".env",
+    )
+    assert schema.state is CredentialState.MISSING
+    assert schema.requests_used == 1
+    assert "SCHEMA_CHANGED" in schema.message
+
+    login.reset()
+    login.mock(
+        return_value=httpx.Response(
+            200,
+            json={"success": True, "data": {"token": "header.%%%%.signature"}},
+        )
+    )
+    malformed = await bootstrap(
+        "zerogpt",
+        settings(ZEROGPT_ACCOUNT),
+        store=store,
+        acquire_credential=True,
+        dotenv_path=tmp_path / ".env",
+    )
+    assert malformed.state is CredentialState.MISSING
+    assert malformed.requests_used == 1
+    assert "SCHEMA_CHANGED" in malformed.message
+
+
+@respx.mock
+async def test_zerogpt_key_envelope_is_defensive_and_budget_is_two(
+    store: CredentialStore, tmp_path: Path
+) -> None:
+    respx.post(zerogpt.LOGIN_URL).respond(
+        200, json={"success": True, "data": {"token": ZEROGPT_JWT}}
+    )
+    generate = respx.get(zerogpt.GENERATE_KEY_URL).respond(
+        200,
+        json={"success": True, "data": {"apiKey": "one", "key": "different"}},
+    )
+    report = await bootstrap(
+        "zerogpt",
+        settings(ZEROGPT_ACCOUNT),
+        store=store,
+        acquire_credential=True,
+        dotenv_path=tmp_path / ".env",
+    )
+    assert (report.state, report.requests_used, generate.call_count) == (
+        CredentialState.MISSING,
+        2,
+        1,
+    )
+    assert "unambiguous key field" in report.message
+    assert not (tmp_path / ".env").exists()
+
+    generate.reset()
+    generate.mock(
+        return_value=httpx.Response(
+            200,
+            json={"success": True, "data": "key generation succeeded"},
+        )
+    )
+    invalid = await bootstrap(
+        "zerogpt",
+        settings(ZEROGPT_ACCOUNT),
+        store=store,
+        acquire_credential=True,
+        dotenv_path=tmp_path / ".env",
+    )
+    assert invalid.state is CredentialState.MISSING
+    assert invalid.requests_used == 2
+    assert "invalid key" in invalid.message
+
+
+@respx.mock
+async def test_zerogpt_acquired_credentials_activate_for_e2e(
+    store: CredentialStore, tmp_path: Path
+) -> None:
+    respx.post(zerogpt.LOGIN_URL).respond(
+        200, json={"success": True, "data": {"token": ZEROGPT_JWT}}
+    )
+    respx.get(zerogpt.GENERATE_KEY_URL).respond(200, json={"success": True, "data": ZEROGPT_KEY})
+    dotenv = tmp_path / ".env"
+    await bootstrap(
+        "zerogpt",
+        settings(ZEROGPT_ACCOUNT),
+        store=store,
+        acquire_credential=True,
+        dotenv_path=dotenv,
+    )
+    zerogpt.clear_token_cache()
+    detect = respx.post(zerogpt.URL).respond(200, json=fixture("zerogpt", "ok-synthetic"))
+    loaded = Settings.load(env=ZEROGPT_ACCOUNT, dotenv_path=dotenv).with_changes(max_retries=0)
+
+    report = await run_e2e("zerogpt", loaded, store=store, max_requests=1)
+
+    assert report.ok
+    assert report.requests_used == 1
+    assert detect.calls.last.request.headers["ApiKey"] == ZEROGPT_KEY
+    assert detect.calls.last.request.headers["Authorization"] == f"Bearer {ZEROGPT_JWT}"
+    cleaned = cleanup("zerogpt", loaded, store=store)
+    assert "not remotely revoked" in cleaned.message
+    assert ZEROGPT_KEY in dotenv.read_text()
 
 
 def test_activate_and_cleanup(store: CredentialStore) -> None:
@@ -270,3 +498,37 @@ def test_cli_exit_codes_for_failures(tmp_path: Path, monkeypatch: pytest.MonkeyP
     monkeypatch.setenv("SAPLING_API_KEY", "k")
     respx.post(SAPLING_URL).respond(403)
     assert Streams().run("e2e", "sapling", "--no-sandbox") == 1
+
+
+@respx.mock
+def test_cli_zerogpt_explicit_acquisition_and_e2e(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("TURINGTONGUE_E2E_STATE_DIR", str(tmp_path / "state"))
+    for key, value in ZEROGPT_ACCOUNT.items():
+        monkeypatch.setenv(key, value)
+    login = respx.post(zerogpt.LOGIN_URL).respond(
+        200, json={"success": True, "data": {"token": ZEROGPT_JWT}}
+    )
+    respx.get(zerogpt.GENERATE_KEY_URL).respond(
+        200, json={"success": True, "data": {"api_key": ZEROGPT_KEY}}
+    )
+    detect = respx.post(zerogpt.URL).respond(200, json=fixture("zerogpt", "ok-synthetic"))
+
+    without_flag = Streams()
+    assert without_flag.run("init", "zerogpt", "--mode", "e2e") == cli.EXIT_USAGE
+    assert login.call_count == 0
+    acquired = Streams()
+    assert acquired.run("init", "zerogpt", "--mode", "e2e", "--acquire-credential", "--json") == 0
+    payload = json.loads(acquired.out.getvalue())
+    assert payload["requests_used"] == 2
+    assert ZEROGPT_KEY not in acquired.out.getvalue()
+    assert ZEROGPT_KEY in (tmp_path / ".env").read_text()
+
+    monkeypatch.setenv("ZEROGPT_API_KEY", ZEROGPT_KEY)
+    assert Streams().run("e2e", "zerogpt", "--max-requests", "1") == 0
+    assert detect.call_count == 1
+    cleaned = Streams()
+    assert cleaned.run("cleanup", "zerogpt", "--json") == 0
+    assert "not remotely revoked" in json.loads(cleaned.out.getvalue())["message"]

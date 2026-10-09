@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Marcel Petrick <mail@marcelpetrick.it>
-"""Run-scoped store for short-lived machine-issued tokens (never long-lived keys).
+"""Owner-only stores for run-scoped tokens and deliberately acquired API keys.
 
 Location: ``$TURINGTONGUE_E2E_STATE_DIR`` or ``$XDG_RUNTIME_DIR/turingtongue-e2e`` or a
 per-user directory in the system temp dir. Directory mode 0700, files 0600; ``cleanup``
@@ -11,10 +11,14 @@ from __future__ import annotations
 
 import json
 import os
+import stat
 import tempfile
 from collections.abc import Mapping
+from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
+
+from turingtongue.errors import ConfigurationError
 
 STATE_DIR_ENV = "TURINGTONGUE_E2E_STATE_DIR"
 
@@ -64,3 +68,50 @@ class CredentialStore:
         except FileNotFoundError:
             return False
         return True
+
+
+def save_dotenv_credential(path: Path, name: str, value: str) -> None:
+    """Atomically set one credential in a gitignored dotenv file with mode 0600.
+
+    Refuse symlinks and non-regular existing targets. The temporary file is created in
+    the destination directory, fsynced and atomically replaced, so an interrupted write
+    cannot leave a partially written long-lived key.
+    """
+    if not name or any(char not in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_" for char in name):
+        raise ConfigurationError("dotenv credential name is invalid")
+    if not value or any(char in value for char in "\r\n\0"):
+        raise ConfigurationError("credential value cannot be empty or contain line breaks")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        target = path.lstat()
+    except FileNotFoundError:
+        existing = ""
+    else:
+        if not stat.S_ISREG(target.st_mode) or stat.S_ISLNK(target.st_mode):
+            raise ConfigurationError(f"refusing to replace non-regular dotenv path: {path}")
+        existing = path.read_text(encoding="utf-8")
+    lines = [line for line in existing.splitlines() if not _dotenv_assignment(line, name)]
+    lines.append(f"{name}={json.dumps(value, ensure_ascii=False)}")
+    payload = "\n".join(lines) + "\n"
+    descriptor, temporary = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    try:
+        os.fchmod(descriptor, 0o600)
+        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            descriptor = -1
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+        path.chmod(0o600)
+    except Exception:
+        if descriptor >= 0:
+            os.close(descriptor)
+        with suppress(FileNotFoundError):
+            Path(temporary).unlink()
+        raise
+
+
+def _dotenv_assignment(line: str, name: str) -> bool:
+    candidate = line.strip().removeprefix("export ").lstrip()
+    key, separator, _ = candidate.partition("=")
+    return bool(separator) and key.strip() == name

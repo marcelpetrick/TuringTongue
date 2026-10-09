@@ -43,6 +43,8 @@ jobs:
       WINSTON_AI_API_KEY: ${{ secrets.WINSTON_AI_API_KEY }}
       ORIGINALITY_API_KEY: ${{ secrets.ORIGINALITY_API_KEY }}
       HIVE_API_KEY: ${{ secrets.HIVE_API_KEY }}
+      ZEROGPT_EMAIL: ${{ secrets.ZEROGPT_EMAIL }}
+      ZEROGPT_PASSWORD: ${{ secrets.ZEROGPT_PASSWORD }}
       ZEROGPT_API_KEY: ${{ secrets.ZEROGPT_API_KEY }}
       TURINGTONGUE_NO_DOTENV: "1"
     steps:
