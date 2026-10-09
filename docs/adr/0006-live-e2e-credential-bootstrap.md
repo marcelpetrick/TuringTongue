@@ -20,7 +20,7 @@ email + API key, and a free `sandbox` mode (real service, simulated classificati
 
 ## Decision
 
-1. `turingtongue init <provider> --mode e2e` → `turingtongue e2e <provider>` →
+1. `turingtongue init <provider> --mode e2e --acquire-credential` → `turingtongue e2e <provider>` →
    `turingtongue cleanup <provider>`, also as `scripts/live_e2e.sh` and the `Live E2E`
    workflow. The release pipeline runs and gates on it only when `vars.E2E_PROVIDERS` is
    set; with no configured providers, that release job is skipped.
@@ -38,7 +38,10 @@ email + API key, and a free `sandbox` mode (real service, simulated classificati
    verification, mass accounts). Providers without an automatable path report
    `manual-credential-required` with exact instructions. A live run never falls back
    to the mock provider.
-6. No owned/internal service exists, so the "owned ephemeral identity" mechanism is
+6. Remote credential acquisition is never implicit. The CLI and shell workflow require
+   `--acquire-credential`; without it, `init` can only reuse a valid run-scoped token and
+   `e2e` refuses to trigger a login itself.
+7. No owned/internal service exists, so the "owned ephemeral identity" mechanism is
    defined but unused (not faked).
 
 ## Consequences

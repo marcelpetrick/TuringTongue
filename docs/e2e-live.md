@@ -2,10 +2,10 @@
 # Live end-to-end tests against real providers
 
 ```bash
-turingtongue init copyleaks --mode e2e      # credential bootstrap (max 1 login request)
+turingtongue init copyleaks --mode e2e --acquire-credential  # explicit; max 1 login
 turingtongue e2e copyleaks                  # ≤ 2 provider attempts, free sandbox, 30 s timeout
 turingtongue cleanup copyleaks              # discard run-scoped token
-scripts/live_e2e.sh copyleaks               # all three, cleanup guaranteed (trap)
+scripts/live_e2e.sh --acquire-credential copyleaks  # all three; cleanup guaranteed
 ```
 
 Exit codes: `0` passed/ready · `1` failed (auth, network, schema, budget) · `3`
@@ -57,7 +57,8 @@ live E2E runs immediately.
    upload wait for it to pass). If `E2E_PROVIDERS` is unset or empty, the release skips
    the live-E2E job and is not gated by provider validation.
 
-Locally: put the two values in `.env` (gitignored) and run `scripts/live_e2e.sh copyleaks`.
+Locally: put the two values in `.env` (gitignored) and run
+`scripts/live_e2e.sh --acquire-credential copyleaks`.
 
 ## Guarantees
 
@@ -72,6 +73,8 @@ Locally: put the two values in `.env` (gitignored) and run `scripts/live_e2e.sh 
   or printed; reports are redacted.
 - **No silent downgrade:** a live run never uses the mock provider; missing credentials
   fail with `manual-credential-required`.
+- **No implicit acquisition:** without `--acquire-credential`, `init` may reuse a valid
+  run-scoped token but never calls the login API; `e2e` refuses to acquire one implicitly.
 - **Sandbox semantics:** Copyleaks sandbox classifications are simulated — the E2E run
   proves authentication, reachability, request format and response parsing, not
   detection quality (`e2e --no-sandbox` uses billed real classification).

@@ -68,5 +68,5 @@ if [[ "${github}" == true ]]; then
 fi
 
 if [[ "${test_after}" == true ]]; then
-    scripts/live_e2e.sh "${provider}"
+    scripts/live_e2e.sh --acquire-credential "${provider}"
 fi

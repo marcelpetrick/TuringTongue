@@ -411,7 +411,7 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
   - Acceptance:
     - [ ] TURINGTONGUE_E2E_LIVE=1 scripts/e2e_clean_install.sh green for ≥ 3 providers
     - [ ] real benchmark run committed to docs/benchmarking.md; drift captured as fixtures
-  - Notes: unblocked technically by T122: run scripts/live_e2e.sh copyleaks once COPYLEAKS_EMAIL/COPYLEAKS_API_KEY exist (one-time free signup)
+  - Notes: one provider path is ready: run scripts/live_e2e.sh --acquire-credential copyleaks once COPYLEAKS_EMAIL/COPYLEAKS_API_KEY exist; full acceptance still needs ≥3 providers and a real benchmark
 - [x] T120 — Research: detector APIs usable without signup
   - Status: done
   - Depends on: T003
@@ -477,15 +477,15 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] regression tests cover the corrected behavior
   - Notes: Copyleaks login is hard-capped at one non-retried request with accurate accounting; storage, sandbox/T118 and conditional release-gate docs reconciled; regression coverage added.
 
-- [ ] T126 — Require an explicit credential-acquisition flag for Copyleaks
-  - Status: todo
+- [x] T126 — Require an explicit credential-acquisition flag for Copyleaks
+  - Status: done
   - Depends on: T122,T125
   - Acceptance:
-    - [ ] `init copyleaks --mode e2e --acquire-credential` deliberately invokes the official login/token exchange
-    - [ ] omission of the flag never mutates remote credential state
-    - [ ] scripts/workflows opt in explicitly and secrets remain redacted
-    - [ ] offline integration and CLI tests cover both paths
-  - Notes: this is short-lived token exchange for an existing human-created account, not account registration
+    - [x] `init copyleaks --mode e2e --acquire-credential` deliberately invokes the official login/token exchange
+    - [x] omission of the flag never mutates remote credential state
+    - [x] scripts/workflows opt in explicitly and secrets remain redacted
+    - [x] offline integration and CLI tests cover both paths
+  - Notes: CLI, shell helper, clean-install path and Live E2E workflow now opt in explicitly; no-flag init only reuses a valid token and e2e cannot trigger login.
 
 - [ ] T127 — Add explicit ZeroGPT existing-account API-key acquisition
   - Status: todo

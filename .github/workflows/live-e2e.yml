@@ -66,4 +66,4 @@ jobs:
             exit 0
           fi
           # shellcheck disable=SC2086 # word splitting of the provider list is intended
-          scripts/live_e2e.sh ${PROVIDERS} -- --max-requests 2 --json | tee e2e.log
+          scripts/live_e2e.sh --acquire-credential ${PROVIDERS} -- --max-requests 2 --json | tee e2e.log

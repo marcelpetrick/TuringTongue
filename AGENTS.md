@@ -58,7 +58,7 @@ requirements live in [`vision.md`](vision.md); the execution ledger is [`plan.md
 ## Accounts, credentials and publishing
 
 - **Live end-to-end tests are required** (owner decision 2026-10-08, ADR 0006): real-service
-  validation runs through `turingtongue init <p> --mode e2e` → `turingtongue e2e <p>` →
+  validation runs through `turingtongue init <p> --mode e2e --acquire-credential` → `turingtongue e2e <p>` →
   `turingtongue cleanup <p>` (`scripts/live_e2e.sh`, workflow `Live E2E`, and inside every
   release when `vars.E2E_PROVIDERS` is set). First provider: **Copyleaks** (machine-issued
   48 h token via the official login API + free sandbox). Keep the request budget
@@ -70,6 +70,11 @@ requirements live in [`vision.md`](vision.md); the execution ledger is [`plan.md
   website signups, CAPTCHAs, email verification or mass accounts; such providers report
   `manual-credential-required` with exact steps. Long-lived account secrets live only in
   `.env` (gitignored) or GitHub secrets.
+- Credential acquisition is always deliberate: remote token/key issuance requires the explicit
+  `--acquire-credential` CLI flag and provider-specific official API support. The flag may exchange
+  an existing account secret for a token or issue a key inside an existing human-created account;
+  it never authorizes automated account signup, CAPTCHA/email-verification automation, trial
+  cycling, or undocumented/private endpoints.
 - **No "free, no signup" web UIs.** They are not APIs; calling their private endpoints is
   scraping/quota evasion (vision §2.3). Research is recorded in `docs/providers.md` §6.
 - **External detection APIs only** (owner decision, ADR 0005): never add a self-developed

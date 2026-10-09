@@ -88,7 +88,7 @@ if [[ "${TURINGTONGUE_E2E_LIVE:-0}" == "1" ]]; then
     step "LIVE init -> e2e -> cleanup with the installed wheel (providers: ${E2E_PROVIDERS:-copyleaks})"
     export TURINGTONGUE_E2E_STATE_DIR="${WORK}/e2e-state"
     for id in ${E2E_PROVIDERS:-copyleaks}; do
-        "${BIN}/turingtongue" init "${id}" --mode e2e || fail "live init ${id}"
+        "${BIN}/turingtongue" init "${id}" --mode e2e --acquire-credential || fail "live init ${id}"
         "${BIN}/turingtongue" e2e "${id}" --max-requests 2 || { "${BIN}/turingtongue" cleanup "${id}"; fail "live e2e ${id}"; }
         "${BIN}/turingtongue" cleanup "${id}"
     done

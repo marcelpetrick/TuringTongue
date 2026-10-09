@@ -53,6 +53,7 @@ async def bootstrap(
     provider_id: str,
     settings: Settings,
     *,
+    acquire_credential: bool = False,
     registry: Registry | None = None,
     store: CredentialStore | None = None,
     client: httpx.AsyncClient | None = None,
@@ -66,7 +67,13 @@ async def bootstrap(
         report.message = manual_message(spec, missing)
         return report
     if Mechanism.MACHINE_TOKEN in mechanisms and spec.id == "copyleaks":
-        return await _copyleaks_token(settings, _store(settings, store), report, client)
+        return await _copyleaks_token(
+            settings,
+            _store(settings, store),
+            report,
+            client,
+            acquire_credential=acquire_credential,
+        )
     report.state = CredentialState.VALID
     report.message = (
         "credential present in the environment; it is verified by the first live E2E request"
@@ -79,6 +86,8 @@ async def _copyleaks_token(
     store: CredentialStore,
     report: BootstrapReport,
     client: httpx.AsyncClient | None,
+    *,
+    acquire_credential: bool,
 ) -> BootstrapReport:
     email = settings.credential("COPYLEAKS_EMAIL") or ""
     key = settings.credential("COPYLEAKS_API_KEY") or ""
@@ -91,6 +100,13 @@ async def _copyleaks_token(
             report.message = "reused the machine-issued Copyleaks token of this run"
             return report
         report.state = CredentialState.EXPIRED
+    if not acquire_credential:
+        report.state = CredentialState.MISSING
+        report.message = (
+            "credential-acquisition-required: no valid run-scoped Copyleaks token; "
+            "rerun init with --acquire-credential to call the official login API"
+        )
+        return report
     report.state = CredentialState.PROVISIONING
     own_client = client is None
     http = client or httpx.AsyncClient(timeout=settings.timeout_s)

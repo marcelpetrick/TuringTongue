@@ -20,6 +20,7 @@ from turingtongue.credentials.bootstrap import activate, manual_message
 from turingtongue.credentials.store import CredentialStore
 from turingtongue.errors import ProviderFailure
 from turingtongue.models import ErrorCategory, ProviderStatus, TransportKind
+from turingtongue.providers import copyleaks
 from turingtongue.registry import Registry
 
 SAMPLE = (
@@ -123,6 +124,14 @@ async def run_e2e(
         report.message = manual_message(spec, missing)
         return report
     activate(spec.id, settings, store)
+    if spec.id == "copyleaks":
+        email = settings.credential("COPYLEAKS_EMAIL") or ""
+        if copyleaks.cached_token(email) is None:
+            report.message = (
+                "credential-acquisition-required: run 'turingtongue init copyleaks "
+                "--mode e2e --acquire-credential' before the live check"
+            )
+            return report
     budget = RequestBudget(transport or httpx.AsyncHTTPTransport(), max_requests)
 
     def client_factory(s: Settings) -> httpx.AsyncClient:

@@ -59,7 +59,7 @@ async def test_missing_account_secret_is_manual(store: CredentialStore) -> None:
 @respx.mock
 async def test_machine_token_is_issued_stored_privately_and_reused(store: CredentialStore) -> None:
     login = respx.post(copyleaks.LOGIN_URL).respond(200, json=fixture("copyleaks", "login"))
-    first = await bootstrap("copyleaks", settings(), store=store)
+    first = await bootstrap("copyleaks", settings(), store=store, acquire_credential=True)
     assert (first.state, first.requests_used, first.reused) == (CredentialState.VALID, 1, False)
     assert first.expires_at is not None
     path = store.directory / "copyleaks.json"
@@ -84,18 +84,22 @@ async def test_expired_or_foreign_token_is_replaced(store: CredentialStore) -> N
         account=ENV["COPYLEAKS_EMAIL"],
     )
     login = respx.post(copyleaks.LOGIN_URL).respond(200, json=fixture("copyleaks", "login"))
-    assert (await bootstrap("copyleaks", settings(), store=store)).state is CredentialState.VALID
+    assert (
+        await bootstrap("copyleaks", settings(), store=store, acquire_credential=True)
+    ).state is CredentialState.VALID
     store.save(
         "copyleaks", token="other", expires=datetime.now(UTC) + timedelta(days=1), account="else@x"
     )
-    assert (await bootstrap("copyleaks", settings(), store=store)).requests_used == 1
+    assert (
+        await bootstrap("copyleaks", settings(), store=store, acquire_credential=True)
+    ).requests_used == 1
     assert login.call_count == 2
 
 
 @respx.mock
 async def test_login_rejected_is_reported_without_secrets(store: CredentialStore) -> None:
     respx.post(copyleaks.LOGIN_URL).respond(401, json={"message": "invalid key cl-account-secret"})
-    report = await bootstrap("copyleaks", settings(), store=store)
+    report = await bootstrap("copyleaks", settings(), store=store, acquire_credential=True)
     assert report.state is CredentialState.MISSING
     assert report.requests_used == 1
     assert "AUTHENTICATION_FAILED" in report.message
@@ -109,7 +113,7 @@ async def test_login_request_budget_disables_retries_and_reports_attempts_honest
     login = respx.post(copyleaks.LOGIN_URL).respond(503)
     retrying_settings = Settings(env=ENV, max_retries=9)
 
-    report = await bootstrap("copyleaks", retrying_settings, store=store)
+    report = await bootstrap("copyleaks", retrying_settings, store=store, acquire_credential=True)
 
     assert report.state is CredentialState.MISSING
     assert report.requests_used == 1
@@ -152,7 +156,7 @@ def test_default_state_dir(tmp_path: Path) -> None:
 async def test_e2e_sandbox_run_uses_one_request_after_init(store: CredentialStore) -> None:
     respx.post(copyleaks.LOGIN_URL).respond(200, json=fixture("copyleaks", "login"))
     check = respx.route(CHECK).respond(200, json=fixture("copyleaks", "check"))
-    await bootstrap("copyleaks", settings(), store=store)
+    await bootstrap("copyleaks", settings(), store=store, acquire_credential=True)
     copyleaks.clear_token_cache()
     report = await run_e2e("copyleaks", settings(), store=store)
     assert report.ok
@@ -170,14 +174,15 @@ async def test_e2e_sandbox_run_uses_one_request_after_init(store: CredentialStor
 
 
 @respx.mock
-async def test_budget_stops_the_request_that_would_exceed_it(store: CredentialStore) -> None:
+async def test_e2e_without_explicit_acquisition_never_logs_in(store: CredentialStore) -> None:
     login = respx.post(copyleaks.LOGIN_URL).respond(200, json=fixture("copyleaks", "login"))
     check = respx.route(CHECK).respond(200, json=fixture("copyleaks", "check"))
     report = await run_e2e("copyleaks", settings(), store=store, max_requests=1)
-    assert login.call_count == 1
+    assert login.call_count == 0
     assert check.call_count == 0
     assert not report.ok
-    assert "budget of 1 exhausted" in report.message
+    assert report.requests_used == 0
+    assert report.message.startswith("credential-acquisition-required")
 
 
 @respx.mock
@@ -233,7 +238,11 @@ def test_cli_init_e2e_cleanup(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -
     respx.post(copyleaks.LOGIN_URL).respond(200, json=fixture("copyleaks", "login"))
     respx.route(CHECK).respond(200, json=fixture("copyleaks", "check"))
     s = Streams()
-    assert s.run("init", "copyleaks", "--mode", "e2e") == 0
+    assert s.run("init", "copyleaks", "--mode", "e2e") == cli.EXIT_USAGE
+    assert "credential-acquisition-required" in s.out.getvalue()
+    assert not respx.calls
+    s = Streams()
+    assert s.run("init", "copyleaks", "--mode", "e2e", "--acquire-credential") == 0
     assert "init copyleaks: valid" in s.out.getvalue()
     s = Streams()
     assert s.run("e2e", "copyleaks", "--max-requests", "2", "--json") == 0
@@ -256,7 +265,7 @@ def test_cli_exit_codes_for_failures(tmp_path: Path, monkeypatch: pytest.MonkeyP
         monkeypatch.setenv(key, value)
     respx.post(copyleaks.LOGIN_URL).respond(500)
     s = Streams()
-    assert s.run("init", "copyleaks", "--json") == 1
+    assert s.run("init", "copyleaks", "--json", "--acquire-credential") == 1
     assert json.loads(s.out.getvalue())["state"] == "missing"
     monkeypatch.setenv("SAPLING_API_KEY", "k")
     respx.post(SAPLING_URL).respond(403)

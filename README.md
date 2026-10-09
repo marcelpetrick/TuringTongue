@@ -241,15 +241,16 @@ printed by the GitHub Actions CI run of each commit.
 scripts/commit.sh "feat(x): … [T0xx]"   # bump version, run pipeline, commit, push
 ```
 
-The pipeline: locked env sync → SPDX license headers → `ruff format --check` →
+The pipeline: locked env sync → whitespace-free path check → SPDX license headers → `ruff format --check` →
 `ruff check` → `mypy --strict` → `shellcheck` → pytest (unit, contract, integration,
 e2e, benchmark tiers) with **≥ 95 % branch coverage** → sdist/wheel build → `twine check`
 → clean-wheel-install e2e in a fresh venv → `pip-audit` → Docker build + offline smoke.
 Network / paid / browser tests are opt-in markers. **Live end-to-end tests against the
-real services** (`turingtongue init|e2e|cleanup`, `scripts/live_e2e.sh`) run in the
-[Live E2E workflow](.github/workflows/live-e2e.yml) weekly, on demand and inside every
-release, with a hard budget of ≤ 2 requests per provider — first provider: Copyleaks via
-machine-issued tokens and the free sandbox ([docs/e2e-live.md](docs/e2e-live.md)). All helper scripts are documented in
+configured services** (`turingtongue init|e2e|cleanup`, `scripts/live_e2e.sh`) run in the
+[Live E2E workflow](.github/workflows/live-e2e.yml) weekly, on demand and in releases
+when `E2E_PROVIDERS` is non-empty, with explicit credential acquisition and a hard budget
+of ≤ 2 requests per provider — first provider: Copyleaks via machine-issued tokens and
+the free sandbox ([docs/e2e-live.md](docs/e2e-live.md)). All helper scripts are documented in
 [scripts/README.md](scripts/README.md).
 
 Releases: `scripts/release.sh` tags `v<version>`; the Release workflow re-runs the gate

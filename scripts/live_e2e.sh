@@ -4,11 +4,11 @@
 #
 # live_e2e.sh — live end-to-end validation against REAL provider services.
 #
-#   scripts/live_e2e.sh PROVIDER [PROVIDER...] [-- E2E_ARGS...]
-#   scripts/live_e2e.sh copyleaks                      # free sandbox, 1-2 requests
-#   scripts/live_e2e.sh copyleaks -- --max-requests 2 --json
+#   scripts/live_e2e.sh [--acquire-credential] PROVIDER [PROVIDER...] [-- E2E_ARGS...]
+#   scripts/live_e2e.sh --acquire-credential copyleaks # free sandbox, 1-2 requests
+#   scripts/live_e2e.sh --acquire-credential copyleaks -- --max-requests 2 --json
 #
-# For each provider: `turingtongue init P --mode e2e` (credential bootstrap),
+# For each provider: explicit `turingtongue init P --mode e2e --acquire-credential`,
 # `turingtongue e2e P` (budget-limited live check, default max 2 requests), and
 # `turingtongue cleanup P`, which always runs (trap) so run-scoped tokens never linger.
 # Account secrets come from the environment / CI secrets only. Exit code: 0 when every
@@ -18,9 +18,13 @@ set -uo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 
 declare -a providers=() extra=()
+acquire=false
 while [[ $# -gt 0 ]]; do
-    if [[ "$1" == "--" ]]; then shift; extra=("$@"); break; fi
-    providers+=("$1"); shift
+    case "$1" in
+        --acquire-credential) acquire=true; shift ;;
+        --) shift; extra=("$@"); break ;;
+        *) providers+=("$1"); shift ;;
+    esac
 done
 [[ ${#providers[@]} -gt 0 ]] || { sed -n '5,16p' "$0" | sed 's/^# \{0,1\}//'; exit 64; }
 
@@ -33,7 +37,9 @@ trap cleanup_all EXIT
 overall=0
 for provider in "${providers[@]}"; do
     printf '\n== %s ==\n' "${provider}"
-    tt init "${provider}" --mode e2e; rc=$?
+    declare -a init_args=(init "${provider}" --mode e2e)
+    if [[ "${acquire}" == true ]]; then init_args+=(--acquire-credential); fi
+    tt "${init_args[@]}"; rc=$?
     if [[ ${rc} -eq 0 ]]; then
         tt e2e "${provider}" "${extra[@]}"; rc=$?
     fi

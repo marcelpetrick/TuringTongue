@@ -122,6 +122,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     init.add_argument("provider")
     init.add_argument("--mode", choices=("e2e",), default="e2e")
+    init.add_argument(
+        "--acquire-credential",
+        action="store_true",
+        help="explicitly allow a documented provider API to issue/exchange a credential",
+    )
     init.add_argument("--json", action="store_true")
 
     e2e = sub.add_parser(
@@ -303,13 +308,21 @@ def _live(args: argparse.Namespace, settings: Settings, stdout: TextIO) -> int:
         )
     else:
         if args.command == "init":
-            boot = asyncio.run(bootstrap(args.provider, settings))
+            boot = asyncio.run(
+                bootstrap(
+                    args.provider,
+                    settings,
+                    acquire_credential=args.acquire_credential,
+                )
+            )
         else:
             boot = cleanup(args.provider, settings)
         data = boot.as_dict()
         if args.command == "cleanup" or boot.ready:
             code = EXIT_VERDICT
-        elif boot.state is CredentialState.MISSING and boot.message.startswith("manual"):
+        elif boot.state is CredentialState.MISSING and boot.message.startswith(
+            ("manual-credential-required", "credential-acquisition-required")
+        ):
             code = EXIT_USAGE
         else:
             code = 1
