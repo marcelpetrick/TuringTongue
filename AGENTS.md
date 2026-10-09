@@ -110,4 +110,5 @@ requirements live in [`vision.md`](vision.md); the execution ledger is [`plan.md
 | `tests/fixtures/` | sanitized provider responses for contract tests |
 | `benchmark/corpus/` | provenance-rich benchmark texts |
 | `docs/` | providers matrix, signals research, architecture, privacy, benchmarking, ADRs |
+| `credential_workflow_guide.md` | human signup and credential setup for every provider |
 | `scripts/` | small documented helper scripts (see `scripts/README.md`) |

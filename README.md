@@ -259,5 +259,5 @@ PyPI publishing follows the PyPA guide: protected tags, signed build provenance,
 Publishing (OIDC, no tokens) from an approval-gated `pypi` environment — switched on once
 the owner registers the publisher on PyPI ([docs/releasing.md](docs/releasing.md)).
 
-More: [architecture](docs/architecture.md) · [ADRs](docs/adr) · [AGENTS.md](AGENTS.md) ·
-[plan.md](plan.md) · [vision.md](vision.md)
+More: [credential workflow](credential_workflow_guide.md) · [architecture](docs/architecture.md) ·
+[ADRs](docs/adr) · [AGENTS.md](AGENTS.md) · [plan.md](plan.md) · [vision.md](vision.md)

@@ -497,15 +497,15 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] response-schema uncertainty fails safely; secrets are redacted; mocked contract/integration tests pass
   - Notes: Implemented documented existing-account login plus one-time non-expiring key issuance (max two non-retried requests), persistent 0600 .env key, run-scoped JWT, dual-header detection and fail-closed schema parsing; mocked flow green, live schema confirmation remains in T118.
 
-- [ ] T128 — Human credential workflow guide for every supported provider
-  - Status: todo
+- [x] T128 — Human credential workflow guide for every supported provider
+  - Status: done
   - Depends on: T003,T122
   - Acceptance:
-    - [ ] root `credential_workflow_guide.md` covers all registry providers
-    - [ ] each section has short copy/paste-ready human signup, environment and E2E steps
-    - [ ] official URLs, costs/sandbox caveats and verification date are recorded
-    - [ ] no instructions automate signup, CAPTCHA, email verification or quota cycling
-  - Notes: —
+    - [x] root `credential_workflow_guide.md` covers all registry providers
+    - [x] each section has short copy/paste-ready human signup, environment and E2E steps
+    - [x] official URLs, costs/sandbox caveats and verification date are recorded
+    - [x] no instructions automate signup, CAPTCHA, email verification or quota cycling
+  - Notes: Added root credential_workflow_guide.md with verified human signup/key steps, environment and explicit E2E commands for all nine registry providers; registry coverage test and navigation links added.
 
 ## Owner decisions
 

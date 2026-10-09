@@ -35,3 +35,9 @@ def test_no_local_model_dependencies() -> None:
 
 def test_transport_kinds_have_no_local_detector() -> None:
     assert {kind.value for kind in TransportKind} == {"api", "sdk", "browser", "mock"}
+
+
+def test_credential_guide_covers_every_registry_provider() -> None:
+    guide = (ROOT / "credential_workflow_guide.md").read_text(encoding="utf-8")
+    for spec in Registry.builtin():
+        assert f"(`{spec.id}`)" in guide, spec.id
