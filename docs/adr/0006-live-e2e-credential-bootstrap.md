@@ -22,17 +22,18 @@ email + API key, and a free `sandbox` mode (real service, simulated classificati
 
 1. `turingtongue init <provider> --mode e2e` → `turingtongue e2e <provider>` →
    `turingtongue cleanup <provider>`, also as `scripts/live_e2e.sh` and the `Live E2E`
-   workflow. The release pipeline runs it when `vars.E2E_PROVIDERS` is set and does not
-   publish if it fails.
+   workflow. The release pipeline runs and gates on it only when `vars.E2E_PROVIDERS` is
+   set; with no configured providers, that release job is skipped.
 2. Mechanisms in the owner's preference order (`credentials.Mechanism`): environment →
    sandbox → machine-issued token → OAuth → owned ephemeral identity → CI secret →
    manual. Each provider declares what it supports (`bootstrap` in providers.toml).
 3. **First provider: Copyleaks** — `machine_token` + `sandbox`: per run a fresh 48 h token
-   is issued via the official login API, stored 0600 in a run-scoped directory, reused,
-   and deleted at cleanup; checks run in the free sandbox. Only the long-lived account
-   secret (email + API key) is a CI secret.
-4. Request volume is enforced technically: a transport-level budget (default 2 requests
-   per `e2e` run, plus 1 login in `init`), timeout 30 s, 1 retry.
+   is issued via the official login API, stored in a mode-0600 file inside a mode-0700
+   run-scoped directory, reused, and deleted at cleanup; checks run in the free sandbox.
+   Only the long-lived account secret (email + API key) is a CI secret.
+4. Request volume is enforced technically. `init` has a one-request login budget and no
+   retry. The `e2e` transport has a default budget of two attempts total, including its
+   one permitted retry, with a 30-second timeout.
 5. **Account signup is never scripted** (no website automation, CAPTCHA, email
    verification, mass accounts). Providers without an automatable path report
    `manual-credential-required` with exact instructions. A live run never falls back
@@ -46,3 +47,7 @@ email + API key, and a free `sandbox` mode (real service, simulated classificati
   and at zero cost. Sandbox runs validate plumbing, not detector accuracy.
 - Other providers work through the `environment` mechanism once their key is a CI
   secret; adding machine-token/sandbox support for another provider = one bootstrapper.
+- A configured Copyleaks sandbox release gate proves authentication, reachability,
+  request compatibility and response parsing only. It does not satisfy the separate
+  T118 real-detector validation, which still requires non-sandbox classifications from
+  at least three providers plus the real benchmark and captured response drift.

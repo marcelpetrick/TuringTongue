@@ -29,6 +29,8 @@ from turingtongue.redaction import redact
 from turingtongue.registry import ProviderSpec, Registry
 from turingtongue.transport import HttpCaller, RetryPolicy
 
+COPYLEAKS_LOGIN_REQUEST_BUDGET = 1
+
 
 def _mechanisms(spec: ProviderSpec) -> list[Mechanism]:
     return [Mechanism(m) for m in spec.bootstrap]
@@ -95,7 +97,10 @@ async def _copyleaks_token(
     caller = HttpCaller(
         http,
         provider_name="Copyleaks",
-        policy=RetryPolicy(max_retries=min(1, settings.max_retries)),
+        # Credential acquisition has its own one-request budget.  In particular, do
+        # not inherit the normal provider retry policy: a retry is another login
+        # request and would make both the documented budget and requests_used false.
+        policy=RetryPolicy(max_retries=COPYLEAKS_LOGIN_REQUEST_BUDGET - 1),
         max_response_bytes=settings.max_response_bytes,
         secrets=[email, key],
     )

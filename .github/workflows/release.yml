@@ -3,7 +3,8 @@
 # using GitHub Actions" (https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/):
 #
 #   protected tag vX.Y.Z -> full quality gate -> build once -> signed build provenance
-#   -> live E2E against real providers (when vars.E2E_PROVIDERS is set; must pass)
+#   -> live E2E against configured services (when vars.E2E_PROVIDERS is set; must pass;
+#      otherwise this job is skipped and does not gate the release)
 #   -> GitHub Release -> [owner approval in the `pypi` environment] -> PyPI via
 #   Trusted Publishing (OIDC; no stored token; PEP 740 attestations are generated).
 #
@@ -94,7 +95,7 @@ jobs:
           if-no-files-found: error
 
   live-e2e:
-    name: Live E2E against real providers
+    name: Live E2E against configured provider services
     needs: build
     if: vars.E2E_PROVIDERS != ''
     uses: ./.github/workflows/live-e2e.yml

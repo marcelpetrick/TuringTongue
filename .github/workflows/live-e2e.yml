@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Live end-to-end validation against REAL provider services (docs/e2e-live.md).
+# Live end-to-end validation against configured provider services (docs/e2e-live.md).
+# Copyleaks sandbox uses the real API with simulated classifications; it validates
+# plumbing, not detector quality or T118's non-sandbox acceptance criteria.
 #
 #   init (credential bootstrap) -> e2e (<= 2 requests per provider) -> cleanup (always)
 #

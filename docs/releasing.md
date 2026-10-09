@@ -16,6 +16,13 @@ features bump the minor version (`--minor`).
    both files attached. The **Docker** workflow publishes
    `ghcr.io/marcelpetrick/turingtongue:<version>` and `:latest`.
 
+The release's live-provider gate is conditional. When the repository variable
+`E2E_PROVIDERS` is non-empty, the configured services must pass `init → e2e → cleanup`
+before the GitHub Release or PyPI job proceeds. When it is unset or empty, GitHub skips
+that job and the release continues without live-provider validation. A Copyleaks sandbox
+run validates authentication and API plumbing with simulated classifications; it is not
+the real, non-sandbox detector validation tracked by T118.
+
 ## Supply-chain hardening (industry practice)
 
 Follows the PyPA guide [Publishing package distribution releases using GitHub
@@ -27,6 +34,7 @@ and PyPI's [Trusted Publishers](https://docs.pypi.org/trusted-publishers/) docum
 | Protected release tags | repository ruleset `protect-release-tags` | only admins can create, move or delete `v*` tags |
 | Tag must equal package version | `release.yml` build job | no mislabelled releases |
 | Full quality gate before any upload | `release.yml` runs `./localPipeline.sh` | tests, types, audit, wheel e2e, Docker smoke must pass |
+| Conditional live-provider gate | `release.yml` calls `live-e2e.yml` when `E2E_PROVIDERS` is non-empty | configured provider plumbing must pass; an empty variable skips this gate |
 | Build once, publish the same files | build job → artifact → release / PyPI jobs | GitHub Release and PyPI get identical bytes |
 | Signed build provenance | `actions/attest-build-provenance` on `dist/*` | verify with `gh attestation verify <file> -R marcelpetrick/TuringTongue` |
 | Trusted Publishing (OIDC) only | `pypi` job, `id-token: write` scoped to that job | no long-lived PyPI token exists anywhere |

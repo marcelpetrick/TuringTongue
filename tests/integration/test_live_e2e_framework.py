@@ -97,8 +97,23 @@ async def test_login_rejected_is_reported_without_secrets(store: CredentialStore
     respx.post(copyleaks.LOGIN_URL).respond(401, json={"message": "invalid key cl-account-secret"})
     report = await bootstrap("copyleaks", settings(), store=store)
     assert report.state is CredentialState.MISSING
+    assert report.requests_used == 1
     assert "AUTHENTICATION_FAILED" in report.message
     assert "cl-account-secret" not in report.message
+
+
+@respx.mock
+async def test_login_request_budget_disables_retries_and_reports_attempts_honestly(
+    store: CredentialStore,
+) -> None:
+    login = respx.post(copyleaks.LOGIN_URL).respond(503)
+    retrying_settings = Settings(env=ENV, max_retries=9)
+
+    report = await bootstrap("copyleaks", retrying_settings, store=store)
+
+    assert report.state is CredentialState.MISSING
+    assert report.requests_used == 1
+    assert login.call_count == 1
 
 
 async def test_environment_mechanism_for_other_providers(store: CredentialStore) -> None:

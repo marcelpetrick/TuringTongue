@@ -17,8 +17,11 @@ What this package does:
 - It sends privacy-preserving options where providers offer them (Originality.ai
   `storeScan=false`, Pangram `public_dashboard_link=false`).
 - It removes echoed input from optional raw-response captures where providers echo it.
-- It reads credentials only from environment variables, redacts them from every error
-  message and never stores them; Copyleaks login tokens live in memory only.
+- It reads long-lived account credentials only from environment variables and redacts
+  credentials from every error message. For live E2E, the short-lived Copyleaks login
+  token is shared between `init` and `e2e` through a run-scoped owner-only directory
+  (mode 0700) and file (mode 0600), then deleted by `cleanup`; the token also expires at
+  the provider after 48 hours. The submitted text is never stored with it.
 - Browser debug captures (screenshots/HTML, which may contain your text) happen only
   when you explicitly pass a `debug_dir` option.
 

@@ -3,7 +3,7 @@
 
 ```bash
 turingtongue init copyleaks --mode e2e      # credential bootstrap (max 1 login request)
-turingtongue e2e copyleaks                  # ≤ 2 real requests, free sandbox, 30 s timeout
+turingtongue e2e copyleaks                  # ≤ 2 provider attempts, free sandbox, 30 s timeout
 turingtongue cleanup copyleaks              # discard run-scoped token
 scripts/live_e2e.sh copyleaks               # all three, cleanup guaranteed (trap)
 ```
@@ -53,14 +53,18 @@ live E2E runs immediately.
    ```
 
 3. Run *Actions → Live E2E → Run workflow*. From then on it runs weekly, on demand, and
-   **inside every release** (the GitHub Release and PyPI upload wait for it to pass).
+   inside releases while `E2E_PROVIDERS` remains non-empty (the GitHub Release and PyPI
+   upload wait for it to pass). If `E2E_PROVIDERS` is unset or empty, the release skips
+   the live-E2E job and is not gated by provider validation.
 
 Locally: put the two values in `.env` (gitignored) and run `scripts/live_e2e.sh copyleaks`.
 
 ## Guarantees
 
-- **Budget:** a transport wrapper refuses request number `max+1` (default 2) — it is
-  never sent. Plus at most one login in `init`. Timeout 30 s, 1 retry.
+- **Budget:** `init` sends at most one login request and never retries it. During `e2e`,
+  a transport wrapper refuses provider attempt number `max+1` (default 2), so the one
+  permitted retry is included in that limit. Timeout is 30 seconds. Reported request
+  counts are the actual outbound attempts.
 - **Secrets:** account secrets only in env/CI secrets; the machine-issued token lives in
   a 0700 directory / 0600 file for the run (`$TURINGTONGUE_E2E_STATE_DIR`, else
   `$XDG_RUNTIME_DIR/turingtongue-e2e`) and is deleted by `cleanup`. Copyleaks documents
@@ -71,5 +75,12 @@ Locally: put the two values in `.env` (gitignored) and run `scripts/live_e2e.sh 
 - **Sandbox semantics:** Copyleaks sandbox classifications are simulated — the E2E run
   proves authentication, reachability, request format and response parsing, not
   detection quality (`e2e --no-sandbox` uses billed real classification).
+
+## What this does not complete
+
+The conditional release gate and Copyleaks sandbox validate live integration plumbing.
+They do not complete ledger task T118: real detector validation still requires
+non-sandbox classification runs for at least three providers, a committed real-provider
+benchmark, and regression fixtures for any response drift found there.
 
 Design and rationale: [ADR 0006](adr/0006-live-e2e-credential-bootstrap.md).

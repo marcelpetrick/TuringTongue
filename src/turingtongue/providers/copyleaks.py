@@ -39,7 +39,11 @@ class _Token:
 
 
 _TOKENS: dict[str, _Token] = {}
-"""In-memory token cache keyed by account email (never written to disk)."""
+"""Adapter-local token cache keyed by account email.
+
+The live-E2E bootstrap separately persists the same short-lived token in its protected,
+run-scoped credential store so ``init`` and ``e2e`` can be separate processes.
+"""
 
 
 def clear_token_cache() -> None:

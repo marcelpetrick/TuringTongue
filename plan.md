@@ -467,15 +467,15 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] AGENTS.md records the invariant
   - Notes: Renamed audit artifacts; added NUL-safe Unicode-whitespace path checker to the local/CI pipeline with unit and repository tests.
 
-- [ ] T125 — Reconcile live-E2E credential budgets, storage and release documentation
-  - Status: todo
+- [x] T125 — Reconcile live-E2E credential budgets, storage and release documentation
+  - Status: done
   - Depends on: T122,T124
   - Acceptance:
-    - [ ] provisioning/login retries cannot exceed the documented request budget
-    - [ ] privacy/ADR/docs match the 0700-directory and 0600-file token store
-    - [ ] T118 and release-gate documentation distinguish conditional sandbox plumbing from real detector validation
-    - [ ] regression tests cover the corrected behavior
-  - Notes: —
+    - [x] provisioning/login retries cannot exceed the documented request budget
+    - [x] privacy/ADR/docs match the 0700-directory and 0600-file token store
+    - [x] T118 and release-gate documentation distinguish conditional sandbox plumbing from real detector validation
+    - [x] regression tests cover the corrected behavior
+  - Notes: Copyleaks login is hard-capped at one non-retried request with accurate accounting; storage, sandbox/T118 and conditional release-gate docs reconciled; regression coverage added.
 
 - [ ] T126 — Require an explicit credential-acquisition flag for Copyleaks
   - Status: todo

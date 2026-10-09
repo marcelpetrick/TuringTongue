@@ -51,7 +51,10 @@ environment. This is the main credential blocker (see below).
   `--strict`, clean-wheel-install e2e, pip-audit (no known vulnerabilities), Docker
   build + offline smoke. GitHub Actions CI and Docker workflows green.
 - Opt-in only: `network`, `paid`, `browser` markers; `TURINGTONGUE_E2E_LIVE=1`;
-  `Live E2E` workflow: init → ≤ 2 real requests → cleanup, weekly/on demand/in releases (secrets, never on PRs).
+  `Live E2E` workflow: init → ≤ 2 provider attempts → cleanup, weekly/on demand
+  and in releases when `E2E_PROVIDERS` is non-empty (secrets, never on PRs). Copyleaks
+  sandbox checks live API plumbing with simulated classifications; it does not complete
+  T118's real, non-sandbox validation of at least three providers and benchmark drift.
 
 ## Clean-install result
 
