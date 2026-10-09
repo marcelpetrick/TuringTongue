@@ -6,7 +6,7 @@
 [![Latest Release](https://img.shields.io/github/v/release/marcelpetrick/TuringTongue?sort=semver)](https://github.com/marcelpetrick/TuringTongue/releases/latest)
 [![License: GPL v3 or later](https://img.shields.io/badge/license-GPLv3%20or%20later-blue.svg)](LICENSE)
 [![Python 3.14+](https://img.shields.io/badge/Python-3.14%2B-3776ab.svg)](https://www.python.org/)
-[![Coverage: 99%](https://img.shields.io/badge/coverage-99%25-brightgreen.svg)](localPipeline.sh)
+[![Coverage: 97%](https://img.shields.io/badge/coverage-97%25-brightgreen.svg)](localPipeline.sh)
 [![Typed: mypy strict](https://img.shields.io/badge/typed-mypy%20strict-2a6db2.svg)](pyproject.toml)
 [![GHCR image](https://img.shields.io/badge/ghcr.io-turingtongue-2496ed.svg?logo=docker&logoColor=white)](https://github.com/marcelpetrick/TuringTongue/pkgs/container/turingtongue)
 
@@ -201,13 +201,13 @@ Measured by [`scripts/metrics.py`](scripts/metrics.py); full tables in
 
 | Metric | Value |
 | --- | --- |
-| Library code (src) | 3,906 lines in 47 files · 55 classes · 216 functions |
-| Test code | 2,703 lines in 33 files (+166 lines JSON fixtures) · ratio 0.69 : 1 |
-| Scripts / CI / docs | 1,211 / 311 / 2,417 lines |
-| Tests | 371 (270 unit · 49 contract · 46 integration · 6 e2e) + 1 opt-in live |
-| Branch coverage, combined | **99.1 %** (gate ≥ 95 %) |
-| Coverage by tier alone | unit 85.3 % · contract 60.7 % · integration 70.9 % · **end-to-end 52.1 %** |
-| Cyclomatic complexity | average 4.01 (radon), 202 of 268 blocks rank A, none above C; max 17 |
+| Library code (src) | 4,308 lines in 47 files · 55 classes · 228 functions |
+| Test code | 3,015 lines in 33 files (+166 lines JSON fixtures) · ratio 0.70 : 1 |
+| Scripts / CI / docs | 1,301 / 313 / 2,563 lines |
+| Tests | 390 (280 unit · 50 contract · 54 integration · 6 e2e) + 1 opt-in live |
+| Branch coverage, combined | **97.1 %** (gate ≥ 95 %) |
+| Coverage by tier alone | unit 79.2 % · contract 56.2 % · integration 71.8 % · **end-to-end 48.1 %** |
+| Cyclomatic complexity | average 4.18 (radon), 206 of 280 blocks rank A, none above C; max 18 |
 
 End-to-end coverage is measured inside the `python -m turingtongue` child processes
 (coverage.py subprocess patching), not estimated. Wheel-install and Docker end-to-end

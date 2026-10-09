@@ -507,6 +507,15 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] no instructions automate signup, CAPTCHA, email verification or quota cycling
   - Notes: Added root credential_workflow_guide.md with verified human signup/key steps, environment and explicit E2E commands for all nine registry providers; registry coverage test and navigation links added.
 
+- [x] T129 — Refresh project metrics after credential workflow delivery
+  - Status: done
+  - Depends on: T127,T128
+  - Acceptance:
+    - [x] `docs/metrics.md` is regenerated from the current tree
+    - [x] README metric summary and coverage badge match the generated report
+    - [x] the full repository gate passes and the tree is clean
+  - Notes: Regenerated the version 0.7.18 report after T128 and reconciled the README summary; the atomic commit gate validates the final tree.
+
 ## Owner decisions
 
 - 2026-10-07 — **External detection APIs only.** No self-developed check and no local
