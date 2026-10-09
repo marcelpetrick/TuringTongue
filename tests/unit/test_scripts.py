@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts import bump_version, check_headers
+from scripts import bump_version, check_headers, check_paths
 
 pytestmark = pytest.mark.unit
 
@@ -53,6 +53,37 @@ def test_header_check_flags_missing(tmp_path: Path, capsys: pytest.CaptureFixtur
 
 def test_header_check_passes_on_repository() -> None:
     assert check_headers.main([]) == 0
+
+
+@pytest.mark.parametrize(
+    "path",
+    ["space name.txt", "directory name/file.txt", "tab\tname.txt", "nonbreaking\u00a0space.txt"],
+)
+def test_path_check_detects_whitespace_in_any_component(path: str) -> None:
+    assert check_paths.has_whitespace_component(path)
+
+
+def test_path_check_accepts_whitespace_free_path() -> None:
+    assert not check_paths.has_whitespace_component("docs/credential_workflow_guide.md")
+
+
+def test_path_check_reports_tracked_offender(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    import subprocess
+
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    bad_path = tmp_path / "bad directory" / "file.txt"
+    bad_path.parent.mkdir()
+    bad_path.write_text("tracked\n")
+    subprocess.run(["git", "-C", str(tmp_path), "add", "--", "bad directory/file.txt"], check=True)
+
+    assert check_paths.main([str(tmp_path)]) == 1
+    assert repr("bad directory/file.txt") in capsys.readouterr().out
+
+
+def test_path_check_passes_on_repository() -> None:
+    assert check_paths.main([]) == 0
 
 
 PLAN_SAMPLE = """## Phase

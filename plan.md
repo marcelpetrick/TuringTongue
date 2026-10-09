@@ -456,6 +456,57 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [ ] official mechanism yields a temporary, documented credential
   - Notes: 2026-10-08 evaluated from ZeroGPT's OpenAPI: generateApiKey keys never expire ("only required once"), response schema undocumented, detection needs paid balance, signup still manual → not adopted (docs/e2e-live.md).
 
+## Phase 14 — deliberate credential acquisition
+
+- [x] T124 — Enforce whitespace-free repository paths
+  - Status: done
+  - Depends on: T001
+  - Acceptance:
+    - [x] no repository file or directory name contains whitespace
+    - [x] localPipeline.sh rejects newly tracked whitespace-containing paths
+    - [x] AGENTS.md records the invariant
+  - Notes: Renamed audit artifacts; added NUL-safe Unicode-whitespace path checker to the local/CI pipeline with unit and repository tests.
+
+- [ ] T125 — Reconcile live-E2E credential budgets, storage and release documentation
+  - Status: todo
+  - Depends on: T122,T124
+  - Acceptance:
+    - [ ] provisioning/login retries cannot exceed the documented request budget
+    - [ ] privacy/ADR/docs match the 0700-directory and 0600-file token store
+    - [ ] T118 and release-gate documentation distinguish conditional sandbox plumbing from real detector validation
+    - [ ] regression tests cover the corrected behavior
+  - Notes: —
+
+- [ ] T126 — Require an explicit credential-acquisition flag for Copyleaks
+  - Status: todo
+  - Depends on: T122,T125
+  - Acceptance:
+    - [ ] `init copyleaks --mode e2e --acquire-credential` deliberately invokes the official login/token exchange
+    - [ ] omission of the flag never mutates remote credential state
+    - [ ] scripts/workflows opt in explicitly and secrets remain redacted
+    - [ ] offline integration and CLI tests cover both paths
+  - Notes: this is short-lived token exchange for an existing human-created account, not account registration
+
+- [ ] T127 — Add explicit ZeroGPT existing-account API-key acquisition
+  - Status: todo
+  - Depends on: T123,T125,T126
+  - Acceptance:
+    - [ ] `init zerogpt --mode e2e --acquire-credential` uses only documented login/key-generation APIs
+    - [ ] requires a human-created, verified and funded account; never automates signup
+    - [ ] generated non-expiring key is not minted per run and its lifecycle limitations are explicit
+    - [ ] response-schema uncertainty fails safely; secrets are redacted; mocked contract/integration tests pass
+  - Notes: 2026-10-09 owner explicitly requests a guarded existing-account acquisition experiment, superseding only T123's decision not to adopt per-run key minting
+
+- [ ] T128 — Human credential workflow guide for every supported provider
+  - Status: todo
+  - Depends on: T003,T122
+  - Acceptance:
+    - [ ] root `credential_workflow_guide.md` covers all registry providers
+    - [ ] each section has short copy/paste-ready human signup, environment and E2E steps
+    - [ ] official URLs, costs/sandbox caveats and verification date are recorded
+    - [ ] no instructions automate signup, CAPTCHA, email verification or quota cycling
+  - Notes: —
+
 ## Owner decisions
 
 - 2026-10-07 — **External detection APIs only.** No self-developed check and no local
@@ -466,6 +517,9 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
   self-configuring credential bootstrap, provider-supported mechanisms only, ≤ 2 requests;
   Copyleaks first (machine token + free sandbox). The one-time free account is the owner's step.
 - 2026-10-07 — Releases follow the PyPA guide (industry practice), not individual example repos.
+- 2026-10-09 — Add an explicit `--acquire-credential` path for two provider-supported
+  existing-account workflows (Copyleaks token exchange and a guarded ZeroGPT key-issuance
+  experiment). Human account registration remains manual; no signup UI automation or quota cycling.
 
 ## Open items / blockers
 

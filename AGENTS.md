@@ -49,6 +49,8 @@ requirements live in [`vision.md`](vision.md); the execution ledger is [`plan.md
   and the full gate before every commit (done by `scripts/commit.sh`).
 - After a sub-agent returns, review its diff and run the tests instead of trusting its summary.
 - Every source file carries the SPDX `GPL-3.0-or-later` header (`scripts/check_headers.py` enforces it).
+- Repository file and directory names must not contain whitespace. Keep the path check in the local/CI
+  pipeline green when adding or renaming files.
 - Prefer `scripts/commit.sh --only <path>…` so a commit contains exactly one task's files;
   plain `scripts/commit.sh` stages everything and prints the staged list — check it.
 - Use `scripts/plan_task.py Txxx <status> --note "…"` to update `plan.md`.
