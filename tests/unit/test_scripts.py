@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts import bump_version, check_headers, check_paths
+from scripts import bump_version, check_headers, check_paths, check_plan
 
 pytestmark = pytest.mark.unit
 
@@ -84,6 +84,49 @@ def test_path_check_reports_tracked_offender(
 
 def test_path_check_passes_on_repository() -> None:
     assert check_paths.main([]) == 0
+
+
+VALID_PLAN = """- [x] T001 — Done
+  - Status: done
+  - Acceptance:
+    - [x] shipped
+  - Notes: —
+- [ ] T002 — Waiting
+  - Status: blocked
+  - Acceptance:
+    - [ ] owner action
+  - Notes: —
+"""
+
+
+def test_plan_check_accepts_consistent_ledger() -> None:
+    assert check_plan.validate(VALID_PLAN) == []
+
+
+@pytest.mark.parametrize(
+    ("text", "message"),
+    [
+        (VALID_PLAN + VALID_PLAN, "duplicate T001"),
+        (VALID_PLAN.replace("  - Status: done\n", "", 1), "exactly one Status line"),
+        (VALID_PLAN.replace("Status: done", "Status: finished"), "unknown status 'finished'"),
+        (VALID_PLAN.replace("- [x] T001", "- [ ] T001"), "must be checked"),
+        (VALID_PLAN.replace("    - [x] shipped", "    - [ ] shipped"), "unchecked acceptance"),
+        (VALID_PLAN.replace("    - [x] shipped\n", ""), "has no acceptance criteria"),
+    ],
+)
+def test_plan_check_rejects_inconsistent_ledger(text: str, message: str) -> None:
+    assert any(message in error for error in check_plan.validate(text))
+
+
+def test_plan_check_reports_file_errors(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    plan = tmp_path / "plan.md"
+    plan.write_text(VALID_PLAN.replace("Status: done", "Status: broken"))
+    assert check_plan.main([str(plan)]) == 1
+    assert "unknown status 'broken'" in capsys.readouterr().err
+
+
+def test_plan_check_passes_on_repository() -> None:
+    assert check_plan.main([]) == 0
 
 
 PLAN_SAMPLE = """## Phase

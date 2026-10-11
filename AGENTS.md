@@ -44,7 +44,9 @@ requirements live in [`vision.md`](vision.md); the execution ledger is [`plan.md
 - **Do not preprocess the submitted text.** No stripping, normalizing, rewriting. Only an exact prefix
   may be submitted when a provider's documented hard limit requires it, and it is marked `truncated`.
 - Document provider facts with a verification date in `docs/providers.md`.
-- Keep `plan.md` current so another agent can resume after a crash.
+- Keep `plan.md` current so another agent can resume after a crash. Its task IDs, statuses,
+  checkboxes and completed acceptance criteria must pass `scripts/check_plan.py`; do not hand-edit
+  a task into a contradictory state.
 - Run the smallest relevant test set while developing (`./localPipeline.sh --fast`, or `uv run pytest tests/unit`)
   and the full gate before every commit (done by `scripts/commit.sh`).
 - After a sub-agent returns, review its diff and run the tests instead of trusting its summary.

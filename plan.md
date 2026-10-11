@@ -529,6 +529,16 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] conditional live-provider and PyPI gate state is reported accurately
   - Notes: Published 2026-10-11 at https://github.com/marcelpetrick/TuringTongue/releases/tag/v0.7.20; Release and Docker runs succeeded. Live E2E and PyPI were deliberately skipped because `E2E_PROVIDERS` and `PYPI_PUBLISH` were unset. Public chart: https://github.com/marcelpetrick/TuringTongue#history.
 
+- [x] T131 — Enforce execution-ledger consistency
+  - Status: done
+  - Depends on: T002,T004
+  - Acceptance:
+    - [x] checker rejects duplicate task IDs, unknown/missing statuses and status/checkbox mismatches
+    - [x] completed tasks cannot retain unchecked acceptance criteria
+    - [x] local and CI pipeline run the checker before tests
+    - [x] unit tests cover valid and invalid ledgers; scripts documentation is updated
+  - Notes: Added `scripts/check_plan.py`, pipeline enforcement, focused failure-mode tests and the durable AGENTS.md invariant after reconciling stale T004 state.
+
 ## Owner decisions
 
 - 2026-10-07 — **External detection APIs only.** No self-developed check and no local

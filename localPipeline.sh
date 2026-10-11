@@ -55,6 +55,7 @@ skip() {
 
 stage "sync locked environment" uv sync --locked --all-extras
 stage "repository paths contain no whitespace" uv run --locked python scripts/check_paths.py
+stage "execution ledger is consistent" uv run --locked python scripts/check_plan.py
 stage "license headers" uv run --locked python scripts/check_headers.py
 stage "format (ruff format --check)" uv run --locked ruff format --check .
 stage "lint (ruff check)" uv run --locked ruff check .
