@@ -25,9 +25,9 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
   - Status: done
   - Depends on: T001
   - Acceptance:
-    - [ ] workflow runs ./localPipeline.sh
-    - [ ] green on main
-  - Notes: —
+    - [x] workflow runs ./localPipeline.sh
+    - [x] green on main
+  - Notes: Reconciled 2026-10-11 against `.github/workflows/ci.yml` and successful main run 38169069510.
 
 ## Phase 1 — provider research
 
