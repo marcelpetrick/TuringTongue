@@ -837,6 +837,110 @@
    "tooling": 1885,
    "docs": 1961
   },
-  "version": "0.7.11"
+  "version": "0.7.11",
+  "coverage": 99.04
+ },
+ "0e5300865b2a0596d93c5b3b289f545d62789f58": {
+  "loc": {
+   "library": 4186,
+   "tests-unit": 1662,
+   "tests-contract": 520,
+   "tests-integration": 547,
+   "tests-e2e": 53,
+   "tooling": 1885,
+   "docs": 1961
+  },
+  "version": "0.7.12",
+  "coverage": 99.04
+ },
+ "01375ab2d27a0e9368495494467185bdc77ce92a": {
+  "loc": {
+   "library": 4186,
+   "tests-unit": 1662,
+   "tests-contract": 520,
+   "tests-integration": 547,
+   "tests-e2e": 53,
+   "tooling": 1936,
+   "docs": 1969
+  },
+  "version": "0.7.13",
+  "coverage": 99.04
+ },
+ "4eea2b4b963747dfb24d83215201948a9ccff16d": {
+  "loc": {
+   "library": 4186,
+   "tests-unit": 1683,
+   "tests-contract": 520,
+   "tests-integration": 547,
+   "tests-e2e": 53,
+   "tooling": 1971,
+   "docs": 2019
+  },
+  "version": "0.7.14"
+ },
+ "ef45b2a19e77baaa5d2f724e204658e1b9695b9f": {
+  "loc": {
+   "library": 4190,
+   "tests-unit": 1683,
+   "tests-contract": 520,
+   "tests-integration": 558,
+   "tests-e2e": 53,
+   "tooling": 1971,
+   "docs": 2050
+  },
+  "version": "0.7.15",
+  "coverage": 99.04
+ },
+ "bcbabe2b8232dc4f874390934762b044f65ca83d": {
+  "loc": {
+   "library": 4228,
+   "tests-unit": 1683,
+   "tests-contract": 520,
+   "tests-integration": 567,
+   "tests-e2e": 53,
+   "tooling": 1977,
+   "docs": 2062
+  },
+  "version": "0.7.16",
+  "coverage": 98.98
+ },
+ "8e0eda6b651fe2873af7eb0a859df1483b3481ab": {
+  "loc": {
+   "library": 4606,
+   "tests-unit": 1704,
+   "tests-contract": 533,
+   "tests-integration": 800,
+   "tests-e2e": 53,
+   "tooling": 1979,
+   "docs": 2084
+  },
+  "version": "0.7.17",
+  "coverage": 97.03
+ },
+ "fe06eea6003f6ba18d6808d1c1b1064764d515c9": {
+  "loc": {
+   "library": 4606,
+   "tests-unit": 1708,
+   "tests-contract": 533,
+   "tests-integration": 800,
+   "tests-e2e": 53,
+   "tooling": 1979,
+   "docs": 2323
+  },
+  "version": "0.7.18",
+  "coverage": 97.03
+ },
+ "4c9b4f9209aed469aaeb861b39601ab9b53e62d9": {
+  "loc": {
+   "library": 4606,
+   "tests-unit": 1708,
+   "tests-contract": 533,
+   "tests-integration": 800,
+   "tests-e2e": 53,
+   "tooling": 1979,
+   "docs": 2331
+  },
+  "version": "0.7.19",
+  "coverage": 97.03
  }
 }
