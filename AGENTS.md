@@ -87,6 +87,10 @@ requirements live in [`vision.md`](vision.md); the execution ledger is [`plan.md
   `PYPI_PUBLISH=true` — uploads to PyPI via Trusted Publishing from the protected `pypi`
   environment after the owner approves. Follow the PyPA guide and `docs/releasing.md`
   (industry practice, not individual example repos); never add a long-lived PyPI token.
+- A release is complete only after the tagged **Release** and **Docker** workflows succeed,
+  `gh release view <tag>` lists both the wheel and source archive, and the clean working tree is
+  synchronized with `origin/main`. Record the tag and any deliberately skipped conditional gates
+  (live providers or PyPI) in `plan.md`; never describe a skipped gate as tested or published.
 
 ## Measuring
 
@@ -95,6 +99,9 @@ requirements live in [`vision.md`](vision.md); the execution ledger is [`plan.md
   table when the numbers change noticeably.
 - `uv run python scripts/history_chart.py` redraws the project history chart
   (`docs/history/`); `scripts/release.sh` does this automatically for every release.
+- Verify the public chart after a release in the
+  [README History section](https://github.com/marcelpetrick/TuringTongue#history); the source SVG is
+  [`docs/history/loc-history.svg`](https://github.com/marcelpetrick/TuringTongue/blob/main/docs/history/loc-history.svg).
 
 ## Layout
 

@@ -516,6 +516,19 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] the full repository gate passes and the tree is clean
   - Notes: Regenerated the version 0.7.18 report after T128 and reconciled the README summary; the atomic commit gate validates the final tree.
 
+## Phase 15 — credential-workflow release
+
+- [x] T130 — Publish and verify v0.7.20
+  - Status: done
+  - Depends on: T121,T124–T129
+  - Acceptance:
+    - [x] release history chart regenerated and visible from the public README
+    - [x] annotated `v0.7.20` tag pushed from clean, synchronized `main`
+    - [x] GitHub Release workflow publishes the wheel and source archive with provenance
+    - [x] tagged Docker workflow publishes successfully
+    - [x] conditional live-provider and PyPI gate state is reported accurately
+  - Notes: Published 2026-10-11 at https://github.com/marcelpetrick/TuringTongue/releases/tag/v0.7.20; Release and Docker runs succeeded. Live E2E and PyPI were deliberately skipped because `E2E_PROVIDERS` and `PYPI_PUBLISH` were unset. Public chart: https://github.com/marcelpetrick/TuringTongue#history.
+
 ## Owner decisions
 
 - 2026-10-07 — **External detection APIs only.** No self-developed check and no local
