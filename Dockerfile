@@ -6,7 +6,7 @@
 # Stdin:  docker run --rm -i -e GPTZERO_API_KEY turingtongue check - < article.txt
 
 # --- build stage: produce the wheel from the locked sources ----------------------------
-FROM python:3.14-slim AS build
+FROM python:3.15-slim AS build
 COPY --from=ghcr.io/astral-sh/uv:0.12.18 /uv /usr/local/bin/uv
 WORKDIR /src
 COPY pyproject.toml uv.lock README.md LICENSE ./
@@ -14,7 +14,7 @@ COPY src ./src
 RUN uv build --wheel --out-dir /dist
 
 # --- runtime stage: wheel only, non-root ------------------------------------------------
-FROM python:3.14-slim
+FROM python:3.15-slim
 ARG VERSION=dev
 LABEL org.opencontainers.image.title="turingtongue" \
       org.opencontainers.image.description="Ensemble over existing AI-text detection services: HUMAN / AI / NO_VERDICT" \
