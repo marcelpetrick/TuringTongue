@@ -4,6 +4,8 @@
 [![Docker](https://github.com/marcelpetrick/TuringTongue/actions/workflows/docker.yml/badge.svg?branch=main)](https://github.com/marcelpetrick/TuringTongue/actions/workflows/docker.yml)
 [![Release](https://github.com/marcelpetrick/TuringTongue/actions/workflows/release.yml/badge.svg)](https://github.com/marcelpetrick/TuringTongue/actions/workflows/release.yml)
 [![Latest Release](https://img.shields.io/github/v/release/marcelpetrick/TuringTongue?sort=semver)](https://github.com/marcelpetrick/TuringTongue/releases/latest)
+[![Release downloads](https://img.shields.io/github/downloads/marcelpetrick/TuringTongue/total)](https://github.com/marcelpetrick/TuringTongue/releases)
+[![Latest commit](https://img.shields.io/github/last-commit/marcelpetrick/TuringTongue/main)](https://github.com/marcelpetrick/TuringTongue/commits/main/)
 [![License: GPL v3 or later](https://img.shields.io/badge/license-GPLv3%20or%20later-blue.svg)](LICENSE)
 [![Python 3.14+](https://img.shields.io/badge/Python-3.14%2B-3776ab.svg)](https://www.python.org/)
 [![Coverage: 97%](https://img.shields.io/badge/coverage-97%25-brightgreen.svg)](localPipeline.sh)
@@ -37,7 +39,7 @@ and every real provider is reported as `not_configured` instead of being silentl
 
 ```bash
 git clone https://github.com/marcelpetrick/TuringTongue.git && cd TuringTongue
-uv sync                                    # installs Python deps from uv.lock
+uv sync --locked                           # installs Python deps from uv.lock
 
 # 1) offline smoke test, no account needed (the mock is a fixed test double, NOT a detector)
 uv run turingtongue check --text "Any text you like." -p mock          # → HUMAN
@@ -89,15 +91,19 @@ Requires CPython **3.14+**.
 ```bash
 git clone https://github.com/marcelpetrick/TuringTongue.git
 cd TuringTongue
-uv sync                      # dev environment from uv.lock
+uv sync --locked             # dev environment from uv.lock
 uv run turingtongue --help
-# or install the wheel from a GitHub Release:
-pip install turingtongue-<version>-py3-none-any.whl
-# optional browser-automation framework (no site adapters ship, see ADR 0003):
-pip install 'turingtongue[browser]'
+# Optional browser-automation framework, see ADR 0003.
+uv sync --locked --extra browser
 ```
 
-Docker (published to GHCR by CI):
+To install a release without cloning, download its wheel from
+[GitHub Releases](https://github.com/marcelpetrick/TuringTongue/releases/latest)
+and pass the downloaded filename to `python -m pip install`. The
+[release guide](docs/releasing.md) explains how to verify its provenance.
+
+The public Docker image uses the runtime dependencies from `uv.lock`.
+Use a version tag for a specific release.
 
 ```bash
 docker run --rm -e SAPLING_API_KEY -e GPTZERO_API_KEY \
@@ -202,9 +208,9 @@ Measured by [`scripts/metrics.py`](scripts/metrics.py); full tables in
 | Metric | Value |
 | --- | --- |
 | Library code (src) | 4,308 lines in 47 files · 55 classes · 228 functions |
-| Test code | 3,015 lines in 33 files (+166 lines JSON fixtures) · ratio 0.70 : 1 |
-| Scripts / CI / docs | 1,301 / 313 / 2,563 lines |
-| Tests | 390 (280 unit · 50 contract · 54 integration · 6 e2e) + 1 opt-in live |
+| Test code | 3,038 lines in 33 files (+166 lines JSON fixtures) · ratio 0.71 : 1 |
+| Scripts / CI / docs | See the measured line counts in [docs/metrics.md](docs/metrics.md) |
+| Tests | 399 (289 unit · 50 contract · 54 integration · 6 e2e) + 1 opt-in live |
 | Branch coverage, combined | **97.1 %** (gate ≥ 95 %) |
 | Coverage by tier alone | unit 79.2 % · contract 56.2 % · integration 71.8 % · **end-to-end 48.1 %** |
 | Cyclomatic complexity | average 4.18 (radon), 206 of 280 blocks rank A, none above C; max 18 |
@@ -241,7 +247,7 @@ printed by the GitHub Actions CI run of each commit.
 scripts/commit.sh "feat(x): … [T0xx]"   # bump version, run pipeline, commit, push
 ```
 
-The pipeline: locked env sync → whitespace-free path check → SPDX license headers → `ruff format --check` →
+The pipeline: locked env sync → whitespace-free path check → execution-ledger check → SPDX license headers → `ruff format --check` →
 `ruff check` → `mypy --strict` → `shellcheck` → pytest (unit, contract, integration,
 e2e, benchmark tiers) with **≥ 95 % branch coverage** → sdist/wheel build → `twine check`
 → clean-wheel-install e2e in a fresh venv → `pip-audit` → Docker build + offline smoke.

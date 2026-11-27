@@ -539,6 +539,28 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] unit tests cover valid and invalid ledgers; scripts documentation is updated
   - Notes: Added `scripts/check_plan.py`, pipeline enforcement, focused failure-mode tests and the durable AGENTS.md invariant after reconciling stale T004 state.
 
+## Phase 16 — dependency maintenance
+
+- [x] T132 — Refresh dependencies and remediate trust-bundle alerts
+  - Status: done
+  - Depends on: T108,T131
+  - Acceptance:
+    - [x] supported pins and lock refreshed, with the patched certifi in wheel and Docker installations
+    - [x] workflows use the patched PyPI publishing action
+    - [x] documentation and badges match the current build and distribution process
+    - [x] full quality gate passes
+  - Notes: Refreshed PyPI, uv, Actions and Docker pins. Wheel metadata and the locked Docker runtime require certifi 2026.11.20; the PyPI action is v1.14.3. Review fixed the audit-cache failure and stale distribution instructions. Full gate passed with 399 tests and 97.03% coverage.
+
+- [ ] T133 — Verify dependency-refresh release and Dependabot disposition
+  - Status: in_progress
+  - Depends on: T132
+  - Acceptance:
+    - [ ] open Dependabot PRs receive documented dispositions and both alerts are fixed
+    - [ ] tagged Release and Docker workflows are green and release assets are public
+    - [ ] public image passes the smoke check and contains the patched certifi
+    - [ ] history chart is public and conditional gates are recorded
+  - Notes: Dependency refresh passed locally. Pending GitHub CI, Dependabot dispositions and tagged release verification.
+
 ## Owner decisions
 
 - 2026-10-07 — **External detection APIs only.** No self-developed check and no local

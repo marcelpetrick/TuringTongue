@@ -7,7 +7,9 @@
 # advisory database. Exits non-zero when a vulnerability is found.
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
-requirements="$(mktemp)"
-trap 'rm -f "${requirements}"' EXIT
+audit_dir="$(mktemp -d)"
+trap 'rm -rf "${audit_dir}"' EXIT
+requirements="${audit_dir}/requirements.txt"
 uv export --locked --no-hashes --no-emit-project --all-extras --all-groups > "${requirements}"
-uvx --quiet pip-audit --strict --disable-pip --no-deps -r "${requirements}"
+uvx --quiet --python 3.14 pip-audit==2.10.1 --cache-dir "${audit_dir}/cache" \
+    --strict --disable-pip --no-deps -r "${requirements}"

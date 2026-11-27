@@ -1,8 +1,8 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 # Releasing
 
-Versioning: SemVer. Every commit bumps the patch version (`scripts/commit.sh`), major
-features bump the minor version (`--minor`).
+Every commit bumps the patch version through `scripts/commit.sh` by default.
+Use `--minor` or `--major` for the corresponding SemVer increment.
 
 1. Make sure `main` is green (CI, Docker) and the working tree is clean.
 2. Tag the current version and push the tag:
@@ -13,8 +13,16 @@ features bump the minor version (`--minor`).
 
 3. The **Release** workflow re-runs the full `localPipeline.sh`, checks that the tag
    matches `pyproject.toml`, builds sdist + wheel and creates the GitHub Release with
-   both files attached. The **Docker** workflow publishes
-   `ghcr.io/marcelpetrick/turingtongue:<version>` and `:latest`.
+   both files attached. The tagged **Docker** workflow publishes the version tag
+   on `ghcr.io/marcelpetrick/turingtongue`. Pushes to `main` also update `:latest`.
+4. Wait for both tagged workflows to pass. Check the wheel and source archive with
+   `gh release view <tag>` and verify the public image with a versioned pull and a CLI
+   smoke test. Check that the history chart renders from the public README and record
+   the tag and any skipped conditional jobs in `plan.md`.
+
+Docker installs the runtime packages and verifies their hashes using an export of
+`uv.lock`. The wheel also declares the pinned `certifi` version so wheel installs
+receive the same TLS trust bundle.
 
 The release's live-provider gate is conditional. When the repository variable
 `E2E_PROVIDERS` is non-empty, the configured services must pass `init → e2e → cleanup`
@@ -45,8 +53,8 @@ and PyPI's [Trusted Publishers](https://docs.pypi.org/trusted-publishers/) docum
 
 ## PyPI publishing
 
-Status (2026-10-07): the name `turingtongue` is free on PyPI and TestPyPI; the protected
-`pypi` environment and the workflow are ready. Publishing stays **off** until the owner
+Status (2026-11-27): no `turingtongue` project is listed on PyPI or TestPyPI.
+The protected `pypi` environment and the workflow are ready. Publishing stays **off** until the owner
 does the one-time setup — PyPI only lets an account owner register a publisher:
 
 1. Log in to PyPI → *Your account → Publishing* → **Add a pending publisher** (GitHub):

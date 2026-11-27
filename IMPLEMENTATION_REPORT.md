@@ -1,7 +1,9 @@
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 # Implementation report
 
-Date: 2026-10-07 · Version: see `pyproject.toml` · Ledger: [`plan.md`](plan.md)
+Implementation snapshot from 2026-10-07. The [execution ledger](plan.md),
+[current metrics](docs/metrics.md), and [GitHub Releases](https://github.com/marcelpetrick/TuringTongue/releases)
+track subsequent work.
 
 ## What was built
 
@@ -128,7 +130,8 @@ optimization beyond concurrency is justified ([docs/performance.md](docs/perform
 4. Consider learned weights only from the `calibration` split once data suffices.
 5. Add the PyPI pending publisher, `gh variable set PYPI_PUBLISH --body true`, re-run the release.
 
-## Release readiness
+## Distribution
 
-Ready for a GitHub release (wheel, sdist, GHCR image). Not yet validated against live
-providers; results must be read as indicators, not proof.
+GitHub Releases provide the wheel and sdist, and GHCR provides the CLI image.
+The [release guide](docs/releasing.md) describes how to verify them.
+Live provider validation is tracked in T118 in the [execution ledger](plan.md).
