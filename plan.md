@@ -551,15 +551,15 @@ Task → commits: `git log --grep='Txxx'`. Status values: `todo`, `in_progress`,
     - [x] full quality gate passes
   - Notes: Refreshed PyPI, uv, Actions and Docker pins. Wheel metadata and the locked Docker runtime require certifi 2026.11.20; the PyPI action is v1.14.3. Review fixed the audit-cache failure and stale distribution instructions. Full gate passed with 399 tests and 97.03% coverage.
 
-- [ ] T133 — Verify dependency-refresh release and Dependabot disposition
-  - Status: in_progress
+- [x] T133 — Verify dependency-refresh release and Dependabot disposition
+  - Status: done
   - Depends on: T132
   - Acceptance:
-    - [ ] open Dependabot PRs receive documented dispositions and both alerts are fixed
-    - [ ] tagged Release and Docker workflows are green and release assets are public
-    - [ ] public image passes the smoke check and contains the patched certifi
-    - [ ] history chart is public and conditional gates are recorded
-  - Notes: Dependency refresh passed locally. Pending GitHub CI, Dependabot dispositions and tagged release verification.
+    - [x] open Dependabot PRs receive documented dispositions and both alerts are fixed
+    - [x] tagged Release and Docker workflows are green and release assets are public
+    - [x] public image passes the smoke check and contains the patched certifi
+    - [x] history chart is public and conditional gates are recorded
+  - Notes: Published public v0.7.25 from 22a9935. Tagged Release (46072447556) and Docker (46072447419) succeeded. Downloaded the public wheel and sdist and verified provenance. Anonymous GHCR pull, CLI and Compose smoke tests passed; the image and wheel pin certifi 2026.11.20. The public README history chart includes v0.7.25. All 11 Dependabot PRs received dispositions and were closed; alerts #1 and #2 are fixed. Live E2E and PyPI were skipped because E2E_PROVIDERS and PYPI_PUBLISH were unset.
 
 ## Owner decisions
 

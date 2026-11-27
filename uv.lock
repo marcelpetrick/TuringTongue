@@ -972,7 +972,7 @@ wheels = [
 
 [[package]]
 name = "turingtongue"
-version = "0.7.25"
+version = "0.7.26"
 source = { editable = "." }
 dependencies = [
     { name = "certifi" },
